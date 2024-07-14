@@ -1,0 +1,8 @@
+{
+    "Author": "xan",
+    "Name": "xgather",
+    "Punchline": "Automated gathering",
+    "Description": "/xgather",
+    "ApplicableVersion": "any",
+    "Tags": ["automation", "gathering"]
+}
