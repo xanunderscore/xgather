@@ -56,6 +56,7 @@ public class GatherRoute
 
     [JsonIgnore] public TerritoryType TerritoryType => Svc.ExcelRow<TerritoryType>(Zone)!;
 
+    public bool MissingPoints() => Nodes.Any(x => !Svc.Config.GetKnownPoints(x).Any());
     public bool Contains(uint dataId) => Nodes.Contains(dataId);
     public Vector3? GatherAreaCenter()
     {

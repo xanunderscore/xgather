@@ -15,6 +15,9 @@ public class DebugView
 
     public unsafe void Draw()
     {
+        if (ImGui.Button("Save config"))
+            Svc.Config.Save();
+
         var rte = Svc.Route;
         if (rte._currentRoute != null)
             ImGui.Text($"Current route: {rte._currentRoute.Label} ({Svc.Config.SelectedRoute})");

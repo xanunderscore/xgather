@@ -33,6 +33,19 @@ public sealed class RouteExec : IDisposable
     internal int _thisDiademWeather = 0;
     internal bool _wantDiadem = false;
 
+    public enum WaitType : uint
+    {
+        None = 0,
+        Mount = 1,
+        Dismount = 2,
+        Gearset = 3,
+        Teleport = 4,
+        Time = 5,
+        Weather = 6
+    }
+
+    public record struct Wait(WaitType Type, DateTime Retry);
+
     public enum State : uint
     {
         Stopped = 0,
@@ -400,6 +413,12 @@ public sealed class RouteExec : IDisposable
     {
         if (_currentRoute == null)
             return null;
+
+        if (_currentRoute.Nodes.All(x => !Svc.Config.GetKnownPoints(x).Any()) && _currentRoute.GatherAreaCenter() is Vector3 p && p.DistanceFromPlayer() > 100)
+        {
+            var fl = IPCHelper.PointOnFloor(p with { Y = 1024f }, true, 5);
+            return NextWaypoint.FromPoint(fl.Value, _currentRoute.Nodes);
+        }
 
         return _currentRoute.Ordered ? FindNextOrderedDestination() : FindNextClosestDestination();
     }

@@ -52,7 +52,7 @@ public class RouteBrowser
 
         if (ImGui.BeginChild("Routes"))
         {
-            foreach ((var rteId, var rte) in Svc.Config.AllRoutes/*.Where(x => x.Item2.Ordered)*/)
+            foreach ((var rteId, var rte) in Svc.Config.AllRoutes.Where(x => x.Item2.MissingPoints()).OrderBy(x => x.Item2.TerritoryType.RowId == Svc.ClientState.TerritoryType ? x.Item2.GatherAreaCenter()?.DistanceFromPlayer() ?? float.MaxValue : float.MaxValue))
             {
                 if (ImGui.Selectable($"{rte.Label}###route{rteId}", rteId == Svc.Config.SelectedRoute))
                 {
