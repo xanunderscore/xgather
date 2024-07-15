@@ -7,9 +7,10 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Numerics;
-using GatheringPointId = uint;
+using GatherPointId = uint;
 using ItemId = uint;
 using RouteId = int;
+using SingleGatherPointId = int;
 
 namespace xgather;
 
@@ -33,9 +34,11 @@ internal static class GCExt
 }
 
 [Serializable]
-public record struct GatherPointObject(ulong GameObjectId, Vector3 Position, Vector3? GatherLocation)
+public record struct GatherPointObject(Vector3 Position, Vector3? GatherLocation)
 {
-    public GatherPointObject(IGameObject obj) : this(obj.GameObjectId, obj.Position, null) { }
+    public GatherPointObject(IGameObject obj) : this(obj.Position, null) { }
+
+    public readonly Vector3 NaviPosition => GatherLocation ?? Position;
 }
 
 [Serializable]
@@ -43,7 +46,7 @@ public class GatherRoute
 {
     public required uint Zone;
     public required string Label;
-    public required List<GatheringPointId> Nodes;
+    public required List<GatherPointId> Nodes;
     public List<ItemId> Items = [];
     public required bool Fly;
     public required GatherClass Class;
@@ -75,8 +78,8 @@ public class Configuration : IPluginConfiguration
 {
     [JsonProperty] private readonly SortedDictionary<ItemId, List<RouteId>> ItemLookup = [];
     [JsonProperty] private readonly Dictionary<RouteId, GatherRoute> Routes = [];
-    [JsonProperty] private readonly Dictionary<GatheringPointId, HashSet<ulong>> GatherPointObjects = [];
-    [JsonProperty] private readonly Dictionary<ulong, GatherPointObject> GatherPointObjectsById = [];
+    [JsonProperty] private readonly Dictionary<GatherPointId, HashSet<SingleGatherPointId>> GatherPointObjects = [];
+    [JsonProperty] private readonly Dictionary<SingleGatherPointId, GatherPointObject> GatherPointObjectsById = [];
 
     [JsonIgnore] public IEnumerable<(RouteId, GatherRoute)> AllRoutes => Routes.Select(x => (x.Key, x.Value));
     [JsonIgnore] public int RouteCount => Routes.Count;
@@ -125,7 +128,7 @@ public class Configuration : IPluginConfiguration
 
     public bool TryGetRoute(RouteId routeId, [MaybeNullWhen(false)] out GatherRoute route) => Routes.TryGetValue(routeId, out route);
 
-    public IEnumerable<GatherPointObject> GetKnownPoints(uint dataId)
+    public IEnumerable<GatherPointObject> GetKnownPoints(GatherPointId dataId)
     {
         if (GatherPointObjects.TryGetValue(dataId, out var points))
             foreach (var p in points)
@@ -133,9 +136,11 @@ public class Configuration : IPluginConfiguration
                     yield return gobj;
     }
 
-    public bool GetFloorPoint(ulong gameObjectId, out Vector3 point)
+    public bool GetFloorPoint(IGameObject obj, out Vector3 point) => GetFloorPoint((obj.DataId, obj.Position).GetHashCode(), out point);
+
+    public bool GetFloorPoint(SingleGatherPointId id, out Vector3 point)
     {
-        if (GatherPointObjectsById.TryGetValue(gameObjectId, out var obj) && obj.GatherLocation != null)
+        if (GatherPointObjectsById.TryGetValue(id, out var obj) && obj.GatherLocation != null)
         {
             point = obj.GatherLocation.Value;
             return true;
@@ -144,21 +149,24 @@ public class Configuration : IPluginConfiguration
         return false;
     }
 
-    public void SetFloorPoint(ulong gameObjectId, Vector3 point) => UpdateFloorPoint(gameObjectId, _ => point);
+    public void SetFloorPoint(IGameObject obj, Vector3 point) => UpdateFloorPoint(obj, _ => point);
 
-    public void ClearFloorPoint(ulong gameObjectId) => UpdateFloorPoint(gameObjectId, _ => null);
+    public void ClearFloorPoint(IGameObject obj) => UpdateFloorPoint(obj, _ => null);
 
-    public void UpdateFloorPoint(ulong gameObjectId, Func<Vector3?, Vector3?> point)
+    public void UpdateFloorPoint(IGameObject obj, Func<Vector3?, Vector3?> update)
     {
-        if (GatherPointObjectsById.TryGetValue(gameObjectId, out var gobj))
-            GatherPointObjectsById[gameObjectId] = gobj with { GatherLocation = point(gobj.GatherLocation) };
+        var id = (obj.DataId, obj.Position).GetHashCode();
+        if (GatherPointObjectsById.TryGetValue(id, out var gobj))
+            GatherPointObjectsById[id] = gobj with { GatherLocation = update(gobj.GatherLocation) };
     }
 
     public void RecordPosition(IGameObject obj)
     {
-        GatherPointObjects.TryAdd(obj.DataId, []);
-        GatherPointObjects[obj.DataId].Add(obj.GameObjectId);
-        GatherPointObjectsById.TryAdd(obj.GameObjectId, new(obj));
+        var key = obj.DataId;
+        var objId = (obj.DataId, obj.Position).GetHashCode();
+        GatherPointObjects.TryAdd(key, []);
+        GatherPointObjects[key].Add(objId);
+        GatherPointObjectsById.TryAdd(objId, new GatherPointObject(obj));
     }
 
     public void RecordPositions(IEnumerable<IGameObject> positions)
@@ -224,7 +232,7 @@ public class Configuration : IPluginConfiguration
             {
                 Label = label,
                 Zone = gatherPointGroup.First().TerritoryType.Row,
-                Nodes = gatherPointGroup.Select(x => x.RowId).ToList(),
+                Nodes = gatherPointGroup.Select(x => (GatherPointId)x.RowId).ToList(),
                 GatheringPointBaseId = gpBase.RowId,
                 Class = gpBase.GetRequiredClass(),
                 Items = gpBase.Item.Where(x => x > 0).Select(it =>

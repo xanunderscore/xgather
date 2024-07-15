@@ -29,6 +29,10 @@ internal class Aetheryte
 
     public float DistanceToRoute(GatherRoute rte)
     {
+        // amaurot
+        if (GameAetheryte.RowId is 148)
+            return float.MaxValue;
+
         if (rte.TerritoryType == Territory && rte.GatherAreaCenter() is Vector3 pos)
             return (new Vector2(WorldX, WorldY) - new Vector2(pos.X, pos.Z)).Length();
 

@@ -5,7 +5,7 @@ namespace xgather.Windows;
 
 internal class Overlay(RouteBrowser routes, ItemBrowser items, DebugView debug) : Window("xgather")
 {
-    public override bool DrawConditions() => Utils.IsGatherer;
+    // public override bool DrawConditions() => Utils.IsGatherer;
 
     public override void Draw()
     {

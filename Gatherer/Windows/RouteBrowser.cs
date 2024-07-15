@@ -161,15 +161,12 @@ public class RouteBrowser
                 ImGui.Text($"{did:X}");
                 foreach (var gobj in Svc.Config.GetKnownPoints(did))
                 {
-                    ImGui.Text($"  {gobj.GameObjectId:X}");
-                    ImGui.SameLine();
-                    if (ImGui.Button($"Set floor position###set{gobj.GameObjectId}"))
-                        Svc.Config.SetFloorPoint(gobj.GameObjectId, Svc.Player!.Position);
-                    ImGui.SameLine();
-                    if (ImGui.Button($"Clear floor position###clear{gobj.GameObjectId}"))
-                        Svc.Config.ClearFloorPoint(gobj.GameObjectId);
-                    if (Svc.Config.GetFloorPoint(gobj.GameObjectId, out var pt))
-                        ImGui.Text($"{pt}");
+                    ImGui.Text($"  {gobj.Position}");
+                    if (gobj.GatherLocation != null)
+                    {
+                        ImGui.SameLine();
+                        ImGui.Text($" ({gobj.GatherLocation})");
+                    }
                 }
             }
         }
