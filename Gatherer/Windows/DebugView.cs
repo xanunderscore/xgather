@@ -94,9 +94,7 @@ public class DebugView
         ImGui.Checkbox("Diadem farm mode", ref Svc.Route._diademMode);
 
         if (ImGui.Button("Target Aurvael"))
-        {
             RouteExec.EnterDiadem();
-        }
     }
 
     private float MarkerToMap(float x, float scale) => (int)((2 * x / scale) + 100.9);

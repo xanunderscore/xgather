@@ -38,7 +38,7 @@ public record struct GatherPointObject(Vector3 Position, Vector3? GatherLocation
 {
     public GatherPointObject(IGameObject obj) : this(obj.Position, null) { }
 
-    public readonly Vector3 NaviPosition => GatherLocation ?? Position;
+    [JsonIgnore] public readonly Vector3 NaviPosition => GatherLocation ?? Position;
 }
 
 [Serializable]
