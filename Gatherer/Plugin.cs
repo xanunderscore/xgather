@@ -17,6 +17,7 @@ public sealed class Plugin : IDalamudPlugin
     public WindowSystem WindowSystem = new("xgather");
 
     private Overlay Overlay { get; init; }
+    private DebugView DebugView { get; init; }
 
     internal List<Aetheryte> Aetherytes;
 
@@ -30,16 +31,15 @@ public sealed class Plugin : IDalamudPlugin
 
         Svc.Config.RegisterGameItems();
 
-        Overlay = new Overlay(new RouteBrowser(), new ItemBrowser(Svc.Config.ItemSearchText), new DebugView())
-        {
-            IsOpen = true
-        };
+        Overlay = new Overlay(new RouteBrowser(), new ItemBrowser(Svc.Config.ItemSearchText)) { IsOpen = Svc.Config.OverlayOpen };
+        DebugView = new DebugView() { IsOpen = Svc.Config.DebugOpen };
 
         WindowSystem.AddWindow(Overlay);
+        WindowSystem.AddWindow(DebugView);
 
         commandManager.AddHandler(
             CommandName,
-            new CommandInfo(OnCommand) { HelpMessage = "A useful message to display in /xlhelp" }
+            new CommandInfo(OnCommand) { HelpMessage = "Open it" }
         );
 
         Svc.PluginInterface.UiBuilder.Draw += DrawUI;
@@ -61,6 +61,7 @@ public sealed class Plugin : IDalamudPlugin
     private void OnCommand(string command, string args)
     {
         Overlay.IsOpen = true;
+        DebugView.IsOpen = true;
     }
 
     private void DrawUI()

@@ -1,100 +1,140 @@
 using Dalamud.Game.ClientState.Objects.Types;
-using FFXIVClientStructs.FFXIV.Client.Game;
+using Dalamud.Interface.Colors;
+using Dalamud.Interface.Windowing;
 using ImGuiNET;
-using Lumina.Excel.GeneratedSheets;
 using System;
 
 namespace xgather.Windows;
 
-public class DebugView
+public class DebugView : Window
 {
     private IGameObject? _tmptarget;
     private byte _previousDiademWeather = 0;
     private byte _currentDiademWeather = 0;
     private DateTime _diademWeatherSwap = DateTime.MinValue;
 
-    public unsafe void Draw()
+    public DebugView() : base("xgather debug")
     {
-        var rte = Svc.Route;
-        if (rte._currentRoute != null)
-            ImGui.Text($"Current route: {rte._currentRoute.Label} ({Svc.Config.SelectedRoute})");
+    }
 
-        ImGui.Text($"Nodes to skip: {string.Join(", ", rte._skippedPoints)}");
+    public override void OnClose()
+    {
+        Svc.Config.DebugOpen = false;
+        base.OnClose();
+    }
 
-        if (rte._destination != null)
-        {
-            ImGui.Text($"Dest: {rte._destination.Position} ({rte._destination.Position.DistanceFromPlayer():F2}y away)");
-            ImGui.Text($"Destination data IDs: {string.Join(", ", rte._destination.TargetIDs)}");
-            ImGui.Text($"Dest in range? {(rte._destination.IsLoaded ? "true" : "false")}");
-        }
+    public override void OnOpen()
+    {
+        Svc.Config.DebugOpen = true;
+        base.OnOpen();
+    }
 
-        if (rte._nearbyTarget != null)
-        {
-            ImGui.Text($"Target is nearby: {rte._nearbyTarget}");
-        }
-
-        if (ImGui.Button("Remember current target"))
-        {
-            if (Svc.Player!.TargetObject != null)
-                _tmptarget = Svc.Player!.TargetObject;
-        }
-
-        if (_tmptarget != null)
-        {
-            ImGui.Text($"Target: {_tmptarget.Name} ({_tmptarget.GameObjectId:X})");
-            ImGui.Text($"Distance to target: {_tmptarget.Position.DistanceFromPlayer()}");
-        }
-
+    public override unsafe void Draw()
+    {
         var record = Svc.Plugin.RecordMode;
         if (ImGui.Checkbox("Record gathering point locations", ref record))
             Svc.Plugin.RecordMode = record;
 
-        var wm = WeatherManager.Instance();
-
-        var wt = Svc.ExcelRow<Weather>(wm->WeatherId);
-        if (wt != null)
+        var rte = Svc.Route;
+        if (rte._currentRoute != null)
         {
-            ImGui.Text("Current weather: ");
-            ImGui.SameLine();
 
-            var wtIcon = Svc.TextureProvider.GetFromGameIcon((uint)wt.Icon)?.GetWrapOrEmpty();
-            if (wtIcon != null)
+            ImGui.Text($"Current route: {rte._currentRoute.Label} ({Svc.Config.SelectedRoute})");
+
+            var ty = rte.CurrentState;
+
+            var color = ty switch
             {
-                ImGui.Image(wtIcon.ImGuiHandle, new(32, 32));
-                ImGui.SameLine();
+                RouteExec.State.Teleport => ImGuiColors.TankBlue,
+                RouteExec.State.Mount => ImGuiColors.ParsedPink,
+                RouteExec.State.Dismount => ImGuiColors.DalamudViolet,
+                RouteExec.State.Gathering => ImGuiColors.HealerGreen,
+                RouteExec.State.Gearset => ImGuiColors.DalamudYellow,
+                _ => ImGuiColors.DalamudWhite
+            };
+
+            string text = ty.ToString();
+
+            if (ty == RouteExec.State.Running)
+            {
+                text = "Idle";
+
+                if (IPCHelper.PathIsRunning())
+                {
+                    text = "Move";
+                    color = ImGuiColors.ParsedGold;
+                }
+
+                if (IPCHelper.PathfindInProgress())
+                {
+                    text = "Pathfind";
+                    color = ImGuiColors.DalamudOrange;
+                }
             }
 
-            ImGui.Text(wt.Name);
+            ImGui.TextColored(color, text);
         }
 
-        if (Svc.ClientState.TerritoryType == 939)
+        if (rte._destination != null)
+            ImGui.Text($"Destination: {rte._destination.ShowDebug()}");
+
+        if (Svc.Player?.TargetObject is IGameObject tar)
         {
-            _currentDiademWeather = wm->WeatherId;
-
-            if (_previousDiademWeather > 0 && _currentDiademWeather > 0 && _previousDiademWeather != _currentDiademWeather)
-                _diademWeatherSwap = DateTime.UtcNow;
-
-            _previousDiademWeather = _currentDiademWeather;
-
-            ImGui.Text($"Last weather swap (Diadem): {_diademWeatherSwap}");
-        }
-        else
-        {
-            _previousDiademWeather = 0;
-            _currentDiademWeather = 0;
+            ImGui.Text($"Target: {tar.Name} ({tar.GameObjectId:X})");
+            ImGui.Text($"Distance to target: {tar.Position.DistanceFromPlayer():F2} ({tar.Position.DistanceFromPlayerXZ():F2} horizontally)");
         }
 
-        if (_diademWeatherSwap != DateTime.MinValue)
-        {
-            var nextSwap = CalcNextSwap(_diademWeatherSwap);
-            var timeUntil = nextSwap - DateTime.UtcNow;
-            ImGui.Text($"Next Diadem weather change in: {timeUntil:mm\\:ss}");
-        }
+        ImGui.Text($"Nodes to skip: {string.Join(", ", rte._skippedPoints)}");
 
-        ImGui.Checkbox("Diadem farm mode", ref Svc.Route._diademMode);
+        if (rte._lasterr != "")
+            ImGui.Text($"Last error: {rte._lasterr}");
 
-        if (ImGui.Button("Target Aurvael"))
-            RouteExec.EnterDiadem();
+        //var wm = WeatherManager.Instance();
+
+        //var wt = Svc.ExcelRow<Weather>(wm->WeatherId);
+        //if (wt != null)
+        //{
+        //    ImGui.Text("Current weather: ");
+        //    ImGui.SameLine();
+
+        //    var wtIcon = Svc.TextureProvider.GetFromGameIcon((uint)wt.Icon)?.GetWrapOrEmpty();
+        //    if (wtIcon != null)
+        //    {
+        //        ImGui.Image(wtIcon.ImGuiHandle, new(32, 32));
+        //        ImGui.SameLine();
+        //    }
+
+        //    ImGui.Text(wt.Name);
+        //}
+
+        //if (Svc.ClientState.TerritoryType == 939)
+        //{
+        //    _currentDiademWeather = wm->WeatherId;
+
+        //    if (_previousDiademWeather > 0 && _currentDiademWeather > 0 && _previousDiademWeather != _currentDiademWeather)
+        //        _diademWeatherSwap = DateTime.UtcNow;
+
+        //    _previousDiademWeather = _currentDiademWeather;
+
+        //    ImGui.Text($"Last weather swap (Diadem): {_diademWeatherSwap}");
+        //}
+        //else
+        //{
+        //    _previousDiademWeather = 0;
+        //    _currentDiademWeather = 0;
+        //}
+
+        //if (_diademWeatherSwap != DateTime.MinValue)
+        //{
+        //    var nextSwap = CalcNextSwap(_diademWeatherSwap);
+        //    var timeUntil = nextSwap - DateTime.UtcNow;
+        //    ImGui.Text($"Next Diadem weather change in: {timeUntil:mm\\:ss}");
+        //}
+
+        //ImGui.Checkbox("Diadem farm mode", ref Svc.Route._diademMode);
+
+        //if (ImGui.Button("Target Aurvael"))
+        //    RouteExec.EnterDiadem();
     }
 
     private float MarkerToMap(float x, float scale) => (int)((2 * x / scale) + 100.9);

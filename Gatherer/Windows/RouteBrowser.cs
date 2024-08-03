@@ -1,6 +1,7 @@
 using Dalamud.Interface;
 using Dalamud.Interface.Components;
 using Dalamud.Interface.Utility;
+using Dalamud.Interface.Utility.Raii;
 using ImGuiNET;
 using Lumina.Excel.GeneratedSheets;
 using System.Linq;
@@ -22,6 +23,22 @@ public class RouteBrowser
         ImGui.SameLine();
         if (ImGui.BeginChild("Right", new Vector2(-1, -1), false, ImGuiWindowFlags.NoSavedSettings))
         {
+            var b = Svc.Config.Fly;
+            if (ImGui.Checkbox("Allow flight", ref b))
+                Svc.Config.Fly = b;
+
+            ImGui.SameLine();
+            {
+                using var scope = ImRaii.PushFont(UiBuilder.IconFont);
+                ImGui.TextUnformatted(FontAwesomeIcon.InfoCircle.ToIconString());
+            }
+            if (ImGui.IsItemHovered())
+            {
+                ImGui.BeginTooltip();
+                ImGui.Text("Flight will only be used to reach a node once a walkable point has been recorded for that node.");
+                ImGui.EndTooltip();
+            }
+
             DrawEditor();
             ImGui.EndChild();
         }
@@ -36,7 +53,6 @@ public class RouteBrowser
             {
                 Label = $"Unnamed Route ({tt})",
                 Nodes = [],
-                Fly = true,
                 Zone = Svc.ClientState.TerritoryType,
                 Class = GatherClass.None,
             };
@@ -68,16 +84,15 @@ public class RouteBrowser
         if (!Svc.Config.TryGetRoute(Svc.Config.SelectedRoute, out var selectedRoute))
             return;
 
-        switch (Svc.Route.CurrentState)
+        if (Svc.Route.CurrentState == RouteExec.State.Stopped)
         {
-            case RouteExec.State.Running:
-                if (ImGuiComponents.IconButton(FontAwesomeIcon.Stop))
-                    Svc.Route.Stop();
-                break;
-            case RouteExec.State.Stopped:
-                if (ImGuiComponents.IconButton(FontAwesomeIcon.Play))
-                    Svc.Route.Start(selectedRoute);
-                break;
+            if (ImGuiComponents.IconButton(FontAwesomeIcon.Play))
+                Svc.Route.Start(selectedRoute);
+        }
+        else
+        {
+            if (ImGuiComponents.IconButton(FontAwesomeIcon.Stop))
+                Svc.Route.Stop();
         }
 
         ImGui.SameLine();
@@ -147,10 +162,6 @@ public class RouteBrowser
             }
         }
 
-        var canFly = selectedRoute.Fly;
-        if (ImGui.Checkbox($"Allow flight###allowfly{Svc.Config.SelectedRoute}", ref canFly))
-            selectedRoute.Fly = canFly;
-
         if (!selectedRoute.Ordered)
         {
             foreach (var itemId in selectedRoute.Items)
@@ -166,6 +177,10 @@ public class RouteBrowser
                     {
                         ImGui.SameLine();
                         ImGui.Text($" ({gobj.GatherLocation})");
+                        ImGui.SameLine();
+                        var k = Configuration.GetKey(gobj.DataId, gobj.Position);
+                        if (ImGui.Button($"Forget###forget{k}"))
+                            Svc.Config.UpdateFloorPoint(gobj.DataId, gobj.Position, _ => null);
                     }
                 }
             }

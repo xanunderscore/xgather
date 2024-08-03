@@ -4,6 +4,7 @@ using Dalamud.Plugin.Services;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
 using FFXIVClientStructs.FFXIV.Client.System.String;
+using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Misc;
 using Lumina.Excel.GeneratedSheets;
 using System;
@@ -21,41 +22,57 @@ public sealed class RouteExec : IDisposable
     private static readonly float UnloadRadius = 100f;
 
     internal GatherRoute? _currentRoute;
-    internal NextWaypoint? _destination;
+    internal IWaypoint? _destination;
     internal int _loopIndex = 0;
     internal HashSet<GatherPointId> _skippedPoints = [];
     internal bool _isMoving = false;
     internal bool _disableFly = false;
-    internal IGameObject? _nearbyTarget;
     internal bool _diademMode = false;
     internal int _lastDiademWeather = 0;
     internal int _thisDiademWeather = 0;
     internal bool _wantDiadem = false;
     internal GatherClass _wantClass = GatherClass.None;
-    internal Wait _waiting = new();
+    internal string _lasterr = "";
+    internal DateTime _retry = DateTime.MinValue;
 
-    public enum WaitType : uint
+    // 0 if grounded
+    // 1 = "jumpsquat"
+    // 3 = going up
+    // 4 = stopped
+    // 5 = going down
+    internal static unsafe bool PlayerIsFalling
     {
-        None = 0,
-        Mount = 1,
-        Dismount = 2,
-        Gearset = 3,
-        Teleport = 4,
-        Time = 5,
-        Weather = 6
+        get
+        {
+            var p = Svc.ClientState.LocalPlayer;
+            if (p == null)
+                return true;
+
+            var isJumping = *(byte*)(p.Address + 736) > 0;
+            var isAirDismount = **(byte**)(p.Address + 1432) == 1;
+
+            return isJumping || isAirDismount;
+        }
     }
 
-    public record struct Wait(WaitType Type, DateTime Retry);
+    public record struct Wait(State Type, DateTime Retry);
 
     public enum State : uint
     {
         Stopped = 0,
-        Running = 1
+        Running,
+        Gathering,
+        Mount,
+        Dismount,
+        Gearset,
+        Teleport,
+        Time,
+        Weather
     }
 
     public State CurrentState { get; private set; }
 
-    public bool IsActive => CurrentState == State.Running;
+    public bool IsActive => CurrentState != State.Stopped;
 
     public void Init()
     {
@@ -68,8 +85,13 @@ public sealed class RouteExec : IDisposable
     public void Start(GatherRoute r, int loopIndex)
     {
         Stop();
-        if (!IsRightTerritory(r))
+
+        if (IsRightTerritory(r))
+            CurrentState = State.Running;
+        else
         {
+            CurrentState = State.Teleport;
+
             // idyllshire -> dravanian hinterlands
             if (r.TerritoryType.RowId == 399 && Svc.ClientState.TerritoryType != 478)
             {
@@ -79,21 +101,19 @@ public sealed class RouteExec : IDisposable
 
             var closest = Svc.Plugin.Aetherytes.MinBy(a => a.DistanceToRoute(r));
             if (closest == null)
-                Svc.Toast.ShowError($"No aetheryte close to destination.");
+            {
+                ShowError($"No aetheryte close to destination.");
+                Stop();
+                return;
+            }
             else
                 IPCHelper.Teleport(closest.GameAetheryte.RowId);
-
-            return;
         }
-
-        ChangeGearset(r);
 
         _wantClass = r.Class;
         _loopIndex = loopIndex;
         _skippedPoints = [];
-        CurrentState = State.Running;
         _currentRoute = r;
-        GatherNext();
     }
 
     public static GatherRoute? CreateRouteFromObject(IGameObject? obj)
@@ -121,8 +141,7 @@ public sealed class RouteExec : IDisposable
         var rte = new GatherRoute
         {
             Label = label,
-            Nodes = points.Select(x => (GatherPointId)x.RowId).ToList(),
-            Fly = true,
+            Nodes = points.Select(x => x.RowId).ToList(),
             Class = gbase.GetRequiredClass(),
             Items = [.. gatherableItems],
             GatheringPointBaseId = gbase.RowId,
@@ -150,9 +169,8 @@ public sealed class RouteExec : IDisposable
         _currentRoute = null;
         _loopIndex = 0;
         _skippedPoints = [];
-        _waiting = new();
+        _retry = DateTime.MinValue;
         _disableFly = false;
-        _nearbyTarget = null;
         CurrentState = State.Stopped;
     }
 
@@ -167,30 +185,31 @@ public sealed class RouteExec : IDisposable
         Svc.Condition.ConditionChange -= OnConditionChange;
     }
 
-    private bool WaitingFor(WaitType type) => _waiting.Type == type && _waiting.Retry > DateTime.Now;
+    private bool WaitingFor(State type) => CurrentState == type && _retry > DateTime.Now;
 
-    private void WaitFor(WaitType type, TimeSpan retryTime)
+    private void WaitFor(State type, TimeSpan retryTime)
     {
-        _waiting.Type = type;
-        _waiting.Retry = DateTime.Now.Add(retryTime);
+        CurrentState = type;
+        _retry = DateTime.Now.Add(retryTime);
     }
 
-    private void WaitFor(WaitType type)
-    {
-        _waiting.Type = type;
-        _waiting.Retry = DateTime.MaxValue;
-    }
+    private void WaitFor(State type) => WaitFor(type, TimeSpan.MaxValue);
 
-    private void Done(WaitType type)
+    private void Done(State type)
     {
-        if (_waiting.Type == type)
-            _waiting = new();
+        if (CurrentState == type)
+        {
+            CurrentState = State.Running;
+            _retry = default;
+        }
     }
 
     private unsafe void OnRouteTick(IFramework fw)
     {
-        if (_waiting.Type != WaitType.None)
-            Svc.Log.Verbose($"waiting for {_waiting.Type} until {_waiting.Retry}");
+        if (CurrentState == State.Stopped)
+            return;
+        else
+            Svc.Log.Verbose($"waiting for {CurrentState} until {_retry}");
 
         var weatherman = WeatherManager.Instance();
         if (Svc.ClientState.TerritoryType is 939)
@@ -217,79 +236,61 @@ public sealed class RouteExec : IDisposable
                 EnterDiadem();
         }
 
-        if (_destination == null || CurrentState == State.Stopped || WaitingFor(WaitType.Dismount))
+        if (WaitingFor(State.Dismount) || CurrentState == State.Teleport || !ChangeGearset(_currentRoute!))
             return;
 
-        if (_nearbyTarget != null)
+        if (_destination == null)
         {
-            if (Svc.Condition[ConditionFlag.Jumping])
-                return;
-
-            if (Svc.Condition[ConditionFlag.InFlight])
-            {
-                Dismount();
-                return;
-            }
-
-            Svc.Config.RecordPosition(_nearbyTarget);
-            InteractWithObject(_nearbyTarget);
-            _nearbyTarget = null;
+            if (CurrentState == State.Running)
+                GatherNext();
             return;
         }
-
-        if (ChangeGearset(_currentRoute!))
-            Done(WaitType.Gearset);
-        else
-            return;
 
         var isMounted = Svc.Condition[ConditionFlag.Mounted];
 
-        if (_destination.Position.DistanceFromPlayer() > 20 && !isMounted && !WaitingFor(WaitType.Mount) && !_disableFly)
-        {
-            WaitFor(WaitType.Mount);
-            ActionManager.Instance()->UseAction(ActionType.GeneralAction, 24);
+        if (_destination.Pos().DistanceFromPlayer() > 20 && !_disableFly && !Mount())
             return;
-        }
 
-        if (WaitingFor(WaitType.Mount))
+        if (_destination is FloorPoint p && p.FloorPosition.DistanceFromPlayer() < 1 && PathfindComplete)
         {
-            if (isMounted)
-                Done(WaitType.Mount);
-            return;
-        }
-
-        if (_destination.IsLoaded)
-        {
-            if (_destination.Position.DistanceFromPlayer() < 3)
-            {
-                var destObject = Svc.ObjectTable.FirstOrDefault(x => _destination.TargetIDs.Contains(x.DataId) && x.IsTargetable)!;
-                StopMoving();
-                _skippedPoints = [];
-
-                _nearbyTarget = Svc.ObjectTable.FirstOrDefault(x => _destination.TargetIDs.Contains(x.DataId) && x.IsTargetable)!;
-
+            if (!Dismount())
                 return;
-            }
+
+            _destination = p.Node;
+
+            return;
         }
-        else
+
+        if (_destination is GatherPointKnown g && g.Position.DistanceFromPlayerXZ() < 1.5)
         {
-            var objIds = _destination.TargetIDs;
-            // TODO better error handling
+            StopMoving();
+            if (!Dismount())
+                return;
+
+            var pt = Svc.ObjectTable.First(x => x.DataId == g.DataID && x.IsTargetable);
+            InteractWithObject(pt);
+
+            return;
+        }
+
+        if (_destination is GatherPointSearch c)
+        {
+            var objIds = c.DataIDs;
             if (objIds.Count == 0)
                 Stop();
 
             var candidatePoint = Svc.ObjectTable.FirstOrDefault(x => objIds.Contains(x.DataId) && x.IsTargetable);
             if (candidatePoint != null)
             {
-                _destination = NextWaypoint.FromObject(candidatePoint);
-                Svc.Log.Debug($"search ended, found candidate point: {_destination.Position}");
+                _destination = CreateWaypointFromObject(candidatePoint);
+                Svc.Log.Debug($"search ended, found candidate point: {_destination}");
                 StopMoving();
             }
-            else if (_destination.Position.DistanceFromPlayer() < 70)
+            else if (c.Center.DistanceFromPlayer() < 70)
             {
                 // gather nodes should be loaded now.
                 // TODO this doesn't work correctly with legendary nodes; it gives up when the nearest node is untargetable even if a further one isn't
-                foreach (var i in Svc.ObjectTable.Where(x => _destination.TargetIDs.Contains(x.DataId)))
+                foreach (var i in Svc.ObjectTable.Where(x => c.DataIDs.Contains(x.DataId)))
                     _skippedPoints.Add(i.DataId);
                 _loopIndex += 1;
                 if (_loopIndex >= _currentRoute!.Nodes.Count)
@@ -298,24 +299,28 @@ public sealed class RouteExec : IDisposable
             }
         }
 
-        if (IPCHelper.NavmeshIsReady() && !IPCHelper.PathfindInProgress() && !IPCHelper.PathIsRunning() && IPCHelper.PathfindQueued() == 0 && _destination != null)
+        if (PathfindComplete)
         {
             var isDiving = Svc.Condition[ConditionFlag.Diving];
 
-            var shouldFly = !_disableFly && (_currentRoute?.Fly ?? false);
-            if (shouldFly && _destination.Position.DistanceFromPlayer() > 20)
+            var shouldFly = Svc.Config.Fly && !_disableFly;
+            var pos = _destination.Pos();
+            if (shouldFly && pos.DistanceFromPlayer() > 20)
             {
-                if (_destination.Pathfind)
-                {
-                    Svc.Log.Debug($"position: {_destination.Position}");
-                    var pos = IPCHelper.PointOnFloor(_destination.Position, false, 2);
-                    IPCHelper.PathfindAndMoveTo(pos ?? _destination.Position, true);
-                }
+                if (_destination.KnownLandable())
+                    IPCHelper.PathfindAndMoveTo(pos, true);
                 else
-                    IPCHelper.PathfindAndMoveTo(_destination.Position, true);
+                {
+                    Svc.Log.Debug($"position: {pos}");
+                    var pos2 = IPCHelper.PointOnFloor(pos, false, 2);
+                    IPCHelper.PathfindAndMoveTo(pos2 ?? pos, /*true*/isDiving);
+                }
             }
+            // ignore remembered FloorPoint if we aren't planning on fly pathfinding, just navigate directly to target
+            else if (_destination is FloorPoint f && !isDiving)
+                _destination = f.Node;
             else
-                IPCHelper.PathfindAndMoveTo(_destination.Position, isDiving);
+                IPCHelper.PathfindAndMoveTo(pos, isDiving);
         }
     }
 
@@ -342,13 +347,21 @@ public sealed class RouteExec : IDisposable
 
         if (flag == ConditionFlag.Gathering && flagIsActive)
         {
+            CurrentState = State.Gathering;
+            _destination = null;
+            _skippedPoints = [];
+
             var tar = Svc.TargetManager.Target;
             if (tar != null)
             {
+                Svc.Config.RecordPosition(tar);
                 Svc.Config.UpdateFloorPoint(tar, p => p ?? Svc.Player!.Position);
                 Svc.Config.Save();
             }
         }
+
+        if (flag == ConditionFlag.BetweenAreas && !flagIsActive && CurrentState == State.Teleport)
+            CurrentState = State.Running;
 
         if (!IsActive)
             return;
@@ -356,10 +369,10 @@ public sealed class RouteExec : IDisposable
         // finished gathering, go to next object
         // if we use the Gathering flag here instead of flag 85, the "next" node may not be targetable yet, so we waste time
         // pathfinding to one that's further away; 85 seems to be the last one that turns off though idk what it does
-        if ((uint)flag == 85 && !flagIsActive && CurrentState == State.Running)
+        if ((uint)flag == 85 && !flagIsActive && CurrentState == State.Gathering)
         {
             _disableFly = false;
-            GatherNext();
+            CurrentState = State.Running;
         }
     }
 
@@ -417,7 +430,7 @@ public sealed class RouteExec : IDisposable
         {
             StopMoving();
             _destination = dest;
-            Svc.Log.Debug($"moving to next point: {_destination.Position}");
+            Svc.Log.Debug($"moving to next point: {_destination.Pos()}");
         }
         else if (_diademMode && WeatherIsUmbral)
         {
@@ -425,12 +438,12 @@ public sealed class RouteExec : IDisposable
         }
         else
         {
-            Svc.Chat.PrintError("No waypoints in range.");
+            ShowError("No waypoints in range.");
             Stop();
         }
     }
 
-    private NextWaypoint? FindNextDestination()
+    private IWaypoint? FindNextDestination()
     {
         if (_currentRoute == null)
             return null;
@@ -442,11 +455,11 @@ public sealed class RouteExec : IDisposable
                 : IPCHelper.PointOnFloor(p with { Y = PathfindMaxY }, true, 5);
             if (fl == null)
             {
-                Svc.Toast.ShowError($"No point near {p}, find it manually");
+                ShowError($"No point near {p}, find it manually");
                 return null;
             }
 
-            return NextWaypoint.FromPoint(fl.Value, _currentRoute.Nodes);
+            return new GatherPointSearch() { Center = fl.Value, DataIDs = _currentRoute.Nodes, Landable = true };
         }
 
         return _currentRoute.Ordered ? FindNextOrderedDestination() : FindNextClosestDestination();
@@ -454,45 +467,55 @@ public sealed class RouteExec : IDisposable
 
     private float PathfindMaxY => Svc.ClientState.TerritoryType == 1192 ? 135 : 1024;
 
-    private NextWaypoint? FindNextClosestDestination()
+    private IWaypoint? FindNextClosestDestination()
     {
         var closePoints = FindGatherPoints(obj => _currentRoute!.Contains(obj.DataId) && obj.IsTargetable && !_skippedPoints.Contains(obj.DataId));
         Svc.Log.Debug($"closePoints: {string.Join(", ", closePoints.ToList())}");
         if (closePoints.Any())
-            return NextWaypoint.FromObject(closePoints.MinBy(x => x.Position.DistanceFromPlayer())!);
+            return CreateWaypointFromObject(closePoints.MinBy(x => x.Position.DistanceFromPlayer())!);
         var allPoints = _currentRoute!.Nodes.Where(x => !_skippedPoints.Contains(x)).SelectMany(Svc.Config.GetKnownPoints).Where(x => x.Position.DistanceFromPlayer() > UnloadRadius);
         Svc.Log.Debug($"allPoints (out of range): {string.Join(", ", allPoints.ToList())}");
         Svc.Log.Debug($"skipped points: {string.Join(", ", _skippedPoints)}");
-        if (allPoints.Any())
-            return NextWaypoint.FromGatherPointObject(
-                // TODO: this should be MinBy, but legendary nodes
-                allPoints.MaxBy(x => x.Position.DistanceFromPlayer())!,
-                _currentRoute.Nodes
-            );
 
-        return null;
+        return SearchForUnloadedPoint(allPoints, _currentRoute.Nodes);
     }
 
-    private NextWaypoint? FindNextOrderedDestination()
+    private static GatherPointSearch? SearchForUnloadedPoint(IEnumerable<GatherPointObject> allPoints, ICollection<uint> ids)
+    {
+        if (!allPoints.Any())
+            return null;
+
+        var closestGroup = allPoints.GroupBy(x => x.DataId).MinBy(points => points.Min(obj => obj.DistanceFromPlayer));
+        var furthestNodeInGroup = closestGroup!.MaxBy(obj => obj.DistanceFromPlayer);
+
+        return new GatherPointSearch()
+        {
+            Center = furthestNodeInGroup.NaviPosition,
+            DataIDs = [.. ids],
+            Landable = furthestNodeInGroup.GatherLocation != null
+        };
+    }
+
+    private IWaypoint? FindNextOrderedDestination()
     {
         var objId = _currentRoute!.Nodes[_loopIndex];
         Svc.Log.Debug($"searching for nodes matching {objId}");
 
         if (_skippedPoints.Contains(objId))
         {
-            Svc.Chat.PrintError("We tried everything and nothing worked");
+            ShowError("We tried everything and nothing worked");
             Stop();
             return null;
         }
 
-        var closePoints = FindGatherPoints(obj => obj.DataId == (uint)objId);
+        var closePoints = FindGatherPoints(obj => obj.DataId == objId);
         if (closePoints.Any())
         {
             Svc.Log.Debug($"found {closePoints.Count()} points in range");
             var targetablePoints = closePoints.Where(x => x.IsTargetable);
             if (targetablePoints.Any())
             {
-                return NextWaypoint.FromObject(targetablePoints.MinBy(x => x.Position.DistanceFromPlayer())!);
+                return CreateWaypointFromObject(targetablePoints.MinBy(x => x.Position.DistanceFromPlayer())!);
             }
             else
             {
@@ -508,13 +531,7 @@ public sealed class RouteExec : IDisposable
         var allPoints = Svc.Config.GetKnownPoints(_currentRoute.Nodes[_loopIndex]).Where(x => x.Position.DistanceFromPlayer() > UnloadRadius);
         Svc.Log.Debug($"found {allPoints.Count()} points out of range (50y away)");
         // nodes without known locations may exist if someone manually adds a data ID while the object isn't in range
-        if (allPoints.Any())
-            return NextWaypoint.FromGatherPointObject(
-                allPoints.MinBy(x => x.Position.DistanceFromPlayer())!,
-                [_currentRoute.Nodes[_loopIndex]]
-            );
-
-        return null;
+        return SearchForUnloadedPoint(allPoints, [_currentRoute.Nodes[_loopIndex]]);
     }
 
     private bool IsRightTerritory(GatherRoute rte)
@@ -541,9 +558,12 @@ public sealed class RouteExec : IDisposable
             return true;
 
         if (Svc.Player!.ClassJob.Id == cj.RowId)
+        {
+            Done(State.Gearset);
             return true;
+        }
 
-        if (WaitingFor(WaitType.Gearset))
+        if (WaitingFor(State.Gearset))
             return false;
 
         var needClass = cj.NameEnglish.ToString();
@@ -552,71 +572,113 @@ public sealed class RouteExec : IDisposable
         var gearsetId = gearsetModule->FindGearsetIdByName(Utf8String.FromString(needClass));
         if (gearsetId == -1)
         {
-            Svc.Toast.ShowError($"No gearset registered for {needClass}.");
+            ShowError($"No gearset registered for {needClass}.");
+            Done(State.Gearset);
             // assume user knows what they're doing
             return true;
         }
 
         gearsetModule->EquipGearset(gearsetId);
-        WaitFor(WaitType.Gearset);
+        WaitFor(State.Gearset);
 
         return false;
     }
 
-    private unsafe void Dismount()
+    private unsafe bool Mount()
     {
-        if (WaitingFor(WaitType.Dismount) || !Svc.Condition[ConditionFlag.Mounted])
-            return;
+        if (Svc.Condition[ConditionFlag.Mounted])
+        {
+            Done(State.Mount);
+            return true;
+        }
+
+        if (WaitingFor(State.Mount))
+            return false;
+
+        ActionManager.Instance()->UseAction(ActionType.GeneralAction, 24);
+        WaitFor(State.Mount, TimeSpan.FromMilliseconds(1000));
+        return false;
+    }
+
+    private unsafe bool Dismount()
+    {
+        if (!Svc.Condition[ConditionFlag.Mounted] && !PlayerIsFalling)
+        {
+            Done(State.Dismount);
+            return true;
+        }
+
+        if (WaitingFor(State.Dismount) || PlayerIsFalling)
+            return false;
 
         ActionManager.Instance()->UseAction(ActionType.GeneralAction, 23);
-        WaitFor(WaitType.Dismount, TimeSpan.FromMilliseconds(750));
+        WaitFor(State.Dismount, TimeSpan.FromMilliseconds(250));
+        return false;
     }
 
-    internal class NextWaypoint
+    private void ShowError(string msg)
     {
-        public Vector3 Position;
-        public required List<uint> TargetIDs;
-        public bool IsLoaded;
-        public bool Pathfind = true;
-
-        public static NextWaypoint FromObject(IGameObject obj)
-        {
-            if (Svc.Config.GetFloorPoint(obj, out var pos))
-                return new()
-                {
-                    Position = pos,
-                    TargetIDs = [obj.DataId],
-                    IsLoaded = true,
-                    Pathfind = false,
-                };
-            else
-                return new()
-                {
-                    Position = obj.Position,
-                    TargetIDs = [obj.DataId],
-                    IsLoaded = true
-                };
-        }
-
-        public static NextWaypoint FromPoint(Vector3 pos, IEnumerable<GatherPointId> targetIDs)
-        {
-            return new()
-            {
-                Position = pos,
-                TargetIDs = targetIDs.ToList(),
-                IsLoaded = false
-            };
-        }
-
-        public static NextWaypoint FromGatherPointObject(GatherPointObject obj, IEnumerable<GatherPointId> targetIDs)
-        {
-            return new()
-            {
-                Position = obj.NaviPosition,
-                TargetIDs = targetIDs.ToList(),
-                IsLoaded = false,
-                Pathfind = obj.GatherLocation == null
-            };
-        }
+        Svc.Chat.PrintError(msg);
+        UIModule.PlaySound(40);
+        _lasterr = msg;
     }
+
+    private bool PathfindComplete => IPCHelper.NavmeshIsReady() && !IPCHelper.PathfindInProgress() && !IPCHelper.PathIsRunning() && IPCHelper.PathfindQueued() == 0 && _destination != null;
+
+    private IWaypoint CreateWaypointFromObject(IGameObject g)
+    {
+        var actualObj = new GatherPointKnown()
+        {
+            Position = g.Position,
+            DataID = g.DataId
+        };
+
+        if (Svc.Config.GetFloorPoint(g, out var point))
+            return new FloorPoint() { FloorPosition = point, Node = actualObj };
+
+        return actualObj;
+    }
+}
+
+interface IWaypoint
+{
+    public Vector3 Pos();
+    public bool KnownLandable();
+    public string ShowDebug();
+}
+
+class GatherPointSearch : IWaypoint
+{
+    public Vector3 Center;
+    public required List<uint> DataIDs;
+    public required bool Landable;
+
+    public Vector3 Pos() => Center;
+    public bool KnownLandable() => Landable;
+
+    public string ShowDebug() =>
+        $"Unloaded gather point near {Center}\n" +
+        $"Candidate IDs: {string.Join(", ", DataIDs.Select(d => $"0x{d:X}"))}";
+}
+
+class GatherPointKnown : IWaypoint
+{
+    public Vector3 Position;
+    public uint DataID;
+
+    public Vector3 Pos() => Position;
+    public bool KnownLandable() => false;
+
+    public string ShowDebug() => $"Gather point with ID 0x{DataID:X} at {Position}";
+}
+
+class FloorPoint : IWaypoint
+{
+    public Vector3 FloorPosition;
+    public required GatherPointKnown Node;
+
+    public Vector3 Pos() => FloorPosition;
+    public bool KnownLandable() => true;
+
+    public string ShowDebug() => $"Landing point override for {Node.ShowDebug()}";
 }

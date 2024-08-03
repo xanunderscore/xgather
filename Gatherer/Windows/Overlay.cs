@@ -3,9 +3,21 @@ using ImGuiNET;
 
 namespace xgather.Windows;
 
-internal class Overlay(RouteBrowser routes, ItemBrowser items, DebugView debug) : Window("xgather")
+internal class Overlay(RouteBrowser routes, ItemBrowser items) : Window("xgather")
 {
     // public override bool DrawConditions() => Utils.IsGatherer;
+
+    public override void OnClose()
+    {
+        Svc.Config.OverlayOpen = false;
+        base.OnClose();
+    }
+
+    public override void OnOpen()
+    {
+        Svc.Config.OverlayOpen = true;
+        base.OnOpen();
+    }
 
     public override void Draw()
     {
@@ -19,11 +31,6 @@ internal class Overlay(RouteBrowser routes, ItemBrowser items, DebugView debug) 
             if (ImGui.BeginTabItem("Items"))
             {
                 items.Draw();
-                ImGui.EndTabItem();
-            }
-            if (ImGui.BeginTabItem("Debug"))
-            {
-                debug.Draw();
                 ImGui.EndTabItem();
             }
             ImGui.EndTabBar();

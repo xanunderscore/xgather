@@ -89,6 +89,10 @@ internal static class Utils
 internal static class VectorExt
 {
     public static float DistanceFromPlayer(this Vector3 vec) => Svc.Player == null ? float.MaxValue : (vec - Svc.Player.Position).Length();
+
+    public static float DistanceFromPlayerXZ(this Vector3 vec) => Svc.Player == null ? float.MaxValue : (vec.V2() - Svc.Player.Position.V2()).Length();
+
+    public static Vector2 V2(this Vector3 vec) => new(vec.X, vec.Z);
 }
 
 internal static class GPBaseExt

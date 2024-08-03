@@ -23,7 +23,6 @@ public class Svc
     [PluginService] public static IFramework Framework { get; private set; }
     [PluginService] public static ICondition Condition { get; private set; }
     [PluginService] public static IDataManager Data { get; private set; }
-    [PluginService] public static IToastGui Toast { get; private set; }
     [PluginService] public static ITextureProvider TextureProvider { get; private set; }
     [PluginService] public static ISigScanner SigScanner { get; private set; }
     [PluginService] public static IChatGui Chat { get; private set; }

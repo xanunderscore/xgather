@@ -34,11 +34,12 @@ internal static class GCExt
 }
 
 [Serializable]
-public record struct GatherPointObject(Vector3 Position, Vector3? GatherLocation)
+public record struct GatherPointObject(uint DataId, Vector3 Position, Vector3? GatherLocation)
 {
-    public GatherPointObject(IGameObject obj) : this(obj.Position, null) { }
+    public GatherPointObject(IGameObject obj) : this(obj.DataId, obj.Position, null) { }
 
     [JsonIgnore] public readonly Vector3 NaviPosition => GatherLocation ?? Position;
+    [JsonIgnore] public readonly float DistanceFromPlayer => NaviPosition.DistanceFromPlayer();
 }
 
 [Serializable]
@@ -48,7 +49,6 @@ public class GatherRoute
     public required string Label;
     public required List<GatherPointId> Nodes;
     public List<ItemId> Items = [];
-    public required bool Fly;
     public required GatherClass Class;
 
     // if null, this is a user-created ordered gathering route (i.e. diadem)
@@ -93,6 +93,11 @@ public class Configuration : IPluginConfiguration
         }
     }
 
+    public bool Fly = true;
+
+    public bool OverlayOpen = false;
+    public bool DebugOpen = false;
+
     public string ItemSearchText = "";
 
     public RouteId SelectedRoute = -1;
@@ -103,6 +108,9 @@ public class Configuration : IPluginConfiguration
     {
         Svc.PluginInterface.SavePluginConfig(this);
     }
+
+    public static SingleGatherPointId GetKey(uint dataId, Vector3 pos)
+        => HashCode.Combine(dataId, (int)pos.X, (int)pos.Y, (int)pos.Z);
 
     public void AddRoute(GatherRoute rte)
     {
@@ -136,7 +144,7 @@ public class Configuration : IPluginConfiguration
                     yield return gobj;
     }
 
-    public bool GetFloorPoint(IGameObject obj, out Vector3 point) => GetFloorPoint((obj.DataId, obj.Position).GetHashCode(), out point);
+    public bool GetFloorPoint(IGameObject obj, out Vector3 point) => GetFloorPoint(GetKey(obj.DataId, obj.Position), out point);
 
     public bool GetFloorPoint(SingleGatherPointId id, out Vector3 point)
     {
@@ -154,8 +162,11 @@ public class Configuration : IPluginConfiguration
     public void ClearFloorPoint(IGameObject obj) => UpdateFloorPoint(obj, _ => null);
 
     public void UpdateFloorPoint(IGameObject obj, Func<Vector3?, Vector3?> update)
+        => UpdateFloorPoint(obj.DataId, obj.Position, update);
+
+    public void UpdateFloorPoint(uint dataId, Vector3 position, Func<Vector3?, Vector3?> update)
     {
-        var id = (obj.DataId, obj.Position).GetHashCode();
+        var id = GetKey(dataId, position);
         if (GatherPointObjectsById.TryGetValue(id, out var gobj))
             GatherPointObjectsById[id] = gobj with { GatherLocation = update(gobj.GatherLocation) };
     }
@@ -163,10 +174,11 @@ public class Configuration : IPluginConfiguration
     public void RecordPosition(IGameObject obj)
     {
         var key = obj.DataId;
-        var objId = (obj.DataId, obj.Position).GetHashCode();
+        var objId = GetKey(obj.DataId, obj.Position);
         GatherPointObjects.TryAdd(key, []);
         GatherPointObjects[key].Add(objId);
-        GatherPointObjectsById.TryAdd(objId, new GatherPointObject(obj));
+        if (GatherPointObjectsById.TryAdd(objId, new GatherPointObject(obj)))
+            Svc.Log.Debug($"found NEW entry for {obj.DataId} - position is {obj.Position.X:F10}, {obj.Position.Y:F10}, {obj.Position.Z:F10}");
     }
 
     public void RecordPositions(IEnumerable<IGameObject> positions)
@@ -251,8 +263,7 @@ public class Configuration : IPluginConfiguration
                             throw new Exception($"{it} is not valid for a GatheringItem (GPBase ID: {gpBase.RowId})");
                         return (uint)gatherit.Item;
                     }
-                }).ToList(),
-                Fly = true
+                }).ToList()
             };
 
             AddRoute(newRoute);
