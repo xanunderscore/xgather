@@ -88,6 +88,10 @@ public class RouteBrowser
         {
             if (ImGuiComponents.IconButton(FontAwesomeIcon.Play))
                 Svc.Route.Start(selectedRoute);
+
+            ImGui.SameLine();
+            if (ImGuiComponents.IconButton(FontAwesomeIcon.Map))
+                Svc.Route.NavigateToCenter(selectedRoute);
         }
         else
         {

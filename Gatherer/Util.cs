@@ -84,6 +84,8 @@ internal static class Utils
             Marshal.FreeHGlobal(textPtr);
         }
     }
+
+    internal static string ShowV3(Vector3 vec) => $"[{vec.X:F2}, {vec.Y:F2}, {vec.Z:F2}]";
 }
 
 internal static class VectorExt

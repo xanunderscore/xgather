@@ -7,10 +7,12 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Numerics;
+using System.Security.Cryptography;
+using System.Text;
 using GatherPointId = uint;
 using ItemId = uint;
 using RouteId = int;
-using SingleGatherPointId = int;
+using SingleGatherPointId = string;
 
 namespace xgather;
 
@@ -59,7 +61,7 @@ public class GatherRoute
 
     [JsonIgnore] public TerritoryType TerritoryType => Svc.ExcelRow<TerritoryType>(Zone)!;
 
-    public bool MissingPoints() => Nodes.Any(x => !Svc.Config.GetKnownPoints(x).Any());
+    public bool MissingPoints() => Nodes.Any(x => Svc.Config.GetKnownPoints(x).Any(y => y.GatherLocation == null));
     public bool Contains(uint dataId) => Nodes.Contains(dataId);
     public Vector3? GatherAreaCenter()
     {
@@ -93,10 +95,17 @@ public class Configuration : IPluginConfiguration
         }
     }
 
+    public IEnumerable<(RouteId, GatherRoute)> GetRoutesForItem(uint itemId)
+    {
+        if (ItemLookup.TryGetValue(itemId, out var routes))
+            return routes.Select(x => (x, Routes[x]));
+
+        return [];
+    }
+
     public bool Fly = true;
 
     public bool OverlayOpen = false;
-    public bool DebugOpen = false;
 
     public string ItemSearchText = "";
 
@@ -109,8 +118,7 @@ public class Configuration : IPluginConfiguration
         Svc.PluginInterface.SavePluginConfig(this);
     }
 
-    public static SingleGatherPointId GetKey(uint dataId, Vector3 pos)
-        => HashCode.Combine(dataId, (int)pos.X, (int)pos.Y, (int)pos.Z);
+    public static SingleGatherPointId GetKey(uint dataId, Vector3 pos) => Convert.ToHexString(SHA1.HashData(Encoding.UTF8.GetBytes($"{dataId} {(int)pos.X} {(int)pos.Y} {(int)pos.Z}")), 0, 16);
 
     public void AddRoute(GatherRoute rte)
     {

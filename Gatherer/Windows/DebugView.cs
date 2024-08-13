@@ -1,5 +1,7 @@
 using Dalamud.Game.ClientState.Objects.Types;
+using Dalamud.Interface;
 using Dalamud.Interface.Colors;
+using Dalamud.Interface.Components;
 using Dalamud.Interface.Windowing;
 using ImGuiNET;
 using System;
@@ -13,21 +15,7 @@ public class DebugView : Window
     private byte _currentDiademWeather = 0;
     private DateTime _diademWeatherSwap = DateTime.MinValue;
 
-    public DebugView() : base("xgather debug")
-    {
-    }
-
-    public override void OnClose()
-    {
-        Svc.Config.DebugOpen = false;
-        base.OnClose();
-    }
-
-    public override void OnOpen()
-    {
-        Svc.Config.DebugOpen = true;
-        base.OnOpen();
-    }
+    public DebugView() : base("xgather") { }
 
     public override unsafe void Draw()
     {
@@ -36,47 +24,63 @@ public class DebugView : Window
             Svc.Plugin.RecordMode = record;
 
         var rte = Svc.Route;
-        if (rte._currentRoute != null)
+
+        if (rte._currentRoute == null)
         {
+            ImGui.Text("Current route: none");
+            return;
+        }
+        if (Svc.Route.CurrentState == RouteExec.State.Stopped)
+        {
+            if (ImGuiComponents.IconButton(FontAwesomeIcon.Play))
+                Svc.Route.Start(rte._currentRoute);
+        }
+        else if (ImGuiComponents.IconButton(FontAwesomeIcon.Stop))
+            Svc.Route.Stop();
 
-            ImGui.Text($"Current route: {rte._currentRoute.Label} ({Svc.Config.SelectedRoute})");
+        ImGui.SameLine();
+        ImGui.Text(rte._currentRoute.Label);
 
-            var ty = rte.CurrentState;
+        var ty = rte.CurrentState;
 
-            var color = ty switch
+        var color = ty switch
+        {
+            RouteExec.State.Teleport => ImGuiColors.TankBlue,
+            RouteExec.State.Mount => ImGuiColors.ParsedPink,
+            RouteExec.State.Dismount => ImGuiColors.DalamudViolet,
+            RouteExec.State.Gathering => ImGuiColors.HealerGreen,
+            RouteExec.State.Gearset => ImGuiColors.DalamudYellow,
+            _ => ImGuiColors.DalamudWhite
+        };
+
+        string text = ty.ToString();
+
+        if (ty == RouteExec.State.Running)
+        {
+            text = "Idle";
+
+            if (IPCHelper.PathIsRunning())
             {
-                RouteExec.State.Teleport => ImGuiColors.TankBlue,
-                RouteExec.State.Mount => ImGuiColors.ParsedPink,
-                RouteExec.State.Dismount => ImGuiColors.DalamudViolet,
-                RouteExec.State.Gathering => ImGuiColors.HealerGreen,
-                RouteExec.State.Gearset => ImGuiColors.DalamudYellow,
-                _ => ImGuiColors.DalamudWhite
-            };
-
-            string text = ty.ToString();
-
-            if (ty == RouteExec.State.Running)
-            {
-                text = "Idle";
-
-                if (IPCHelper.PathIsRunning())
-                {
-                    text = "Move";
-                    color = ImGuiColors.ParsedGold;
-                }
-
-                if (IPCHelper.PathfindInProgress())
-                {
-                    text = "Pathfind";
-                    color = ImGuiColors.DalamudOrange;
-                }
+                text = "Move";
+                color = ImGuiColors.ParsedGold;
             }
 
-            ImGui.TextColored(color, text);
+            if (IPCHelper.PathfindInProgress())
+            {
+                text = "Pathfind";
+                color = ImGuiColors.DalamudOrange;
+            }
         }
 
-        if (rte._destination != null)
-            ImGui.Text($"Destination: {rte._destination.ShowDebug()}");
+        ImGui.TextColored(color, text);
+
+        ImGui.Text($"Nodes to skip: {string.Join(", ", rte._skippedPoints)}");
+
+        if (rte._destination is IWaypoint pt)
+        {
+            ImGui.Text($"Destination: {pt}");
+            ImGui.Text($"Distance to target: {pt.Pos().DistanceFromPlayer():F2} ({pt.Pos().DistanceFromPlayerXZ():F2} horizontally)");
+        }
 
         if (Svc.Player?.TargetObject is IGameObject tar)
         {
@@ -84,10 +88,8 @@ public class DebugView : Window
             ImGui.Text($"Distance to target: {tar.Position.DistanceFromPlayer():F2} ({tar.Position.DistanceFromPlayerXZ():F2} horizontally)");
         }
 
-        ImGui.Text($"Nodes to skip: {string.Join(", ", rte._skippedPoints)}");
-
-        if (rte._lasterr != "")
-            ImGui.Text($"Last error: {rte._lasterr}");
+        if (UiMessage.LastError != "")
+            ImGui.Text($"Last error: {UiMessage.LastError}");
 
         //var wm = WeatherManager.Instance();
 

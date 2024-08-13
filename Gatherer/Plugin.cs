@@ -1,4 +1,6 @@
 using Dalamud.Game.Command;
+using Dalamud.Game.Text.SeStringHandling;
+using Dalamud.Game.Text.SeStringHandling.Payloads;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
@@ -16,7 +18,7 @@ public sealed class Plugin : IDalamudPlugin
 
     public WindowSystem WindowSystem = new("xgather");
 
-    private Overlay Overlay { get; init; }
+    internal Overlay Overlay { get; init; }
     private DebugView DebugView { get; init; }
 
     internal List<Aetheryte> Aetherytes;
@@ -32,7 +34,7 @@ public sealed class Plugin : IDalamudPlugin
         Svc.Config.RegisterGameItems();
 
         Overlay = new Overlay(new RouteBrowser(), new ItemBrowser(Svc.Config.ItemSearchText)) { IsOpen = Svc.Config.OverlayOpen };
-        DebugView = new DebugView() { IsOpen = Svc.Config.DebugOpen };
+        DebugView = new();
 
         WindowSystem.AddWindow(Overlay);
         WindowSystem.AddWindow(DebugView);
@@ -60,8 +62,34 @@ public sealed class Plugin : IDalamudPlugin
 
     private void OnCommand(string command, string args)
     {
-        Overlay.IsOpen = true;
-        DebugView.IsOpen = true;
+        if (args == "")
+        {
+            DebugView.IsOpen = true;
+            return;
+        }
+
+        if (args == "items")
+        {
+            Overlay.IsOpen = true;
+            return;
+        }
+
+        var it = Svc.ExcelSheet<Lumina.Excel.GeneratedSheets.Item>().FirstOrDefault(it => it.Name.ToString().Contains(args, System.StringComparison.InvariantCultureIgnoreCase));
+        if (it == null)
+        {
+            UiMessage.Error($"No item found for query {args}");
+            return;
+        }
+
+        foreach (var rte in Svc.Config.GetRoutesForItem(it.RowId))
+        {
+            var msg = new SeString().Append("Identified ").Append(new UIForegroundPayload(1)).Append(new ItemPayload(it.RowId)).Append(it.Name.ToString()).Append(RawPayload.LinkTerminator).Append(new UIForegroundPayload(0)).Append($" for \"{args}\"");
+            UiMessage.Info(msg);
+            Svc.Route.Start(rte.Item2);
+            return;
+        }
+
+        UiMessage.Error($"No routes found for item {args}");
     }
 
     private void DrawUI()

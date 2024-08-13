@@ -4,7 +4,6 @@ using Dalamud.Plugin.Services;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
 using FFXIVClientStructs.FFXIV.Client.System.String;
-using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Misc;
 using Lumina.Excel.GeneratedSheets;
 using System;
@@ -32,14 +31,8 @@ public sealed class RouteExec : IDisposable
     internal int _thisDiademWeather = 0;
     internal bool _wantDiadem = false;
     internal GatherClass _wantClass = GatherClass.None;
-    internal string _lasterr = "";
     internal DateTime _retry = DateTime.MinValue;
 
-    // 0 if grounded
-    // 1 = "jumpsquat"
-    // 3 = going up
-    // 4 = stopped
-    // 5 = going down
     internal static unsafe bool PlayerIsFalling
     {
         get
@@ -48,7 +41,13 @@ public sealed class RouteExec : IDisposable
             if (p == null)
                 return true;
 
+            // 0 if grounded
+            // 1 = "jumpsquat"
+            // 3 = going up
+            // 4 = stopped
+            // 5 = going down
             var isJumping = *(byte*)(p.Address + 736) > 0;
+            // 1 iff dismounting and haven't hit the ground yet
             var isAirDismount = **(byte**)(p.Address + 1432) == 1;
 
             return isJumping || isAirDismount;
@@ -102,7 +101,7 @@ public sealed class RouteExec : IDisposable
             var closest = Svc.Plugin.Aetherytes.MinBy(a => a.DistanceToRoute(r));
             if (closest == null)
             {
-                ShowError($"No aetheryte close to destination.");
+                UiMessage.Error($"No aetheryte close to destination.");
                 Stop();
                 return;
             }
@@ -114,6 +113,18 @@ public sealed class RouteExec : IDisposable
         _loopIndex = loopIndex;
         _skippedPoints = [];
         _currentRoute = r;
+    }
+
+    public void NavigateToCenter(GatherRoute r)
+    {
+        if (r.GatherAreaCenter() is Vector3 v)
+        {
+            var maxY = r.Zone == 1192 ? 130 : 1024;
+            var floor = IPCHelper.PointOnFloor(v with { Y = maxY }, Svc.Config.Fly, 5);
+            IPCHelper.PathfindAndMoveTo(floor ?? v, Svc.Config.Fly);
+        }
+        else
+            UiMessage.Error($"No center point recorded for route");
     }
 
     public static GatherRoute? CreateRouteFromObject(IGameObject? obj)
@@ -177,6 +188,7 @@ public sealed class RouteExec : IDisposable
     private static void StopMoving()
     {
         IPCHelper.PathStop();
+        IPCHelper.PathfindCancel();
     }
 
     public void Dispose()
@@ -193,7 +205,11 @@ public sealed class RouteExec : IDisposable
         _retry = DateTime.Now.Add(retryTime);
     }
 
-    private void WaitFor(State type) => WaitFor(type, TimeSpan.MaxValue);
+    private void WaitFor(State type)
+    {
+        CurrentState = type;
+        _retry = DateTime.MaxValue;
+    }
 
     private void Done(State type)
     {
@@ -261,7 +277,7 @@ public sealed class RouteExec : IDisposable
             return;
         }
 
-        if (_destination is GatherPointKnown g && g.Position.DistanceFromPlayerXZ() < 1.5)
+        if (_destination is GatherPointKnown g && g.Position.DistanceFromPlayerXZ() < 1.5 && g.Position.DistanceFromPlayer() < 3)
         {
             StopMoving();
             if (!Dismount())
@@ -307,13 +323,13 @@ public sealed class RouteExec : IDisposable
             var pos = _destination.Pos();
             if (shouldFly && pos.DistanceFromPlayer() > 20)
             {
-                if (_destination.KnownLandable())
+                if (_destination.KnownLandable() || isDiving)
                     IPCHelper.PathfindAndMoveTo(pos, true);
                 else
                 {
                     Svc.Log.Debug($"position: {pos}");
                     var pos2 = IPCHelper.PointOnFloor(pos, false, 2);
-                    IPCHelper.PathfindAndMoveTo(pos2 ?? pos, /*true*/isDiving);
+                    IPCHelper.PathfindAndMoveTo(pos2 ?? pos, /*true*/Svc.Condition[ConditionFlag.InFlight]);
                 }
             }
             // ignore remembered FloorPoint if we aren't planning on fly pathfinding, just navigate directly to target
@@ -438,7 +454,7 @@ public sealed class RouteExec : IDisposable
         }
         else
         {
-            ShowError("No waypoints in range.");
+            UiMessage.Error("No waypoints in range.");
             Stop();
         }
     }
@@ -455,7 +471,7 @@ public sealed class RouteExec : IDisposable
                 : IPCHelper.PointOnFloor(p with { Y = PathfindMaxY }, true, 5);
             if (fl == null)
             {
-                ShowError($"No point near {p}, find it manually");
+                UiMessage.Error($"No point near {p}, find it manually");
                 return null;
             }
 
@@ -503,7 +519,7 @@ public sealed class RouteExec : IDisposable
 
         if (_skippedPoints.Contains(objId))
         {
-            ShowError("We tried everything and nothing worked");
+            UiMessage.Error("We tried everything and nothing worked");
             Stop();
             return null;
         }
@@ -572,7 +588,7 @@ public sealed class RouteExec : IDisposable
         var gearsetId = gearsetModule->FindGearsetIdByName(Utf8String.FromString(needClass));
         if (gearsetId == -1)
         {
-            ShowError($"No gearset registered for {needClass}.");
+            UiMessage.Error($"No gearset registered for {needClass}.");
             Done(State.Gearset);
             // assume user knows what they're doing
             return true;
@@ -616,13 +632,6 @@ public sealed class RouteExec : IDisposable
         return false;
     }
 
-    private void ShowError(string msg)
-    {
-        Svc.Chat.PrintError(msg);
-        UIModule.PlaySound(40);
-        _lasterr = msg;
-    }
-
     private bool PathfindComplete => IPCHelper.NavmeshIsReady() && !IPCHelper.PathfindInProgress() && !IPCHelper.PathIsRunning() && IPCHelper.PathfindQueued() == 0 && _destination != null;
 
     private IWaypoint CreateWaypointFromObject(IGameObject g)
@@ -644,7 +653,6 @@ interface IWaypoint
 {
     public Vector3 Pos();
     public bool KnownLandable();
-    public string ShowDebug();
 }
 
 class GatherPointSearch : IWaypoint
@@ -656,8 +664,8 @@ class GatherPointSearch : IWaypoint
     public Vector3 Pos() => Center;
     public bool KnownLandable() => Landable;
 
-    public string ShowDebug() =>
-        $"Unloaded gather point near {Center}\n" +
+    public override string ToString() =>
+        $"Unloaded gather point near {Utils.ShowV3(Center)}\n" +
         $"Candidate IDs: {string.Join(", ", DataIDs.Select(d => $"0x{d:X}"))}";
 }
 
@@ -669,7 +677,7 @@ class GatherPointKnown : IWaypoint
     public Vector3 Pos() => Position;
     public bool KnownLandable() => false;
 
-    public string ShowDebug() => $"Gather point with ID 0x{DataID:X} at {Position}";
+    public override string ToString() => $"Gather point with ID 0x{DataID:X} at {Utils.ShowV3(Position)}";
 }
 
 class FloorPoint : IWaypoint
@@ -680,5 +688,5 @@ class FloorPoint : IWaypoint
     public Vector3 Pos() => FloorPosition;
     public bool KnownLandable() => true;
 
-    public string ShowDebug() => $"Landing point override for {Node.ShowDebug()}";
+    public override string ToString() => $"Landing point override for {Node}";
 }

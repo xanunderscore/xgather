@@ -3,7 +3,7 @@ using ImGuiNET;
 
 namespace xgather.Windows;
 
-internal class Overlay(RouteBrowser routes, ItemBrowser items) : Window("xgather")
+internal class Overlay(RouteBrowser routes, ItemBrowser items) : Window("xgather overlay")
 {
     // public override bool DrawConditions() => Utils.IsGatherer;
 
