@@ -197,7 +197,7 @@ public sealed class RouteExec : IDisposable
         Svc.Condition.ConditionChange -= OnConditionChange;
     }
 
-    private bool WaitingFor(State type) => CurrentState == type && _retry > DateTime.Now;
+    private unsafe bool WaitingFor(State type) => CurrentState == type && (_retry > DateTime.Now || ActionManager.Instance()->AnimationLock > 0);
 
     private void WaitFor(State type, TimeSpan retryTime)
     {
@@ -608,9 +608,10 @@ public sealed class RouteExec : IDisposable
             return true;
         }
 
-        if (WaitingFor(State.Mount))
+        if (WaitingFor(State.Mount) || Svc.Condition[ConditionFlag.Unknown57])
             return false;
 
+        Svc.Log.Debug($"executing Mount {CurrentState}, {_retry}");
         ActionManager.Instance()->UseAction(ActionType.GeneralAction, 24);
         WaitFor(State.Mount, TimeSpan.FromMilliseconds(1000));
         return false;
@@ -627,6 +628,7 @@ public sealed class RouteExec : IDisposable
         if (WaitingFor(State.Dismount) || PlayerIsFalling)
             return false;
 
+        Svc.Log.Debug($"executing Dismount {CurrentState}, {_retry}");
         ActionManager.Instance()->UseAction(ActionType.GeneralAction, 23);
         WaitFor(State.Dismount, TimeSpan.FromMilliseconds(250));
         return false;

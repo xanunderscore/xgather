@@ -15,13 +15,15 @@ public class DebugView : Window
     private byte _currentDiademWeather = 0;
     private DateTime _diademWeatherSwap = DateTime.MinValue;
 
-    public DebugView() : base("xgather") { }
+    public DebugView() : base("xgather", ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoResize) { }
 
     public override unsafe void Draw()
     {
+        /*
         var record = Svc.Plugin.RecordMode;
         if (ImGui.Checkbox("Record gathering point locations", ref record))
             Svc.Plugin.RecordMode = record;
+        */
 
         var rte = Svc.Route;
 
