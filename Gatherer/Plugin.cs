@@ -18,8 +18,8 @@ public sealed class Plugin : IDalamudPlugin
 
     public WindowSystem WindowSystem = new("xgather");
 
-    internal Overlay Overlay { get; init; }
-    private DebugView DebugView { get; init; }
+    internal BrowserView Overlay { get; init; }
+    private Overlay DebugView { get; init; }
 
     internal List<Aetheryte> Aetherytes;
 
@@ -33,7 +33,7 @@ public sealed class Plugin : IDalamudPlugin
 
         Svc.Config.RegisterGameItems();
 
-        Overlay = new Overlay(new RouteBrowser(), new ItemBrowser(Svc.Config.ItemSearchText)) { IsOpen = Svc.Config.OverlayOpen };
+        Overlay = new BrowserView(new RouteBrowser(), new ItemBrowser(Svc.Config.ItemSearchText)) { IsOpen = Svc.Config.OverlayOpen };
         DebugView = new();
 
         WindowSystem.AddWindow(Overlay);

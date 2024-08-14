@@ -25,5 +25,5 @@ internal static class UiMessage
 
     public static void Info(string message) => Info((SeString)message);
 
-    private static SeString Wrap(SeString msg, ushort iconColor = 12) => new SeString(new UIForegroundPayload(iconColor)).Append(SeIconChar.CrossWorld.ToIconString()).Append(new UIForegroundPayload(0)).Append(" ").Append(msg);
+    private static SeString Wrap(SeString msg, ushort iconColor = 12) => new SeString(new UIForegroundPayload(iconColor)).Append(SeIconChar.CrossWorld.ToIconString()).Append(new UIForegroundPayload(0)).Append(" [xgather] ").Append(msg);
 }

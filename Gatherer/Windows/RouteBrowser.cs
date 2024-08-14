@@ -15,7 +15,7 @@ public class RouteBrowser
 
     public void Draw()
     {
-        if (ImGui.BeginChild("Left", new Vector2(150 * ImGuiHelpers.GlobalScale, -1), false))
+        if (ImGui.BeginChild("Left", new Vector2(300 * ImGuiHelpers.GlobalScale, -1), false, ImGuiWindowFlags.AlwaysAutoResize))
         {
             DrawSidebar();
             ImGui.EndChild();
