@@ -1,9 +1,9 @@
 using ImGuiNET;
 using Lumina.Excel.GeneratedSheets;
 
-namespace xgather;
+namespace xgather.UI;
 
-internal class Ui
+internal class Helpers
 {
     internal static void DrawItem(Item it, int iconSize = 32)
     {

@@ -1,5 +1,6 @@
 using Dalamud.Configuration;
 using Dalamud.Game.ClientState.Objects.Types;
+using FFXIVClientStructs.FFXIV.Client.Game;
 using Lumina.Excel.GeneratedSheets;
 using Newtonsoft.Json;
 using System;
@@ -36,28 +37,25 @@ internal static class GCExt
 }
 
 [Serializable]
-public record struct GatherPointObject(uint DataId, Vector3 Position, Vector3? GatherLocation)
+public record struct GatherPoint(uint DataId, Vector3 Position, Vector3? GatherLocation)
 {
-    public GatherPointObject(IGameObject obj) : this(obj.DataId, obj.Position, null) { }
+    public GatherPoint(IGameObject obj) : this(obj.DataId, obj.Position, null) { }
 
     [JsonIgnore] public readonly Vector3 NaviPosition => GatherLocation ?? Position;
     [JsonIgnore] public readonly float DistanceFromPlayer => NaviPosition.DistanceFromPlayer();
 }
 
 [Serializable]
-public class GatherRoute
+public class GatherPointBase
 {
     public required uint Zone;
     public required string Label;
     public required List<GatherPointId> Nodes;
     public List<ItemId> Items = [];
     public required GatherClass Class;
-
-    // if null, this is a user-created ordered gathering route (i.e. diadem)
-    public uint? GatheringPointBaseId;
+    public uint GatheringPointBaseId;
 
     [JsonIgnore] public bool IsUnderwater => Items.Any(x => x >= 20000);
-    [JsonIgnore] public bool Ordered => GatheringPointBaseId == null;
 
     [JsonIgnore] public TerritoryType TerritoryType => Svc.ExcelRow<TerritoryType>(Zone)!;
 
@@ -73,32 +71,85 @@ public class GatherRoute
 
         return null;
     }
+
+    public GatheringPointTransient? GetTransient()
+    {
+        var gpt = Svc.ExcelRow<GatheringPointTransient>(Nodes[0]);
+        if (gpt == null)
+            return null;
+
+        if (gpt.EphemeralStartTime == 65535 && gpt.EphemeralEndTime == 65535 && gpt.GatheringRarePopTimeTable.Row == 0)
+            return null;
+
+        return gpt;
+    }
+
+    public (DateTime start, DateTime end) NextReadyIn()
+    {
+        return (DateTime.MinValue, DateTime.MaxValue);
+    }
+}
+
+[Serializable]
+public record struct TodoList(string? Name, Dictionary<uint, TodoItem> Items, bool Ephemeral = false)
+{
+    public void Add(TodoItem item)
+    {
+        if (Items.TryGetValue(item.ItemId, out var entry))
+            Items[item.ItemId] = entry with { Required = entry.Required + item.Required };
+        else
+            Items.Add(item.ItemId, item);
+    }
+
+    public void UpdateRequired(uint itemId, uint quantity)
+    {
+        if (quantity == 0)
+        {
+            Items.Remove(itemId);
+            return;
+        }
+
+        if (Items.TryGetValue(itemId, out var entry))
+            Items[itemId] = entry with { Required = Math.Max(1u, quantity) };
+    }
+}
+
+[Serializable]
+public record struct TodoItem(uint ItemId, uint Required)
+{
+    [JsonIgnore]
+    public readonly unsafe uint QuantityOwned => (uint)InventoryManager.Instance()->GetInventoryItemCount(ItemId, minCollectability: (short)Utils.GetMinCollectability(ItemId));
+
+    [JsonIgnore]
+    public readonly uint QuantityNeeded => QuantityOwned >= Required ? 0 : Required - QuantityOwned;
 }
 
 [Serializable]
 public class Configuration : IPluginConfiguration
 {
     [JsonProperty] private readonly SortedDictionary<ItemId, List<RouteId>> ItemLookup = [];
-    [JsonProperty] private readonly Dictionary<RouteId, GatherRoute> Routes = [];
+    [JsonProperty] private readonly Dictionary<RouteId, GatherPointBase> GPBase = [];
     [JsonProperty] private readonly Dictionary<GatherPointId, HashSet<SingleGatherPointId>> GatherPointObjects = [];
-    [JsonProperty] private readonly Dictionary<SingleGatherPointId, GatherPointObject> GatherPointObjectsById = [];
+    [JsonProperty] private readonly Dictionary<SingleGatherPointId, GatherPoint> GatherPointObjectsById = [];
 
-    [JsonIgnore] public IEnumerable<(RouteId, GatherRoute)> AllRoutes => Routes.Select(x => (x.Key, x.Value));
-    [JsonIgnore] public int RouteCount => Routes.Count;
+    [JsonIgnore] public IEnumerable<(RouteId, GatherPointBase)> AllGatherPointGroups => GPBase.Select(x => (x.Key, x.Value));
+    [JsonIgnore] public int GatherPointGroupCount => GPBase.Count;
     [JsonIgnore]
-    public IEnumerable<(ItemId, IEnumerable<(RouteId, GatherRoute)>)> ItemDB
+    public IEnumerable<(ItemId, IEnumerable<(RouteId, GatherPointBase)>)> ItemDB
     {
         get
         {
             foreach ((var it, var rtes) in ItemLookup)
-                yield return (it, rtes.Select(x => (x, Routes[x])));
+                yield return (it, rtes.Select(x => (x, GPBase[x])));
         }
     }
 
-    public IEnumerable<(RouteId, GatherRoute)> GetRoutesForItem(uint itemId)
+    public List<TodoList> Lists = [];
+
+    public IEnumerable<GatherPointBase> GetGatherPointGroupsForItem(uint itemId)
     {
         if (ItemLookup.TryGetValue(itemId, out var routes))
-            return routes.Select(x => (x, Routes[x]));
+            return routes.Select(x => GPBase[x]);
 
         return [];
     }
@@ -120,17 +171,18 @@ public class Configuration : IPluginConfiguration
 
     public static SingleGatherPointId GetKey(uint dataId, Vector3 pos) => Convert.ToHexString(SHA1.HashData(Encoding.UTF8.GetBytes($"{dataId} {(int)pos.X} {(int)pos.Y} {(int)pos.Z}")), 0, 16);
 
-    public void AddRoute(GatherRoute rte)
+    private void AddGPBase(GatherPointBase gpb)
     {
-        var nextRouteId = Routes.Count == 0 ? 0 : Routes.Keys.Max() + 1;
-        Routes.Add(nextRouteId, rte);
-        foreach (var itemId in rte.Items)
+        var nextRouteId = GPBase.Count == 0 ? 0 : GPBase.Keys.Max() + 1;
+        GPBase.Add(nextRouteId, gpb);
+        foreach (var itemId in gpb.Items)
         {
             ItemLookup.TryAdd(itemId, []);
             ItemLookup[itemId].Add(nextRouteId);
         }
     }
 
+    /*
     public void DeleteRoute(RouteId routeId)
     {
         foreach (var itemId in ItemLookup.Keys.ToList())
@@ -139,12 +191,13 @@ public class Configuration : IPluginConfiguration
             if (ItemLookup[itemId].Count == 0)
                 ItemLookup.Remove(itemId);
         }
-        Routes.Remove(routeId);
+        GPBase.Remove(routeId);
     }
+    */
 
-    public bool TryGetRoute(RouteId routeId, [MaybeNullWhen(false)] out GatherRoute route) => Routes.TryGetValue(routeId, out route);
+    public bool TryGetGatherPointBase(RouteId routeId, [MaybeNullWhen(false)] out GatherPointBase route) => GPBase.TryGetValue(routeId, out route);
 
-    public IEnumerable<GatherPointObject> GetKnownPoints(GatherPointId dataId)
+    public IEnumerable<GatherPoint> GetKnownPoints(GatherPointId dataId)
     {
         if (GatherPointObjects.TryGetValue(dataId, out var points))
             foreach (var p in points)
@@ -185,7 +238,7 @@ public class Configuration : IPluginConfiguration
         var objId = GetKey(obj.DataId, obj.Position);
         GatherPointObjects.TryAdd(key, []);
         GatherPointObjects[key].Add(objId);
-        if (GatherPointObjectsById.TryAdd(objId, new GatherPointObject(obj)))
+        if (GatherPointObjectsById.TryAdd(objId, new GatherPoint(obj)))
             Svc.Log.Debug($"found NEW entry for {obj.DataId} - position is {obj.Position.X:F10}, {obj.Position.Y:F10}, {obj.Position.Z:F10}");
     }
 
@@ -232,7 +285,7 @@ public class Configuration : IPluginConfiguration
                 continue;
 
             // already got a route for this
-            if (AllRoutes.Any(r => r.Item2.GatheringPointBaseId == gpBase.RowId))
+            if (AllGatherPointGroups.Any(r => r.Item2.GatheringPointBaseId == gpBase.RowId))
                 continue;
 
             var ttName = gatherPointGroup.First().TerritoryType.Value!.PlaceName.Value!.Name;
@@ -248,11 +301,11 @@ public class Configuration : IPluginConfiguration
 
             var label = $"Level {gpBase.GatheringLevel} {gatherType} @ {gatherPointGroup.First().TerritoryType.Value!.PlaceName.Value!.Name}";
 
-            var newRoute = new GatherRoute()
+            var newGPB = new GatherPointBase()
             {
                 Label = label,
                 Zone = gatherPointGroup.First().TerritoryType.Row,
-                Nodes = gatherPointGroup.Select(x => (GatherPointId)x.RowId).ToList(),
+                Nodes = gatherPointGroup.Select(x => x.RowId).ToList(),
                 GatheringPointBaseId = gpBase.RowId,
                 Class = gpBase.GetRequiredClass(),
                 Items = gpBase.Item.Where(x => x > 0).Select(it =>
@@ -274,7 +327,7 @@ public class Configuration : IPluginConfiguration
                 }).ToList()
             };
 
-            AddRoute(newRoute);
+            AddGPBase(newGPB);
         }
     }
 }

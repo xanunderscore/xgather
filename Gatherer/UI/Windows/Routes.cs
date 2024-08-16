@@ -1,15 +1,17 @@
+using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Interface;
 using Dalamud.Interface.Components;
 using Dalamud.Interface.Utility;
 using Dalamud.Interface.Utility.Raii;
 using ImGuiNET;
-using Lumina.Excel.GeneratedSheets;
+using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using xgather.Executors;
 
-namespace xgather.Windows;
+namespace xgather.UI.Windows;
 
-public class RouteBrowser
+internal class Routes
 {
     private string _manualDataId = "";
 
@@ -46,10 +48,11 @@ public class RouteBrowser
 
     private static void DrawSidebar()
     {
+        /*
         if (ImGuiComponents.IconButton(FontAwesomeIcon.Route))
         {
             var tt = Svc.Data.GetExcelSheet<TerritoryType>()!.GetRow(Svc.ClientState.TerritoryType)!.PlaceName.Value!.Name;
-            var newRoute = new GatherRoute
+            var newRoute = new GatherPointBase
             {
                 Label = $"Unnamed Route ({tt})",
                 Nodes = [],
@@ -57,18 +60,20 @@ public class RouteBrowser
                 Class = GatherClass.None,
             };
             Svc.Config.AddRoute(newRoute);
-            Svc.Config.SelectedRoute = Svc.Config.RouteCount - 1;
+            Svc.Config.SelectedRoute = Svc.Config.GatherPointGroupCount - 1;
         }
 
         if (ImGui.IsItemHovered())
             ImGui.SetTooltip("Create new (empty) ordered route");
 
         ImGui.Separator();
+        */
 
 
+        /*
         if (ImGui.BeginChild("Routes"))
         {
-            foreach ((var rteId, var rte) in Svc.Config.AllRoutes.Where(x => x.Item2.MissingPoints()).OrderBy(x => x.Item2.TerritoryType.RowId == Svc.ClientState.TerritoryType ? x.Item2.GatherAreaCenter()?.DistanceFromPlayer() ?? float.MaxValue : float.MaxValue))
+            foreach ((var rteId, var rte) in Svc.Config.AllRoutes.Where(x => x.Item2.Ordered))
             {
                 if (ImGui.Selectable($"{rte.Label}###route{rteId}", rteId == Svc.Config.SelectedRoute))
                 {
@@ -77,26 +82,29 @@ public class RouteBrowser
             }
             ImGui.EndChild();
         }
+        */
     }
 
     private void DrawEditor()
     {
-        if (!Svc.Config.TryGetRoute(Svc.Config.SelectedRoute, out var selectedRoute))
+        if (!Svc.Config.TryGetGatherPointBase(Svc.Config.SelectedRoute, out var selectedRoute))
             return;
 
-        if (Svc.Route.CurrentState == RouteExec.State.Stopped)
+        if (Svc.Executor.CurrentState == ExecutorBase.State.Stopped)
         {
             if (ImGuiComponents.IconButton(FontAwesomeIcon.Play))
-                Svc.Route.Start(selectedRoute);
+                Svc.Executor.Start(selectedRoute);
 
+            /*
             ImGui.SameLine();
             if (ImGuiComponents.IconButton(FontAwesomeIcon.Map))
                 Svc.Route.NavigateToCenter(selectedRoute);
+            */
         }
         else
         {
             if (ImGuiComponents.IconButton(FontAwesomeIcon.Stop))
-                Svc.Route.Stop();
+                Svc.Executor.Stop();
         }
 
         ImGui.SameLine();
@@ -105,12 +113,14 @@ public class RouteBrowser
         if (!ctrlHeld)
             ImGui.BeginDisabled();
 
+        /*
         if (ImGuiComponents.IconButton(FontAwesomeIcon.Trash))
         {
-            Svc.Route.Stop();
+            Svc.Executor.Stop();
             Svc.Config.DeleteRoute(Svc.Config.SelectedRoute);
             Svc.Config.SelectedRoute = -1;
         }
+        */
         if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
             ImGui.SetTooltip("Delete Route (Hold CTRL)");
 
@@ -126,6 +136,7 @@ public class RouteBrowser
             selectedRoute.Label = label;
         }
 
+        /*
         if (selectedRoute.Ordered)
         {
             ImGui.SameLine();
@@ -137,7 +148,7 @@ public class RouteBrowser
 
             if (ImGuiComponents.IconButton("###newtargetbtn", FontAwesomeIcon.Plus) && tar != null)
             {
-                var newNode = RouteExec.CreateNodeFromObject(tar);
+                var newNode = CreateNodeFromObject(tar);
                 if (newNode is (var newId, var newPoints))
                 {
                     selectedRoute.Nodes.Add(newId);
@@ -158,7 +169,7 @@ public class RouteBrowser
             {
                 if (uint.TryParse(_manualDataId, System.Globalization.NumberStyles.HexNumber, null, out var did))
                 {
-                    var nearby = RouteExec.FindGatherPoints(obj => obj.DataId == did);
+                    var nearby = ExecutorBase.FindGatherPoints(obj => obj.DataId == did);
                     selectedRoute.Nodes.Add(did);
                     Svc.Config.RecordPositions(nearby);
                     _manualDataId = "";
@@ -168,32 +179,41 @@ public class RouteBrowser
 
         if (!selectedRoute.Ordered)
         {
-            foreach (var itemId in selectedRoute.Items)
-                Ui.DrawItem(itemId);
+        */
+        foreach (var itemId in selectedRoute.Items)
+            Helpers.DrawItem(itemId);
 
-            foreach (var did in selectedRoute.Nodes)
+        foreach (var did in selectedRoute.Nodes)
+        {
+            ImGui.Text($"{did:X}");
+            foreach (var gobj in Svc.Config.GetKnownPoints(did))
             {
-                ImGui.Text($"{did:X}");
-                foreach (var gobj in Svc.Config.GetKnownPoints(did))
+                ImGui.Text($"  {gobj.Position}");
+                if (gobj.GatherLocation != null)
                 {
-                    ImGui.Text($"  {gobj.Position}");
-                    if (gobj.GatherLocation != null)
-                    {
-                        ImGui.SameLine();
-                        ImGui.Text($" ({gobj.GatherLocation})");
-                        ImGui.SameLine();
-                        var k = Configuration.GetKey(gobj.DataId, gobj.Position);
-                        if (ImGui.Button($"Forget###forget{k}"))
-                            Svc.Config.UpdateFloorPoint(gobj.DataId, gobj.Position, _ => null);
-                    }
+                    ImGui.SameLine();
+                    ImGui.Text($" ({gobj.GatherLocation})");
+                    ImGui.SameLine();
+                    var k = Configuration.GetKey(gobj.DataId, gobj.Position);
+                    if (ImGui.Button($"Forget###forget{k}"))
+                        Svc.Config.UpdateFloorPoint(gobj.DataId, gobj.Position, _ => null);
                 }
             }
         }
 
-        if (selectedRoute.Ordered)
-            DrawWaypoints(selectedRoute);
+        //if (selectedRoute.Ordered)
+        //    DrawWaypoints(selectedRoute);
     }
 
+    public static (uint, IEnumerable<IGameObject>)? CreateNodeFromObject(IGameObject? obj)
+    {
+        if (obj == null || obj.ObjectKind != Dalamud.Game.ClientState.Objects.Enums.ObjectKind.GatheringPoint)
+            return null;
+
+        return (obj.DataId, Svc.ObjectTable.Where(x => x.DataId == obj.DataId));
+    }
+
+    /*
     private static void DrawWaypoints(GatherRoute route)
     {
         var i = 0;
@@ -229,4 +249,5 @@ public class RouteBrowser
             i += 1;
         }
     }
+    */
 }

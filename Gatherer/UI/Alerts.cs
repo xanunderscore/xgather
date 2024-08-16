@@ -4,9 +4,9 @@ using Dalamud.Game.Text.SeStringHandling.Payloads;
 using Dalamud.Interface;
 using FFXIVClientStructs.FFXIV.Client.UI;
 
-namespace xgather;
+namespace xgather.UI;
 
-internal static class UiMessage
+internal static class Alerts
 {
     public static string LastError { get; private set; } = "";
 
@@ -20,6 +20,13 @@ internal static class UiMessage
     }
 
     public static void Error(string message) => Error((SeString)message);
+
+    public static void Success(SeString message)
+    {
+        Svc.Chat.Print(Wrap(message, iconColor: 45));
+        UIModule.PlayChatSoundEffect(1);
+    }
+    public static void Success(string message) => Success((SeString)message);
 
     public static void Info(SeString message) => Svc.Chat.Print(Wrap(message));
 

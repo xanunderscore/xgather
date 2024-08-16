@@ -3,6 +3,7 @@ using Lumina.Excel.GeneratedSheets;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -86,6 +87,36 @@ internal static class Utils
     }
 
     internal static string ShowV3(Vector3 vec) => $"[{vec.X:F2}, {vec.Y:F2}, {vec.Z:F2}]";
+
+    public static uint GetMinCollectability(uint itemId)
+    {
+        var collectableItem = Svc.ExcelSheet<CollectablesShopItem>().FirstOrDefault(x => x.Item.Row == itemId);
+        if (collectableItem?.CollectablesShopRefine?.Value is not CollectablesShopRefine rewardData)
+            return 0;
+
+        return rewardData.LowCollectability;
+    }
+
+    public static unsafe bool PlayerIsFalling
+    {
+        get
+        {
+            var p = Svc.ClientState.LocalPlayer;
+            if (p == null)
+                return true;
+
+            // 0 if grounded
+            // 1 = "jumpsquat"
+            // 3 = going up
+            // 4 = stopped
+            // 5 = going down
+            var isJumping = *(byte*)(p.Address + 736) > 0;
+            // 1 iff dismounting and haven't hit the ground yet
+            var isAirDismount = **(byte**)(p.Address + 1432) == 1;
+
+            return isJumping || isAirDismount;
+        }
+    }
 }
 
 internal static class VectorExt

@@ -5,6 +5,7 @@ using Dalamud.IoC;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using Lumina.Excel;
+using xgather.Executors;
 
 namespace xgather;
 
@@ -12,7 +13,8 @@ public class Svc
 {
 #nullable disable
     public static Plugin Plugin { get; private set; }
-    public static RouteExec Route { get; private set; }
+    public static ListExecutor Executor { get; private set; }
+    public static GatheringHandler Gather { get; private set; }
 
     [PluginService] public static IDalamudPluginInterface PluginInterface { get; private set; }
     [PluginService] public static ICommandManager CommandManager { get; private set; }
@@ -26,6 +28,7 @@ public class Svc
     [PluginService] public static ITextureProvider TextureProvider { get; private set; }
     [PluginService] public static ISigScanner SigScanner { get; private set; }
     [PluginService] public static IChatGui Chat { get; private set; }
+    [PluginService] public static IAddonLifecycle AddonLifecycle { get; private set; }
     public static Configuration Config { get; private set; }
 #nullable enable
 
@@ -41,8 +44,8 @@ public class Svc
         pi.Create<Svc>();
 
         Config = pi.GetPluginConfig() as Configuration ?? new Configuration();
-        Route = new RouteExec();
-        Route.Init();
+        Executor = new();
+        Gather = new();
         Plugin = plugin;
     }
 

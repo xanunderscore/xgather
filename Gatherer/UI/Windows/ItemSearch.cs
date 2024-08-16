@@ -4,9 +4,9 @@ using ImGuiNET;
 using Lumina.Excel.GeneratedSheets;
 using System.Linq;
 
-namespace xgather.Windows;
+namespace xgather.UI.Windows;
 
-internal class ItemBrowser(string initialSearchText)
+internal class ItemSearch(string initialSearchText)
 {
     private string _searchText = initialSearchText;
 
@@ -17,7 +17,7 @@ internal class ItemBrowser(string initialSearchText)
 
         ImGui.BeginTable("items", 4, ImGuiTableFlags.Resizable | ImGuiTableFlags.BordersInnerV);
         ImGui.TableSetupColumn("Item", ImGuiTableColumnFlags.WidthFixed, 250);
-        ImGui.TableSetupColumn("Routes");
+        ImGui.TableSetupColumn("Zones");
         ImGui.TableSetupColumn("Misc");
         ImGui.TableSetupColumn("###buttons", ImGuiTableColumnFlags.WidthFixed, 64);
         ImGui.TableHeadersRow();
@@ -35,7 +35,7 @@ internal class ItemBrowser(string initialSearchText)
 
                 ImGui.TableNextRow();
                 ImGui.TableNextColumn();
-                Ui.DrawItem(it);
+                Helpers.DrawItem(it);
 
                 ImGui.TableNextColumn();
                 ImGui.Text(string.Join(", ", routes.Select(r => r.Item2.Label)));
@@ -46,7 +46,7 @@ internal class ItemBrowser(string initialSearchText)
                 ImGui.TableNextColumn();
 
                 int routeId;
-                GatherRoute route;
+                GatherPointBase route;
                 var isNearby = false;
 
                 if (routes.TryFirst(r => r.Item2.Zone == Svc.ClientState.TerritoryType, out var nearbyRoute))
@@ -57,26 +57,25 @@ internal class ItemBrowser(string initialSearchText)
                 else
                     (routeId, route) = routes.First();
 
-                DrawStartRouteButton(itemId, routeId, route, isNearby);
+                DrawStartRouteButton(itemId, route, isNearby);
             }
         }
 
         ImGui.EndTable();
     }
 
-    private void DrawStartRouteButton(uint itemId, int routeId, GatherRoute route, bool isSameZone)
+    private void DrawStartRouteButton(uint itemId, GatherPointBase route, bool isSameZone)
     {
-        if (Svc.Config.SelectedRoute == routeId && Svc.Route.IsActive)
+        if (Svc.Executor.IsActive)
         {
             if (ImGuiComponents.IconButton($"###stopbutton{itemId}", FontAwesomeIcon.Stop))
-                Svc.Route.Stop();
+                Svc.Executor.Stop();
         }
         else
         {
             if (ImGuiComponents.IconButton($"###playbutton{itemId}", FontAwesomeIcon.Play))
             {
-                Svc.Config.SelectedRoute = routeId;
-                Svc.Route.Start(route);
+                Svc.Executor.Start(route);
             }
         }
     }

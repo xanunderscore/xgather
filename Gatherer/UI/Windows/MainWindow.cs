@@ -1,28 +1,21 @@
 using Dalamud.Interface.Windowing;
 using ImGuiNET;
 
-namespace xgather.Windows;
+namespace xgather.UI.Windows;
 
-internal class BrowserView(RouteBrowser routes, ItemBrowser items) : Window("xgather browser")
+internal class MainWindow(Routes routes, ItemSearch items, Lists lists) : Window("xgather browser")
 {
     // public override bool DrawConditions() => Utils.IsGatherer;
-
-    public override void OnClose()
-    {
-        Svc.Config.OverlayOpen = false;
-        base.OnClose();
-    }
-
-    public override void OnOpen()
-    {
-        Svc.Config.OverlayOpen = true;
-        base.OnOpen();
-    }
 
     public override void Draw()
     {
         if (ImGui.BeginTabBar("tabs"))
         {
+            if (ImGui.BeginTabItem("Lists"))
+            {
+                lists.Draw();
+                ImGui.EndTabItem();
+            }
             if (ImGui.BeginTabItem("Routes"))
             {
                 routes.Draw();

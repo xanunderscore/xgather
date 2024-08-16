@@ -5,8 +5,9 @@ using Dalamud.Interface.Components;
 using Dalamud.Interface.Windowing;
 using ImGuiNET;
 using System;
+using xgather.Executors;
 
-namespace xgather.Windows;
+namespace xgather.UI.Windows;
 
 public class Overlay : Window
 {
@@ -15,7 +16,28 @@ public class Overlay : Window
     //private readonly byte _currentDiademWeather = 0;
     //private readonly DateTime _diademWeatherSwap = DateTime.MinValue;
 
-    public Overlay() : base("xgather", ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse) { }
+    public Overlay() : base("xgather", ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse)
+    {
+        TitleBarButtons.Add(new TitleBarButton()
+        {
+            Icon = FontAwesomeIcon.Cog,
+            Priority = -1,
+            IconOffset = new(2, 1),
+            Click = (_) => Svc.Plugin.MainWindow.IsOpen = true
+        });
+    }
+
+    public override void OnClose()
+    {
+        Svc.Config.OverlayOpen = false;
+        base.OnClose();
+    }
+
+    public override void OnOpen()
+    {
+        Svc.Config.OverlayOpen = true;
+        base.OnOpen();
+    }
 
     public override unsafe void Draw()
     {
@@ -25,39 +47,42 @@ public class Overlay : Window
             Svc.Plugin.RecordMode = record;
         */
 
-        var rte = Svc.Route;
+        var exec = Svc.Executor;
 
-        if (rte._currentRoute == null)
+        if (exec.CurrentRoute == null)
         {
             ImGui.Text("Current route: none");
             return;
         }
-        if (Svc.Route.CurrentState == RouteExec.State.Stopped)
+        if (exec.CurrentState == ExecutorBase.State.Stopped)
         {
             if (ImGuiComponents.IconButton(FontAwesomeIcon.Play))
-                Svc.Route.Start(rte._currentRoute);
+                exec.Start();
         }
         else if (ImGuiComponents.IconButton(FontAwesomeIcon.Stop))
-            Svc.Route.Stop();
+        {
+            exec.Stop();
+            return;
+        }
 
         ImGui.SameLine();
-        ImGui.Text(rte._currentRoute.Label);
+        ImGui.Text(exec.CurrentRoute.Label);
 
-        var ty = rte.CurrentState;
+        var ty = exec.CurrentState;
 
         var color = ty switch
         {
-            RouteExec.State.Teleport => ImGuiColors.TankBlue,
-            RouteExec.State.Mount => ImGuiColors.ParsedPink,
-            RouteExec.State.Dismount => ImGuiColors.DalamudViolet,
-            RouteExec.State.Gathering => ImGuiColors.HealerGreen,
-            RouteExec.State.Gearset => ImGuiColors.DalamudYellow,
+            ExecutorBase.State.Teleport => ImGuiColors.TankBlue,
+            ExecutorBase.State.Mount => ImGuiColors.ParsedPink,
+            ExecutorBase.State.Dismount => ImGuiColors.DalamudViolet,
+            ExecutorBase.State.Gathering => ImGuiColors.HealerGreen,
+            ExecutorBase.State.Gearset => ImGuiColors.DalamudYellow,
             _ => ImGuiColors.DalamudWhite
         };
 
         var text = ty.ToString();
 
-        if (ty == RouteExec.State.Running)
+        if (ty == ExecutorBase.State.Idle)
         {
             text = "Idle";
 
@@ -76,12 +101,12 @@ public class Overlay : Window
 
         ImGui.TextColored(color, text);
 
-        ImGui.Text($"Nodes to skip: {string.Join(", ", rte._skippedPoints)}");
+        // ImGui.Text($"Nodes to skip: {string.Join(", ", rte._skippedPoints)}");
 
-        if (rte._destination is IWaypoint pt)
+        if (exec.Destination is IWaypoint pt)
         {
             ImGui.Text($"Destination: {pt}");
-            ImGui.Text($"Distance to target: {pt.Pos().DistanceFromPlayer():F2} ({pt.Pos().DistanceFromPlayerXZ():F2} horizontally)");
+            ImGui.Text($"Distance to target: {pt.GetPosition().DistanceFromPlayer():F2} ({pt.GetPosition().DistanceFromPlayerXZ():F2} horizontally)");
         }
 
         if (Svc.Player?.TargetObject is IGameObject tar)
@@ -90,8 +115,8 @@ public class Overlay : Window
             ImGui.Text($"Distance to target: {tar.Position.DistanceFromPlayer():F2} ({tar.Position.DistanceFromPlayerXZ():F2} horizontally)");
         }
 
-        if (UiMessage.LastError != "")
-            ImGui.Text($"Last error: {UiMessage.LastError}");
+        if (Alerts.LastError != "")
+            ImGui.Text($"Last error: {Alerts.LastError}");
 
         //var wm = WeatherManager.Instance();
 
@@ -141,7 +166,7 @@ public class Overlay : Window
         //    RouteExec.EnterDiadem();
     }
 
-    private float MarkerToMap(float x, float scale) => (int)((2 * x / scale) + 100.9);
+    private float MarkerToMap(float x, float scale) => (int)(2 * x / scale + 100.9);
 
     private DateTime CalcNextSwap(DateTime lastSwap)
     {

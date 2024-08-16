@@ -27,13 +27,21 @@ internal class Aetheryte
         GameAetheryte = aetheryte;
     }
 
-    public float DistanceToRoute(GatherRoute rte)
+    public float DistanceToRoute(GatherPointBase rte)
     {
         // amaurot
         if (GameAetheryte.RowId is 148)
             return float.MaxValue;
 
         if (rte.TerritoryType == Territory && rte.GatherAreaCenter() is Vector3 pos)
+            return (new Vector2(WorldX, WorldY) - new Vector2(pos.X, pos.Z)).Length();
+
+        return float.MaxValue;
+    }
+
+    public float DistanceToPoint(uint territory, Vector3 pos)
+    {
+        if (Territory.RowId == territory)
             return (new Vector2(WorldX, WorldY) - new Vector2(pos.X, pos.Z)).Length();
 
         return float.MaxValue;

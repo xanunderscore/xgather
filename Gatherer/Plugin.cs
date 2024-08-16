@@ -7,7 +7,8 @@ using Dalamud.Plugin.Services;
 using System.Collections.Generic;
 using System.Linq;
 using xgather.GameData;
-using xgather.Windows;
+using xgather.UI;
+using xgather.UI.Windows;
 
 namespace xgather;
 
@@ -18,8 +19,8 @@ public sealed class Plugin : IDalamudPlugin
 
     public WindowSystem WindowSystem = new("xgather");
 
-    internal BrowserView Overlay { get; init; }
-    private Overlay DebugView { get; init; }
+    internal MainWindow MainWindow { get; init; }
+    private Overlay Overlay { get; init; }
 
     internal List<Aetheryte> Aetherytes;
 
@@ -29,15 +30,13 @@ public sealed class Plugin : IDalamudPlugin
     {
         Svc.Init(this, pluginInterface);
 
-        Svc.Route.Init();
-
         Svc.Config.RegisterGameItems();
 
-        Overlay = new BrowserView(new RouteBrowser(), new ItemBrowser(Svc.Config.ItemSearchText)) { IsOpen = Svc.Config.OverlayOpen };
-        DebugView = new();
+        MainWindow = new(new Routes(), new ItemSearch(Svc.Config.ItemSearchText), new Lists());
+        Overlay = new() { IsOpen = Svc.Config.OverlayOpen };
 
+        WindowSystem.AddWindow(MainWindow);
         WindowSystem.AddWindow(Overlay);
-        WindowSystem.AddWindow(DebugView);
 
         commandManager.AddHandler(
             CommandName,
@@ -64,33 +63,36 @@ public sealed class Plugin : IDalamudPlugin
     {
         if (args == "")
         {
-            DebugView.IsOpen = true;
+            Overlay.IsOpen = true;
             return;
         }
 
         if (args == "items")
         {
+            MainWindow.IsOpen = true;
+            return;
+        }
+
+        var git = Svc.ExcelSheet<Lumina.Excel.GeneratedSheets.GatheringItem>().FirstOrDefault(it =>
+        Svc.ExcelRow<Lumina.Excel.GeneratedSheets.Item>((uint)it.Item).Name.ToString().Contains(args, System.StringComparison.InvariantCultureIgnoreCase));
+        if (git == null)
+        {
+            Alerts.Error($"No item found for query {args}");
+            return;
+        }
+
+        var it = Svc.ExcelRow<Lumina.Excel.GeneratedSheets.Item>((uint)git.Item)!;
+
+        foreach (var rte in Svc.Config.GetGatherPointGroupsForItem(it.RowId))
+        {
+            var msg = new SeString().Append("Identified ").Append(new UIForegroundPayload(1)).Append(new ItemPayload(it.RowId)).Append(it.Name.ToString()).Append(RawPayload.LinkTerminator).Append(new UIForegroundPayload(0)).Append($" for \"{args}\"");
+            Alerts.Info(msg);
+            Svc.Executor.Start(rte);
             Overlay.IsOpen = true;
             return;
         }
 
-        var it = Svc.ExcelSheet<Lumina.Excel.GeneratedSheets.Item>().FirstOrDefault(it => it.Name.ToString().Contains(args, System.StringComparison.InvariantCultureIgnoreCase));
-        if (it == null)
-        {
-            UiMessage.Error($"No item found for query {args}");
-            return;
-        }
-
-        foreach (var rte in Svc.Config.GetRoutesForItem(it.RowId))
-        {
-            var msg = new SeString().Append("Identified ").Append(new UIForegroundPayload(1)).Append(new ItemPayload(it.RowId)).Append(it.Name.ToString()).Append(RawPayload.LinkTerminator).Append(new UIForegroundPayload(0)).Append($" for \"{args}\"");
-            UiMessage.Info(msg);
-            Svc.Route.Start(rte.Item2);
-            DebugView.IsOpen = true;
-            return;
-        }
-
-        UiMessage.Error($"No routes found for item {args}");
+        Alerts.Error($"No routes found for item {it.Name}");
     }
 
     private void DrawUI()
