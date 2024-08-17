@@ -9,22 +9,31 @@ using System.Linq;
 
 namespace xgather.Executors;
 
-public sealed unsafe class GatheringHandler : IDisposable
+public sealed unsafe class AutoGather : IDisposable
 {
-    private AddonGathering* Addon;
+    public delegate void ErrorHandler(object sender, string message);
+    public event ErrorHandler OnError = delegate { };
 
-    public GatheringHandler()
+    private AddonGathering* Addon;
+    public HashSet<uint> DesiredItems = [];
+
+    public AutoGather()
     {
         Svc.AddonLifecycle.RegisterListener(AddonEvent.PostSetup, "Gathering", PostSetup);
-        Svc.Condition.ConditionChange += ConditionChange;
+        Svc.AddonLifecycle.RegisterListener(AddonEvent.PreFinalize, "Gathering", PreFinalize);
         Svc.Framework.Update += Tick;
     }
 
     public void Dispose()
     {
         Svc.AddonLifecycle.UnregisterListener(PostSetup);
-        Svc.Condition.ConditionChange -= ConditionChange;
+        Svc.AddonLifecycle.UnregisterListener(PreFinalize);
         Svc.Framework.Update -= Tick;
+    }
+
+    private void PreFinalize(AddonEvent type, AddonArgs args)
+    {
+        Addon = null;
     }
 
     private void PostSetup(AddonEvent type, AddonArgs args)
@@ -32,16 +41,8 @@ public sealed unsafe class GatheringHandler : IDisposable
         Addon = (AddonGathering*)args.Addon;
     }
 
-    public void ConditionChange(ConditionFlag flag, bool active)
-    {
-        if ((uint)flag == 85 && !active)
-            Addon = null;
-    }
-
     private void Tick(IFramework fw)
     {
-        var DesiredItems = Svc.Executor.Gather?.Planner.DesiredItems().ToList() ?? [];
-
         if (Addon == null || Svc.Condition[ConditionFlag.Gathering42] || DesiredItems.Count == 0)
             return;
 
@@ -60,7 +61,7 @@ public sealed unsafe class GatheringHandler : IDisposable
         var availableIndex = available.FindIndex(DesiredItems.Contains);
         if (availableIndex < 0)
         {
-            UI.Alerts.Error("No desired items exist on this node");
+            OnError.Invoke(this, "No desired items exist on this node");
             Addon = null;
             return;
         }
@@ -68,7 +69,7 @@ public sealed unsafe class GatheringHandler : IDisposable
         var checkbox = Addon->GetNodeById(17 + (uint)availableIndex)->GetAsAtkComponentCheckBox();
         if (checkbox == null)
         {
-            UI.Alerts.Error($"Internal error: node {availableIndex} is invalid");
+            OnError.Invoke(this, $"Internal error: node {availableIndex} is invalid");
             Addon = null;
             return;
         }

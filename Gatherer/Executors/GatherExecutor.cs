@@ -23,12 +23,9 @@ public abstract class GatherPlanner
     public abstract void Debug();
 
     public delegate void SuccessHandler(object sender, string message);
-    public event SuccessHandler OnSuccessHandler = delegate { };
+    public event SuccessHandler OnSuccess = delegate { };
 
-    public void OnSuccess(string message = "All done!")
-    {
-        OnSuccessHandler.Invoke(this, message);
-    }
+    public void TriggerSuccess(string message = "All done!") => OnSuccess.Invoke(this, message);
 }
 
 public sealed class GatherExecutor : IDisposable
@@ -52,6 +49,7 @@ public sealed class GatherExecutor : IDisposable
     }
 
     public GatherPlanner Planner { get; private set; }
+    public AutoGather AutoGather { get; private set; }
 
     public State CurrentState { get; private set; }
 
@@ -67,10 +65,17 @@ public sealed class GatherExecutor : IDisposable
 
     public GatherExecutor(GatherPlanner child)
     {
+        AutoGather = new();
         Planner = child;
         Svc.Framework.Update += Tick;
         Svc.Condition.ConditionChange += ConditionChange;
-        Planner.OnSuccessHandler += (obj, msg) =>
+
+        AutoGather.OnError += (obj, msg) =>
+        {
+            Alerts.Error(msg);
+            Stop();
+        };
+        Planner.OnSuccess += (obj, msg) =>
         {
             Alerts.Success(msg);
             Stop();
@@ -157,13 +162,17 @@ public sealed class GatherExecutor : IDisposable
     public void ConditionChange(ConditionFlag flag, bool isActive)
     {
         if ((uint)flag == 85 && !isActive && CurrentState == State.Gathering)
+        {
+            AutoGather.DesiredItems.Clear();
             CurrentState = State.Idle;
+        }
 
         if (flag == ConditionFlag.Gathering && isActive)
         {
             CurrentState = State.Gathering;
             Destination = null;
             SkippedPoints.Clear();
+            AutoGather.DesiredItems = Planner.DesiredItems().ToHashSet();
 
             var tar = Svc.TargetManager.Target;
             if (tar != null)
@@ -176,26 +185,16 @@ public sealed class GatherExecutor : IDisposable
 
     public void Tick(IFramework fw)
     {
-        if (CurrentState is not State.Stopped and not State.Idle)
-            Svc.Log.Verbose($"Waiting for {CurrentState} until {Retry}");
-
         switch (CurrentState)
         {
-            // unreachable
             case State.Stopped:
-                return;
-
-            // waiting on user to resume
             case State.Paused:
+            case State.Gathering:
                 return;
 
             // route logic
             case State.Idle:
                 break;
-
-            // see GatheringHandler
-            case State.Gathering:
-                return;
 
             case State.Teleport:
                 if (Svc.ClientState.TerritoryType == Destination?.GetZone() && !Svc.Condition[ConditionFlag.BetweenAreas51])

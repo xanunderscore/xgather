@@ -23,7 +23,7 @@ public sealed class ListPlanner : GatherPlanner
         {
             RoutePlanner = NextPlanner();
             if (RoutePlanner == null)
-                OnSuccess();
+                TriggerSuccess();
         }
     }
 

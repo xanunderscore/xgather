@@ -14,7 +14,6 @@ public class Svc
 #nullable disable
     public static Plugin Plugin { get; private set; }
     public static MultipurposeExecutor Executor { get; private set; }
-    public static GatheringHandler Gather { get; private set; }
 
     [PluginService] public static IDalamudPluginInterface PluginInterface { get; private set; }
     [PluginService] public static ICommandManager CommandManager { get; private set; }
@@ -45,7 +44,6 @@ public class Svc
 
         Config = pi.GetPluginConfig() as Configuration ?? new Configuration();
         Executor = new();
-        Gather = new();
         Plugin = plugin;
     }
 
