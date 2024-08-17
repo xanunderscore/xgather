@@ -9,7 +9,7 @@ public sealed class MultipurposeExecutor
     public void StartList(TodoList list)
     {
         OnRouteStopped(this);
-        Gather = new GatherExecutor(new ListExecutor(list));
+        Gather = new GatherExecutor(new ListPlanner(list));
         Gather.OnRouteStopped += OnRouteStopped;
         Gather.Start();
     }
@@ -17,7 +17,7 @@ public sealed class MultipurposeExecutor
     public void StartAdHoc(GatherPointBase gpb, IEnumerable<uint> itemIDs)
     {
         OnRouteStopped(this);
-        Gather = new GatherExecutor(new UnorderedRouteExecutor(gpb, itemIDs));
+        Gather = new GatherExecutor(new UnorderedRoutePlanner(gpb, itemIDs));
         Gather.OnRouteStopped += OnRouteStopped;
         Gather.Start();
     }

@@ -5,15 +5,15 @@ using System.Linq;
 
 namespace xgather.Executors;
 
-public sealed class ListExecutor : GatherPlanner
+public sealed class ListPlanner : GatherPlanner
 {
-    private UnorderedRouteExecutor? RouteExecutor;
+    private UnorderedRoutePlanner? RoutePlanner;
     public TodoList CurrentList { get; init; }
 
-    public ListExecutor(TodoList list)
+    public ListPlanner(TodoList list)
     {
         CurrentList = list;
-        RouteExecutor = NextExecutor(list);
+        RoutePlanner = NextPlanner(list);
         Svc.Condition.ConditionChange += OnChange;
     }
 
@@ -21,15 +21,15 @@ public sealed class ListExecutor : GatherPlanner
     {
         if ((uint)flag == 85 && !isActive)
         {
-            RouteExecutor = NextExecutor();
-            if (RouteExecutor == null)
+            RoutePlanner = NextPlanner();
+            if (RoutePlanner == null)
                 OnSuccess();
         }
     }
 
-    private UnorderedRouteExecutor? NextExecutor() => NextExecutor(CurrentList);
+    private UnorderedRoutePlanner? NextPlanner() => NextPlanner(CurrentList);
 
-    private static UnorderedRouteExecutor? NextExecutor(TodoList list)
+    private static UnorderedRoutePlanner? NextPlanner(TodoList list)
     {
         var nextRoute =
          (from item in list.Items
@@ -41,17 +41,17 @@ public sealed class ListExecutor : GatherPlanner
         if (nextRoute == null)
             return null;
 
-        return new UnorderedRouteExecutor(nextRoute, from item in list.Items where item.Value.QuantityNeeded > 0 select item.Key);
+        return new UnorderedRoutePlanner(nextRoute, from item in list.Items where item.Value.QuantityNeeded > 0 select item.Key);
     }
 
     public override IEnumerable<uint> DesiredItems() => from item in CurrentList.Items select item.Key;
 
-    public override IWaypoint? NextDestination(ICollection<uint> skippedPoints) => RouteExecutor?.NextDestination(skippedPoints);
-    public override ClassJob? DesiredClass() => RouteExecutor?.DesiredClass();
+    public override IWaypoint? NextDestination(ICollection<uint> skippedPoints) => RoutePlanner?.NextDestination(skippedPoints);
+    public override ClassJob? DesiredClass() => RoutePlanner?.DesiredClass();
 
     public override void Debug()
     {
         CurrentList.Debug();
-        RouteExecutor?.Debug();
+        RoutePlanner?.Debug();
     }
 }

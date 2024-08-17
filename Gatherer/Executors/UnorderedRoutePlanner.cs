@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace xgather.Executors;
 
-public class UnorderedRouteExecutor(GatherPointBase route, IEnumerable<uint> desiredItems) : GatherPlanner
+public class UnorderedRoutePlanner(GatherPointBase route, IEnumerable<uint> desiredItems) : GatherPlanner
 {
     public GatherPointBase CurrentRoute { get; init; } = route;
     private readonly IEnumerable<uint> wantItems = desiredItems;
