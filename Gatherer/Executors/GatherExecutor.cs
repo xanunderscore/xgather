@@ -25,7 +25,7 @@ public abstract class Planner
     public delegate void SuccessHandler(object sender, string message);
     public event SuccessHandler OnSuccess = delegate { };
 
-    public void TriggerSuccess(string message = "All done!") => OnSuccess.Invoke(this, message);
+    public void ReportSuccess(string message = "All done!") => OnSuccess.Invoke(this, message);
 }
 
 public sealed class GatherExecutor : IDisposable
@@ -84,6 +84,7 @@ public sealed class GatherExecutor : IDisposable
 
     public void Dispose()
     {
+        AutoGather.Dispose();
         Svc.Framework.Update -= Tick;
         Svc.Condition.ConditionChange -= ConditionChange;
         GC.SuppressFinalize(this);
@@ -125,6 +126,7 @@ public sealed class GatherExecutor : IDisposable
     public void Pause()
     {
         CurrentState = State.Paused;
+        StopMoving();
     }
 
     public static void StopMoving()
@@ -185,6 +187,8 @@ public sealed class GatherExecutor : IDisposable
 
     public void Tick(IFramework fw)
     {
+        AutoGather.Paused = CurrentState is State.Stopped or State.Paused;
+
         switch (CurrentState)
         {
             case State.Stopped:

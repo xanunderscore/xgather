@@ -14,6 +14,8 @@ public sealed unsafe class AutoGather : IDisposable
     public delegate void ErrorHandler(object sender, string message);
     public event ErrorHandler OnError = delegate { };
 
+    public bool Paused { get; set; } = false;
+
     private AddonGathering* Addon;
     public HashSet<uint> DesiredItems = [];
 
@@ -22,6 +24,14 @@ public sealed unsafe class AutoGather : IDisposable
         Svc.AddonLifecycle.RegisterListener(AddonEvent.PostSetup, "Gathering", PostSetup);
         Svc.AddonLifecycle.RegisterListener(AddonEvent.PreFinalize, "Gathering", PreFinalize);
         Svc.Framework.Update += Tick;
+        Svc.Toast.ErrorToast += Toast_ErrorToast;
+    }
+
+    private void Toast_ErrorToast(ref Dalamud.Game.Text.SeStringHandling.SeString message, ref bool isHandled)
+    {
+        // TODO cross reference with logmessage
+        if (message.ToString().Contains("You cannot carry any more", StringComparison.InvariantCultureIgnoreCase))
+            OnError.Invoke(this, "Error while gathering, giving up.");
     }
 
     public void Dispose()
@@ -29,6 +39,7 @@ public sealed unsafe class AutoGather : IDisposable
         Svc.AddonLifecycle.UnregisterListener(PostSetup);
         Svc.AddonLifecycle.UnregisterListener(PreFinalize);
         Svc.Framework.Update -= Tick;
+        Svc.Toast.ErrorToast -= Toast_ErrorToast;
     }
 
     private void PreFinalize(AddonEvent type, AddonArgs args)
@@ -43,7 +54,7 @@ public sealed unsafe class AutoGather : IDisposable
 
     private void Tick(IFramework fw)
     {
-        if (Addon == null || Svc.Condition[ConditionFlag.Gathering42] || DesiredItems.Count == 0)
+        if (Paused || Addon == null || Svc.Condition[ConditionFlag.Gathering42] || DesiredItems.Count == 0)
             return;
 
         // 110 is usually the node integrity, but it can be null if Revisit procs

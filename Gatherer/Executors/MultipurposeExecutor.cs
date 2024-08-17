@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace xgather.Executors;
 
 public sealed class MultipurposeExecutor
@@ -14,10 +12,10 @@ public sealed class MultipurposeExecutor
         Gather.Start();
     }
 
-    public void StartAdHoc(GatherPointBase gpb, IEnumerable<uint> itemIDs)
+    public void StartAdHoc(GatherPointBase gpb, uint itemID)
     {
         OnRouteStopped(this);
-        Gather = new GatherExecutor(new UnorderedRoutePlanner(gpb, itemIDs));
+        Gather = new GatherExecutor(new UnorderedRoutePlanner(gpb, itemID));
         Gather.OnRouteStopped += OnRouteStopped;
         Gather.Start();
     }

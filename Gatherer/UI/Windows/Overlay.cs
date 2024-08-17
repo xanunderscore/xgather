@@ -54,9 +54,11 @@ public class Overlay : Window
             ImGui.Text("Current route: none");
             return;
         }
-        if (gatherer.CurrentState == GatherExecutor.State.Paused && ImGuiComponents.IconButton(FontAwesomeIcon.Play))
-            gatherer.Start();
-
+        if (gatherer.CurrentState == GatherExecutor.State.Paused)
+        {
+            if (ImGuiComponents.IconButton(FontAwesomeIcon.Play))
+                gatherer.Start();
+        }
         else if (ImGuiComponents.IconButton(FontAwesomeIcon.Pause))
             gatherer.Pause();
 
@@ -72,6 +74,7 @@ public class Overlay : Window
             GatherExecutor.State.Dismount => ImGuiColors.DalamudViolet,
             GatherExecutor.State.Gathering => ImGuiColors.HealerGreen,
             GatherExecutor.State.Gearset => ImGuiColors.DalamudYellow,
+            GatherExecutor.State.Paused => ImGuiColors.DalamudGrey2,
             _ => ImGuiColors.DalamudWhite
         };
 

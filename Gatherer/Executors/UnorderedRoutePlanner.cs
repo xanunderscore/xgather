@@ -39,5 +39,9 @@ public class UnorderedRoutePlanner(GatherPointBase route, uint wantItem) : Plann
     public override ClassJob? DesiredClass() => CurrentRoute?.Class.GetClassJob();
 
     public override IEnumerable<uint> DesiredItems() => [WantItem];
-    public override void Debug() => CurrentRoute.Debug();
+    public override void Debug()
+    {
+        UI.Helpers.DrawItem(WantItem);
+        CurrentRoute.Debug();
+    }
 }

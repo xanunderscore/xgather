@@ -28,6 +28,7 @@ public class Svc
     [PluginService] public static ISigScanner SigScanner { get; private set; }
     [PluginService] public static IChatGui Chat { get; private set; }
     [PluginService] public static IAddonLifecycle AddonLifecycle { get; private set; }
+    [PluginService] public static IToastGui Toast { get; private set; }
     public static Configuration Config { get; private set; }
 #nullable enable
 

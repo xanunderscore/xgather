@@ -23,7 +23,7 @@ public sealed class ListPlanner : Planner
         {
             CurrentRoute = NextRoute();
             if (CurrentRoute == null)
-                TriggerSuccess();
+                ReportSuccess();
         }
     }
 

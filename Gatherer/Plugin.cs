@@ -87,7 +87,7 @@ public sealed class Plugin : IDalamudPlugin
         {
             var msg = new SeString().Append("Identified ").Append(new UIForegroundPayload(1)).Append(new ItemPayload(it.RowId)).Append(it.Name.ToString()).Append(RawPayload.LinkTerminator).Append(new UIForegroundPayload(0)).Append($" for \"{args}\"");
             Alerts.Info(msg);
-            Svc.Executor.StartAdHoc(rte, [it.RowId]);
+            Svc.Executor.StartAdHoc(rte, it.RowId);
             Overlay.IsOpen = true;
             return;
         }
