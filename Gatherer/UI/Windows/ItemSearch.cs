@@ -1,5 +1,3 @@
-using Dalamud.Interface;
-using Dalamud.Interface.Components;
 using ImGuiNET;
 using Lumina.Excel.GeneratedSheets;
 using System.Linq;
@@ -66,6 +64,7 @@ internal class ItemSearch(string initialSearchText)
 
     private void DrawStartRouteButton(uint itemId, GatherPointBase route, bool isSameZone)
     {
+        /*
         if (Svc.Executor.IsActive)
         {
             if (ImGuiComponents.IconButton($"###stopbutton{itemId}", FontAwesomeIcon.Stop))
@@ -78,5 +77,6 @@ internal class ItemSearch(string initialSearchText)
                 Svc.Executor.Start(route);
             }
         }
+        */
     }
 }

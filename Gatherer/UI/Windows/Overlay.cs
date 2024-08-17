@@ -47,42 +47,37 @@ public class Overlay : Window
             Svc.Plugin.RecordMode = record;
         */
 
-        var exec = Svc.Executor;
+        var gatherer = Svc.Executor.Gather;
 
-        if (exec.CurrentRoute == null)
+        if (gatherer == null)
         {
             ImGui.Text("Current route: none");
             return;
         }
-        if (exec.CurrentState == ExecutorBase.State.Stopped)
-        {
-            if (ImGuiComponents.IconButton(FontAwesomeIcon.Play))
-                exec.Start();
-        }
-        else if (ImGuiComponents.IconButton(FontAwesomeIcon.Stop))
-        {
-            exec.Stop();
-            return;
-        }
+        if (gatherer.CurrentState == GatherExecutor.State.Paused && ImGuiComponents.IconButton(FontAwesomeIcon.Play))
+            gatherer.Start();
+
+        else if (ImGuiComponents.IconButton(FontAwesomeIcon.Pause))
+            gatherer.Pause();
 
         ImGui.SameLine();
-        ImGui.Text(exec.CurrentRoute.Label);
+        gatherer.Planner.Debug();
 
-        var ty = exec.CurrentState;
+        var ty = gatherer.CurrentState;
 
         var color = ty switch
         {
-            ExecutorBase.State.Teleport => ImGuiColors.TankBlue,
-            ExecutorBase.State.Mount => ImGuiColors.ParsedPink,
-            ExecutorBase.State.Dismount => ImGuiColors.DalamudViolet,
-            ExecutorBase.State.Gathering => ImGuiColors.HealerGreen,
-            ExecutorBase.State.Gearset => ImGuiColors.DalamudYellow,
+            GatherExecutor.State.Teleport => ImGuiColors.TankBlue,
+            GatherExecutor.State.Mount => ImGuiColors.ParsedPink,
+            GatherExecutor.State.Dismount => ImGuiColors.DalamudViolet,
+            GatherExecutor.State.Gathering => ImGuiColors.HealerGreen,
+            GatherExecutor.State.Gearset => ImGuiColors.DalamudYellow,
             _ => ImGuiColors.DalamudWhite
         };
 
         var text = ty.ToString();
 
-        if (ty == ExecutorBase.State.Idle)
+        if (ty == GatherExecutor.State.Idle)
         {
             text = "Idle";
 
@@ -103,9 +98,9 @@ public class Overlay : Window
 
         // ImGui.Text($"Nodes to skip: {string.Join(", ", rte._skippedPoints)}");
 
-        if (exec.Destination is IWaypoint pt)
+        if (gatherer.Destination is IWaypoint pt)
         {
-            ImGui.Text($"Destination: {pt}");
+            ImGui.Text($"Destination: {pt} ({pt.GetZone()})");
             ImGui.Text($"Distance to target: {pt.GetPosition().DistanceFromPlayer():F2} ({pt.GetPosition().DistanceFromPlayerXZ():F2} horizontally)");
         }
 

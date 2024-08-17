@@ -7,6 +7,7 @@ using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
+using xgather.GameData;
 
 namespace xgather;
 
@@ -117,6 +118,57 @@ internal static class Utils
             return isJumping || isAirDismount;
         }
     }
+
+    public static unsafe (DateTime Start, DateTime End) GetNextAvailable(uint itemId)
+    {
+        var gpt = Svc.ExcelRow<GatheringPointTransient>(itemId);
+        if (gpt == null)
+            return (DateTime.MinValue, DateTime.MaxValue);
+
+        if (gpt.EphemeralStartTime != 65535 && gpt.EphemeralEndTime != 65535)
+            return CalcAvailability(gpt.EphemeralStartTime, gpt.EphemeralEndTime);
+
+        if (gpt.GatheringRarePopTimeTable.Value is GatheringRarePopTimeTable gptt && gptt.RowId > 0)
+            return gptt.UnkData0.Select(CalcAvailability).MinBy(x => x.Start);
+
+        return (DateTime.MinValue, DateTime.MaxValue);
+    }
+
+    public static (DateTime Start, DateTime End) CalcAvailability(GatheringRarePopTimeTable.GatheringRarePopTimeTableUnkData0Obj obj)
+    {
+        if (obj.StartTime == 65535)
+            return (DateTime.MaxValue, DateTime.MaxValue);
+
+        return CalcAvailability(obj.StartTime, obj.StartTime + obj.Durationm);
+    }
+
+    public static (DateTime Start, DateTime End) CalcAvailability(int EorzeaMinStart, int EorzeaMinEnd)
+    {
+        var currentTime = Timestamp.Now;
+        var (startHr, startMin) = (EorzeaMinStart / 100, EorzeaMinStart % 100);
+        var (endHr, endMin) = (EorzeaMinEnd / 100, EorzeaMinEnd % 100);
+
+        var realStartMin = startHr * 60 + startMin;
+        var realEndMin = endHr * 60 + endMin;
+
+        if (realEndMin < realStartMin)
+            realEndMin += Timestamp.MinPerDay;
+
+        var realStartSec = realStartMin * 60;
+        var realEndSec = realEndMin * 60;
+
+        var curSec = currentTime.CurrentEorzeaSecondOfDay;
+
+        if (curSec >= realEndSec)
+            realStartSec += Timestamp.SecPerDay;
+
+        var secondsToWait = realStartSec - curSec;
+        var ts = currentTime.AddEorzeaSeconds(secondsToWait);
+        var tsend = ts.AddEorzeaMinutes(realEndMin - realStartMin);
+        return (ts.AsDateTime, tsend.AsDateTime);
+    }
+
+    public static (DateTime Start, DateTime End) GetNextAvailable(GatherPointBase b) => GetNextAvailable(b.Nodes[0]);
 }
 
 internal static class VectorExt

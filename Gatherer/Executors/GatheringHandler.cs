@@ -5,14 +5,13 @@ using Dalamud.Plugin.Services;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace xgather.Executors;
 
 public sealed unsafe class GatheringHandler : IDisposable
 {
     private AddonGathering* Addon;
-
-    public HashSet<uint> DesiredItems = [];
 
     public GatheringHandler()
     {
@@ -36,15 +35,18 @@ public sealed unsafe class GatheringHandler : IDisposable
     public void ConditionChange(ConditionFlag flag, bool active)
     {
         if ((uint)flag == 85 && !active)
-        {
             Addon = null;
-            DesiredItems.Clear(); // prevent unexpected circumstances from breaking the player's manual gathering
-        }
     }
 
     private void Tick(IFramework fw)
     {
+        var DesiredItems = Svc.Executor.Gather?.Planner.DesiredItems().ToList() ?? [];
+
         if (Addon == null || Svc.Condition[ConditionFlag.Gathering42] || DesiredItems.Count == 0)
+            return;
+
+        // 110 is usually the node integrity, but it can be null if Revisit procs
+        if (Addon->AtkValuesCount < 111)
             return;
 
         var ptIntegrity = Addon->AtkValues[110].UInt;

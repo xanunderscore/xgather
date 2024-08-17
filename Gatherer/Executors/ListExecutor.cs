@@ -1,58 +1,57 @@
 using Dalamud.Game.ClientState.Conditions;
+using Lumina.Excel.GeneratedSheets;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace xgather.Executors;
 
-public class ListExecutor : UnorderedRouteExecutor
+public sealed class ListExecutor : GatherPlanner
 {
-    public TodoList? CurrentList { get; private set; }
+    private UnorderedRouteExecutor? RouteExecutor;
+    public TodoList CurrentList { get; init; }
 
-    public ListExecutor()
-    {
-        Svc.Condition.ConditionChange += OnChange;
-    }
-
-    public void Start(TodoList list)
+    public ListExecutor(TodoList list)
     {
         CurrentList = list;
-        if (NextNodeGroup() is GatherPointBase b)
-            Start(b);
+        RouteExecutor = NextExecutor(list);
+        Svc.Condition.ConditionChange += OnChange;
     }
 
     private void OnChange(ConditionFlag flag, bool isActive)
     {
         if ((uint)flag == 85 && !isActive)
-            if (NextNodeGroup() is GatherPointBase b)
-                CurrentRoute = b;
-    }
-
-    private GatherPointBase? NextNodeGroup()
-    {
-        if (CurrentList != null)
         {
-            var nextRoute =
-             (from item in CurrentList.Value.Items
-              where item.Value.QuantityNeeded > 0
-              from route in Svc.Config.GetGatherPointGroupsForItem(item.Key)
-              orderby route.Zone == Svc.ClientState.TerritoryType descending
-              select route).FirstOrDefault();
-            if (nextRoute == null)
-            {
-                UI.Alerts.Success("All done!");
-                Stop();
-            }
-            else return nextRoute;
+            RouteExecutor = NextExecutor();
+            if (RouteExecutor == null)
+                OnSuccess();
         }
-
-        return null;
     }
 
-    public override IEnumerable<uint> DesiredItems() => from item in CurrentList?.Items ?? [] where item.Value.QuantityNeeded > 0 select item.Key;
+    private UnorderedRouteExecutor? NextExecutor() => NextExecutor(CurrentList);
 
-    public override void OnStop()
+    private static UnorderedRouteExecutor? NextExecutor(TodoList list)
     {
-        CurrentList = null;
-        base.OnStop();
+        var nextRoute =
+         (from item in list.Items
+          where item.Value.QuantityNeeded > 0
+          from route in Svc.Config.GetGatherPointGroupsForItem(item.Key)
+          orderby Utils.GetNextAvailable(route).Start ascending, route.Zone == Svc.ClientState.TerritoryType descending
+          select route).FirstOrDefault();
+
+        if (nextRoute == null)
+            return null;
+
+        return new UnorderedRouteExecutor(nextRoute, from item in list.Items where item.Value.QuantityNeeded > 0 select item.Key);
+    }
+
+    public override IEnumerable<uint> DesiredItems() => from item in CurrentList.Items select item.Key;
+
+    public override IWaypoint? NextDestination(ICollection<uint> skippedPoints) => RouteExecutor?.NextDestination(skippedPoints);
+    public override ClassJob? DesiredClass() => RouteExecutor?.DesiredClass();
+
+    public override void Debug()
+    {
+        CurrentList.Debug();
+        RouteExecutor?.Debug();
     }
 }

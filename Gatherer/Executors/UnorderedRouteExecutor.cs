@@ -1,42 +1,43 @@
 using Lumina.Excel.GeneratedSheets;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace xgather.Executors;
 
-public class UnorderedRouteExecutor : ExecutorBase
+public class UnorderedRouteExecutor(GatherPointBase route, IEnumerable<uint> desiredItems) : GatherPlanner
 {
-    public GatherPointBase? CurrentRoute { get; protected set; }
+    public GatherPointBase CurrentRoute { get; init; } = route;
+    private readonly IEnumerable<uint> wantItems = desiredItems;
 
-    public void Start(GatherPointBase r)
+    public override IWaypoint? NextDestination(ICollection<uint> SkippedPoints)
     {
-        Svc.Log.Debug($"setting route to {r}");
-        CurrentRoute = r;
-        Start();
-    }
+        var avail = Utils.GetNextAvailable(CurrentRoute);
+        if (avail.Start > DateTime.Now)
+        {
+            return new GatherPointSearch()
+            {
+                Center = CurrentRoute.GatherAreaCenter(),
+                DataIDs = CurrentRoute.Nodes,
+                Landable = false,
+                Zone = CurrentRoute.Zone,
+                Available = avail
+            };
+        }
 
-    public override IWaypoint? NextDestination()
-    {
-        if (CurrentRoute == null)
-            return null;
-
-        var closePoints = FindGatherPoints(obj => CurrentRoute.Contains(obj.DataId) && obj.IsTargetable && !SkippedPoints.Contains(obj.DataId));
+        var closePoints = GatherExecutor.FindGatherPoints(obj => CurrentRoute.Contains(obj.DataId) && obj.IsTargetable && !SkippedPoints.Contains(obj.DataId));
         Svc.Log.Debug($"closePoints: {string.Join(", ", closePoints.ToList())}");
         if (closePoints.Any())
-            return CreateWaypointFromObject(closePoints.MinBy(x => x.Position.DistanceFromPlayer())!);
-        var allPoints = CurrentRoute.Nodes.Where(x => !SkippedPoints.Contains(x)).SelectMany(Svc.Config.GetKnownPoints).Where(x => x.Position.DistanceFromPlayer() > UnloadRadius);
+            return GatherExecutor.CreateWaypointFromObject(closePoints.MinBy(x => x.Position.DistanceFromPlayer())!);
+        var allPoints = CurrentRoute.Nodes.Where(x => !SkippedPoints.Contains(x)).SelectMany(Svc.Config.GetKnownPoints).Where(x => x.Position.DistanceFromPlayer() > GatherExecutor.UnloadRadius);
         Svc.Log.Debug($"allPoints (out of range): {string.Join(", ", allPoints.ToList())}");
         Svc.Log.Debug($"skipped points: {string.Join(", ", SkippedPoints)}");
 
-        return SearchForUnloadedPoint(allPoints, CurrentRoute.Nodes, CurrentRoute.Zone);
+        return GatherExecutor.SearchForUnloadedPoint(allPoints, CurrentRoute.Nodes, CurrentRoute.Zone);
     }
 
     public override ClassJob? DesiredClass() => CurrentRoute?.Class.GetClassJob();
 
-    public override void OnStop()
-    {
-        CurrentRoute = null;
-    }
-
-    public override IEnumerable<uint> DesiredItems() => [];
+    public override IEnumerable<uint> DesiredItems() => wantItems;
+    public override void Debug() => CurrentRoute.Debug();
 }

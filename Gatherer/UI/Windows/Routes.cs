@@ -1,13 +1,11 @@
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Interface;
-using Dalamud.Interface.Components;
 using Dalamud.Interface.Utility;
 using Dalamud.Interface.Utility.Raii;
 using ImGuiNET;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using xgather.Executors;
 
 namespace xgather.UI.Windows;
 
@@ -90,22 +88,22 @@ internal class Routes
         if (!Svc.Config.TryGetGatherPointBase(Svc.Config.SelectedRoute, out var selectedRoute))
             return;
 
+        /*
         if (Svc.Executor.CurrentState == ExecutorBase.State.Stopped)
         {
             if (ImGuiComponents.IconButton(FontAwesomeIcon.Play))
                 Svc.Executor.Start(selectedRoute);
 
-            /*
             ImGui.SameLine();
             if (ImGuiComponents.IconButton(FontAwesomeIcon.Map))
                 Svc.Route.NavigateToCenter(selectedRoute);
-            */
-        }
+    }
         else
         {
             if (ImGuiComponents.IconButton(FontAwesomeIcon.Stop))
                 Svc.Executor.Stop();
         }
+*/
 
         ImGui.SameLine();
         var ctrlHeld = ImGui.GetIO().KeyCtrl;

@@ -13,7 +13,7 @@ public class Svc
 {
 #nullable disable
     public static Plugin Plugin { get; private set; }
-    public static ListExecutor Executor { get; private set; }
+    public static MultipurposeExecutor Executor { get; private set; }
     public static GatheringHandler Gather { get; private set; }
 
     [PluginService] public static IDalamudPluginInterface PluginInterface { get; private set; }

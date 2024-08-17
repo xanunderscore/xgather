@@ -1,6 +1,7 @@
 using Dalamud.Configuration;
 using Dalamud.Game.ClientState.Objects.Types;
 using FFXIVClientStructs.FFXIV.Client.Game;
+using ImGuiNET;
 using Lumina.Excel.GeneratedSheets;
 using Newtonsoft.Json;
 using System;
@@ -55,21 +56,26 @@ public class GatherPointBase
     public required GatherClass Class;
     public uint GatheringPointBaseId;
 
+    public void Debug()
+    {
+        ImGui.Text($"Zone: {Zone} ({TerritoryType.Name})");
+        ImGui.Text($"Label: {Label}");
+        ImGui.Text($"Nodes: {string.Join(", ", Nodes)}");
+        ImGui.Text($"Items: {string.Join(", ", Items)}");
+        ImGui.Text($"Required class: {Class}");
+        ImGui.Text($"Gather point base ID: {GatheringPointBaseId}");
+    }
+
     [JsonIgnore] public bool IsUnderwater => Items.Any(x => x >= 20000);
 
     [JsonIgnore] public TerritoryType TerritoryType => Svc.ExcelRow<TerritoryType>(Zone)!;
 
     public bool MissingPoints() => Nodes.Any(x => Svc.Config.GetKnownPoints(x).Any(y => y.GatherLocation == null));
     public bool Contains(uint dataId) => Nodes.Contains(dataId);
-    public Vector3? GatherAreaCenter()
+    public Vector3 GatherAreaCenter()
     {
-        if (GatheringPointBaseId is uint id)
-        {
-            var exp = Svc.ExcelRow<ExportedGatheringPoint>(id);
-            return new(exp.X, 0, exp.Y);
-        }
-
-        return null;
+        var exp = Svc.ExcelRow<ExportedGatheringPoint>(GatheringPointBaseId);
+        return new(exp.X, 0, exp.Y);
     }
 
     public GatheringPointTransient? GetTransient()
@@ -111,6 +117,17 @@ public record struct TodoList(string? Name, Dictionary<uint, TodoItem> Items, bo
 
         if (Items.TryGetValue(itemId, out var entry))
             Items[itemId] = entry with { Required = Math.Max(1u, quantity) };
+    }
+
+    public void Debug()
+    {
+        ImGui.Text($"Todo list: {Name}");
+        foreach (var it in Items)
+        {
+            UI.Helpers.DrawItem(it.Key);
+            ImGui.SameLine();
+            ImGui.Text($" - {it.Value.Required}");
+        }
     }
 }
 

@@ -15,15 +15,32 @@ using FFXIVGame = FFXIVClientStructs.FFXIV.Client.Game;
 
 namespace xgather.Executors;
 
-public abstract class ExecutorBase : IDisposable
+public abstract class GatherPlanner
+{
+    public abstract IWaypoint? NextDestination(ICollection<uint> pointsToSkip);
+    public abstract IEnumerable<uint> DesiredItems();
+    public abstract ClassJob? DesiredClass();
+    public abstract void Debug();
+
+    public delegate void SuccessHandler(object sender, string message);
+    public event SuccessHandler OnSuccessHandler = delegate { };
+
+    public void OnSuccess(string message = "All done!")
+    {
+        OnSuccessHandler.Invoke(this, message);
+    }
+}
+
+public sealed class GatherExecutor : IDisposable
 {
     #region Properties
     // actual radius seems to be around 135y, but trying to use an exact value will make the code brittle
-    protected const float UnloadRadius = 100f;
+    public const float UnloadRadius = 100f;
 
     public enum State : uint
     {
         Stopped = 0,
+        Paused,
         Idle,
         Gathering,
         Mount,
@@ -34,23 +51,30 @@ public abstract class ExecutorBase : IDisposable
         Weather
     }
 
-    public State CurrentState { get; protected set; }
-    public State WantedState { get; protected set; }
-    // public GatherPointBase? CurrentNodeGroup { get; protected set; }
+    public GatherPlanner Planner { get; private set; }
 
-    protected DateTime Retry;
-    public IWaypoint? Destination { get; protected set; }
-    protected HashSet<uint> SkippedPoints = [];
+    public State CurrentState { get; private set; }
 
-    public bool IsActive => CurrentState != State.Stopped;
+    private DateTime Retry;
+    public IWaypoint? Destination { get; private set; }
+    private readonly HashSet<uint> SkippedPoints = [];
 
     public static bool PathfindInProgress => !IPCHelper.NavmeshIsReady() || IPCHelper.PathfindInProgress() || IPCHelper.PathIsRunning() || IPCHelper.PathfindQueued() > 0;
+
+    public delegate void RouteStopHandler(object sender);
+    public event RouteStopHandler OnRouteStopped = delegate { };
     #endregion
 
-    public ExecutorBase()
+    public GatherExecutor(GatherPlanner child)
     {
+        Planner = child;
         Svc.Framework.Update += Tick;
         Svc.Condition.ConditionChange += ConditionChange;
+        Planner.OnSuccessHandler += (obj, msg) =>
+        {
+            Alerts.Success(msg);
+            Stop();
+        };
     }
 
     public void Dispose()
@@ -89,8 +113,13 @@ public abstract class ExecutorBase : IDisposable
 
     public void Stop()
     {
-        OnStop();
         ResetState();
+        OnRouteStopped.Invoke(this);
+    }
+
+    public void Pause()
+    {
+        CurrentState = State.Paused;
     }
 
     public static void StopMoving()
@@ -98,29 +127,24 @@ public abstract class ExecutorBase : IDisposable
         IPCHelper.PathStop();
         IPCHelper.PathfindCancel();
     }
-
-    public abstract IWaypoint? NextDestination();
-    public abstract IEnumerable<uint> DesiredItems();
-    public abstract ClassJob? DesiredClass();
-    public abstract void OnStop();
     #endregion
 
     #region Wait
-    protected void WaitFor(State type, TimeSpan retryTime)
+    private void WaitFor(State type, TimeSpan retryTime)
     {
         CurrentState = type;
         Retry = DateTime.Now.Add(retryTime);
     }
 
-    protected void WaitFor(State type)
+    private void WaitFor(State type)
     {
         CurrentState = type;
         Retry = DateTime.MaxValue;
     }
 
-    protected bool WaitingFor(State type) => CurrentState == type && Retry > DateTime.Now;
+    private bool WaitingFor(State type) => CurrentState == type && Retry > DateTime.Now;
 
-    protected void Done(State type)
+    private void Done(State type)
     {
         if (CurrentState == type)
         {
@@ -141,8 +165,6 @@ public abstract class ExecutorBase : IDisposable
             Destination = null;
             SkippedPoints.Clear();
 
-            Svc.Gather.DesiredItems = DesiredItems().ToHashSet();
-
             var tar = Svc.TargetManager.Target;
             if (tar != null)
             {
@@ -161,6 +183,10 @@ public abstract class ExecutorBase : IDisposable
         {
             // unreachable
             case State.Stopped:
+                return;
+
+            // waiting on user to resume
+            case State.Paused:
                 return;
 
             // route logic
@@ -191,7 +217,7 @@ public abstract class ExecutorBase : IDisposable
                 return;
 
             case State.Gearset:
-                var dc = DesiredClass();
+                var dc = Planner.DesiredClass();
                 if (dc == null || dc.RowId == Svc.Player!.ClassJob.Id)
                     Done(State.Gearset);
                 return;
@@ -216,6 +242,8 @@ public abstract class ExecutorBase : IDisposable
             GatherNext();
             return;
         }
+        else if (Destination.GetNextAvailable().Start > DateTime.Now)
+            return;
 
         if (Destination is FloorPoint p && p.FloorPosition.DistanceFromPlayer() < 1 && !PathfindInProgress)
         {
@@ -291,9 +319,9 @@ public abstract class ExecutorBase : IDisposable
         }
     }
 
-    protected void GatherNext()
+    private void GatherNext()
     {
-        Destination = NextDestination();
+        Destination = Planner.NextDestination(SkippedPoints);
         if (Destination == null)
         {
             Alerts.Error("No waypoints in range.");
@@ -322,7 +350,7 @@ public abstract class ExecutorBase : IDisposable
 
     private unsafe bool ChangeGearset()
     {
-        var wantJob = DesiredClass();
+        var wantJob = Planner.DesiredClass();
         if (wantJob == null || wantJob.RowId == Svc.Player!.ClassJob.Id)
             return false;
 
@@ -369,8 +397,11 @@ public abstract class ExecutorBase : IDisposable
         {
             Position = g.Position,
             DataID = g.DataId,
-            Zone = Svc.ClientState.TerritoryType
+            Zone = Svc.ClientState.TerritoryType,
+            Available = Utils.GetNextAvailable(g.DataId),
         };
+
+        Svc.Log.Debug($"Created waypoint from object {g}");
 
         if (Svc.Config.GetFloorPoint(g, out var point))
             return new FloorPoint() { FloorPosition = point, Node = actualObj };
@@ -398,7 +429,8 @@ public abstract class ExecutorBase : IDisposable
             Center = furthestNodeInGroup.NaviPosition,
             DataIDs = [.. ids],
             Landable = furthestNodeInGroup.GatherLocation != null,
-            Zone = zone
+            Zone = zone,
+            Available = Utils.GetNextAvailable(ids.First())
         };
     }
 }
@@ -408,10 +440,12 @@ public interface IWaypoint
     public uint GetZone();
     public Vector3 GetPosition();
     public bool GetLandable();
+    public (DateTime Start, DateTime End) GetNextAvailable();
 }
 
 public class GatherPointSearch : IWaypoint
 {
+    public required (DateTime Start, DateTime End) Available;
     public required uint Zone;
     public Vector3 Center;
     public required List<uint> DataIDs;
@@ -420,12 +454,14 @@ public class GatherPointSearch : IWaypoint
     public uint GetZone() => Zone;
     public Vector3 GetPosition() => Center;
     public bool GetLandable() => Landable;
+    public (DateTime Start, DateTime End) GetNextAvailable() => Available;
 
     public override string ToString() => $"Search({Utils.ShowV3(Center)}, {string.Join(", ", DataIDs.Select(d => $"0x{d:X}"))})";
 }
 
 public class GatherPointKnown : IWaypoint
 {
+    public required (DateTime Start, DateTime End) Available;
     public required uint Zone;
     public Vector3 Position;
     public uint DataID;
@@ -433,6 +469,7 @@ public class GatherPointKnown : IWaypoint
     public uint GetZone() => Zone;
     public Vector3 GetPosition() => Position;
     public bool GetLandable() => false;
+    public (DateTime Start, DateTime End) GetNextAvailable() => Available;
 
     public override string ToString() => $"0x{DataID:X} @ {Utils.ShowV3(Position)}";
 }
@@ -445,6 +482,7 @@ public class FloorPoint : IWaypoint
     public uint GetZone() => Node.GetZone();
     public Vector3 GetPosition() => FloorPosition;
     public bool GetLandable() => true;
+    public (DateTime Start, DateTime End) GetNextAvailable() => Node.GetNextAvailable();
 
     public override string ToString() => $"Floor({Node}, {Utils.ShowV3(FloorPosition)})";
 }

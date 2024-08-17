@@ -65,7 +65,7 @@ internal class Lists
         var list = Svc.Config.Lists[selectedList];
 
         if (ImGuiComponents.IconButton(FontAwesomeIcon.Play))
-            Svc.Executor.Start(list);
+            Svc.Executor.StartList(list);
 
         ImGui.SameLine();
 
@@ -126,7 +126,7 @@ internal class Lists
 
     private static void DrawFishWarning(Item it)
     {
-        if (it.FilterGroup == 16)
+        if (it.ItemSearchCategory.Row == 46)
         {
             ImGui.SameLine();
             using (ImRaii.PushFont(UiBuilder.IconFont))
