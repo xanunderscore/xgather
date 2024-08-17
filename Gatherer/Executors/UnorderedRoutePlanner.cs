@@ -5,10 +5,10 @@ using System.Linq;
 
 namespace xgather.Executors;
 
-public class UnorderedRoutePlanner(GatherPointBase route, IEnumerable<uint> desiredItems) : GatherPlanner
+public class UnorderedRoutePlanner(GatherPointBase route, uint wantItem) : Planner
 {
     public GatherPointBase CurrentRoute { get; init; } = route;
-    private readonly IEnumerable<uint> wantItems = desiredItems;
+    private readonly uint WantItem = wantItem;
 
     public override IWaypoint? NextDestination(ICollection<uint> SkippedPoints)
     {
@@ -38,6 +38,6 @@ public class UnorderedRoutePlanner(GatherPointBase route, IEnumerable<uint> desi
 
     public override ClassJob? DesiredClass() => CurrentRoute?.Class.GetClassJob();
 
-    public override IEnumerable<uint> DesiredItems() => wantItems;
+    public override IEnumerable<uint> DesiredItems() => [WantItem];
     public override void Debug() => CurrentRoute.Debug();
 }

@@ -15,7 +15,7 @@ using FFXIVGame = FFXIVClientStructs.FFXIV.Client.Game;
 
 namespace xgather.Executors;
 
-public abstract class GatherPlanner
+public abstract class Planner
 {
     public abstract IWaypoint? NextDestination(ICollection<uint> pointsToSkip);
     public abstract IEnumerable<uint> DesiredItems();
@@ -48,7 +48,7 @@ public sealed class GatherExecutor : IDisposable
         Weather
     }
 
-    public GatherPlanner Planner { get; private set; }
+    public Planner Planner { get; private set; }
     public AutoGather AutoGather { get; private set; }
 
     public State CurrentState { get; private set; }
@@ -63,7 +63,7 @@ public sealed class GatherExecutor : IDisposable
     public event RouteStopHandler OnRouteStopped = delegate { };
     #endregion
 
-    public GatherExecutor(GatherPlanner child)
+    public GatherExecutor(Planner child)
     {
         AutoGather = new();
         Planner = child;

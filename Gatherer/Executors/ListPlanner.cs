@@ -5,15 +5,15 @@ using System.Linq;
 
 namespace xgather.Executors;
 
-public sealed class ListPlanner : GatherPlanner
+public sealed class ListPlanner : Planner
 {
-    private UnorderedRoutePlanner? RoutePlanner;
+    private UnorderedRoutePlanner? CurrentRoute;
     public TodoList CurrentList { get; init; }
 
     public ListPlanner(TodoList list)
     {
         CurrentList = list;
-        RoutePlanner = NextPlanner(list);
+        CurrentRoute = NextRoute(list);
         Svc.Condition.ConditionChange += OnChange;
     }
 
@@ -21,37 +21,37 @@ public sealed class ListPlanner : GatherPlanner
     {
         if ((uint)flag == 85 && !isActive)
         {
-            RoutePlanner = NextPlanner();
-            if (RoutePlanner == null)
+            CurrentRoute = NextRoute();
+            if (CurrentRoute == null)
                 TriggerSuccess();
         }
     }
 
-    private UnorderedRoutePlanner? NextPlanner() => NextPlanner(CurrentList);
+    private UnorderedRoutePlanner? NextRoute() => NextRoute(CurrentList);
 
-    private static UnorderedRoutePlanner? NextPlanner(TodoList list)
+    private static UnorderedRoutePlanner? NextRoute(TodoList list)
     {
         var nextRoute =
-         (from item in list.Items
-          where item.Value.QuantityNeeded > 0
-          from route in Svc.Config.GetGatherPointGroupsForItem(item.Key)
-          orderby Utils.GetNextAvailable(route).Start ascending, route.Zone == Svc.ClientState.TerritoryType descending
-          select route).FirstOrDefault();
+            (from item in list.Items
+             where item.Value.QuantityNeeded > 0
+             from route in Svc.Config.GetGatherPointGroupsForItem(item.Key)
+             orderby Utils.GetNextAvailable(route).Start ascending, route.Zone == Svc.ClientState.TerritoryType descending
+             select route).FirstOrDefault();
 
         if (nextRoute == null)
             return null;
 
-        return new UnorderedRoutePlanner(nextRoute, from item in list.Items where item.Value.QuantityNeeded > 0 select item.Key);
+        return new UnorderedRoutePlanner(nextRoute, 0);
     }
 
-    public override IEnumerable<uint> DesiredItems() => from item in CurrentList.Items select item.Key;
+    public override IEnumerable<uint> DesiredItems() => CurrentList.Items.Keys;
 
-    public override IWaypoint? NextDestination(ICollection<uint> skippedPoints) => RoutePlanner?.NextDestination(skippedPoints);
-    public override ClassJob? DesiredClass() => RoutePlanner?.DesiredClass();
+    public override IWaypoint? NextDestination(ICollection<uint> skippedPoints) => CurrentRoute?.NextDestination(skippedPoints);
+    public override ClassJob? DesiredClass() => CurrentRoute?.DesiredClass();
 
     public override void Debug()
     {
         CurrentList.Debug();
-        RoutePlanner?.Debug();
+        CurrentRoute?.Debug();
     }
 }
