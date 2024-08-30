@@ -3,6 +3,7 @@ using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Plugin.Services;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
+using FFXIVClientStructs.FFXIV.Client.Game.Object;
 using FFXIVClientStructs.FFXIV.Client.System.String;
 using FFXIVClientStructs.FFXIV.Client.UI.Misc;
 using Lumina.Excel.GeneratedSheets;
@@ -11,21 +12,28 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using xgather.UI;
-using FFXIVGame = FFXIVClientStructs.FFXIV.Client.Game;
 
 namespace xgather.Executors;
 
-public abstract class Planner
+public abstract class Planner : IDisposable
 {
     public abstract IWaypoint? NextDestination(ICollection<uint> pointsToSkip);
     public abstract IEnumerable<uint> DesiredItems();
     public abstract ClassJob? DesiredClass();
     public abstract void Debug();
 
+    public virtual void Dispose()
+    {
+        GC.SuppressFinalize(this);
+    }
+
     public delegate void SuccessHandler(object sender, string message);
     public event SuccessHandler OnSuccess = delegate { };
-
     public void ReportSuccess(string message = "All done!") => OnSuccess.Invoke(this, message);
+
+    public delegate void ErrorHandler(object sender, string message);
+    public event ErrorHandler OnError = delegate { };
+    public void ReportError(string message) => OnError.Invoke(this, message);
 }
 
 public sealed class GatherExecutor : IDisposable
@@ -80,11 +88,17 @@ public sealed class GatherExecutor : IDisposable
             Alerts.Success(msg);
             Stop();
         };
+        Planner.OnError += (obj, msg) =>
+        {
+            Alerts.Error(msg);
+            Stop();
+        };
     }
 
     public void Dispose()
     {
         AutoGather.Dispose();
+        Planner.Dispose();
         Svc.Framework.Update -= Tick;
         Svc.Condition.ConditionChange -= ConditionChange;
         GC.SuppressFinalize(this);
@@ -336,7 +350,7 @@ public sealed class GatherExecutor : IDisposable
 
     private static unsafe void InteractWithObject(IGameObject obj)
     {
-        TargetSystem.Instance()->OpenObjectInteraction((FFXIVGame.Object.GameObject*)obj.Address);
+        TargetSystem.Instance()->OpenObjectInteraction((GameObject*)obj.Address);
     }
 
     private unsafe void Dismount()

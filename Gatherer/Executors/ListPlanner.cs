@@ -17,6 +17,12 @@ public sealed class ListPlanner : Planner
         Svc.Condition.ConditionChange += OnChange;
     }
 
+    public override void Dispose()
+    {
+        Svc.Condition.ConditionChange -= OnChange;
+        base.Dispose();
+    }
+
     private void OnChange(ConditionFlag flag, bool isActive)
     {
         if ((uint)flag == 85 && !isActive)
