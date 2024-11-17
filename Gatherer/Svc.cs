@@ -48,6 +48,8 @@ public class Svc
         Plugin = plugin;
     }
 
-    public static ExcelSheet<T> ExcelSheet<T>() where T : ExcelRow => Data.Excel.GetSheet<T>()!;
-    public static T ExcelRow<T>(uint id) where T : ExcelRow => Data.Excel.GetSheet<T>()!.GetRow(id)!;
+    public static ExcelSheet<T>? ExcelSheet<T>() where T : struct, IExcelRow<T> => Data.Excel.GetSheet<T>();
+    public static SubrowExcelSheet<T>? SubrowExcelSheet<T>() where T : struct, IExcelSubrow<T> => Data.Excel.GetSubrowSheet<T>();
+    public static T? ExcelRowMaybe<T>(uint id) where T : struct, IExcelRow<T> => Data.Excel.GetSheet<T>()?.GetRow(id);
+    public static T ExcelRow<T>(uint id) where T : struct, IExcelRow<T> => ExcelRowMaybe<T>(id)!.Value;
 }

@@ -1,5 +1,5 @@
 using Dalamud.Game.ClientState.Conditions;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -50,7 +50,7 @@ public sealed class ListPlanner : Planner
         return new UnorderedRoutePlanner(nextRoute, 0);
     }
 
-    public override IEnumerable<uint> DesiredItems() => CurrentList.Items.Keys;
+    public override ICollection<uint> DesiredItems() => CurrentList.Items.Keys;
 
     public override IWaypoint? NextDestination(ICollection<uint> skippedPoints) => CurrentRoute?.NextDestination(skippedPoints);
     public override ClassJob? DesiredClass() => CurrentRoute?.DesiredClass();

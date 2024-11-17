@@ -4,7 +4,7 @@ using Dalamud.Interface.Components;
 using Dalamud.Interface.Utility;
 using Dalamud.Interface.Utility.Raii;
 using ImGuiNET;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 using System;
 using System.Numerics;
 
@@ -99,8 +99,6 @@ internal class Lists
         foreach (var (itemId, item) in list.Items)
         {
             var it = Svc.ExcelRow<Item>(itemId);
-            if (it == null)
-                continue;
 
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -126,7 +124,7 @@ internal class Lists
 
     private static void DrawFishWarning(Item it)
     {
-        if (it.ItemSearchCategory.Row == 46)
+        if (it.ItemSearchCategory.RowId == 46)
         {
             ImGui.SameLine();
             using (ImRaii.PushFont(UiBuilder.IconFont))
@@ -152,8 +150,6 @@ internal class Lists
                 foreach (var (itemId, routes) in Svc.Config.ItemDB)
                 {
                     var it = Svc.ExcelRow<Item>(itemId);
-                    if (it == null)
-                        continue;
 
                     if (!it.Name.ToString().Contains(newItemInput, StringComparison.InvariantCultureIgnoreCase))
                         continue;

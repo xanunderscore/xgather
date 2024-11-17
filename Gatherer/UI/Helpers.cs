@@ -1,5 +1,5 @@
 using ImGuiNET;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 
 namespace xgather.UI;
 
@@ -13,16 +13,12 @@ internal class Helpers
             ImGui.Image(ic.ImGuiHandle, new(iconSize, iconSize));
             ImGui.SameLine();
         }
-        ImGui.Text(it.Name);
+        ImGui.Text(it.Name.ToString());
     }
 
     internal static bool DrawItem(uint itemId, int iconSize = 32)
     {
-        var it = Svc.ExcelRow<Item>(itemId);
-        if (it == null)
-            return false;
-
-        DrawItem(it, iconSize);
+        DrawItem(Svc.ExcelRow<Item>(itemId), iconSize);
         return true;
     }
 }

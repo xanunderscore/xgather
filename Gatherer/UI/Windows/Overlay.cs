@@ -61,6 +61,9 @@ public class Overlay : Window
         }
         else if (ImGuiComponents.IconButton(FontAwesomeIcon.Pause))
             gatherer.Pause();
+        ImGui.SameLine();
+        if (ImGuiComponents.IconButton(FontAwesomeIcon.Stop))
+            gatherer.Stop();
 
         ImGui.SameLine();
         gatherer.Planner.Debug();

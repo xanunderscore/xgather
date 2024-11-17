@@ -1,4 +1,4 @@
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,7 +38,7 @@ public class UnorderedRoutePlanner(GatherPointBase route, uint wantItem) : Plann
 
     public override ClassJob? DesiredClass() => CurrentRoute?.Class.GetClassJob();
 
-    public override IEnumerable<uint> DesiredItems() => [WantItem];
+    public override ICollection<uint> DesiredItems() => [WantItem];
     public override void Debug()
     {
         UI.Helpers.DrawItem(WantItem);

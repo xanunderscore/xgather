@@ -17,7 +17,7 @@ public sealed unsafe class AutoGather : IDisposable
     public bool Paused { get; set; } = false;
 
     private AddonGathering* Addon;
-    public HashSet<uint> DesiredItems = [];
+    public ICollection<uint> DesiredItems = [];
 
     public AutoGather()
     {

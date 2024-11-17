@@ -2,7 +2,7 @@ using Dalamud.Configuration;
 using Dalamud.Game.ClientState.Objects.Types;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using ImGuiNET;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -68,7 +68,7 @@ public class GatherPointBase
 
     [JsonIgnore] public bool IsUnderwater => Items.Any(x => x >= 20000);
 
-    [JsonIgnore] public TerritoryType TerritoryType => Svc.ExcelRow<TerritoryType>(Zone)!;
+    [JsonIgnore] public TerritoryType TerritoryType => Svc.ExcelRow<TerritoryType>(Zone);
 
     public bool MissingPoints() => Nodes.Any(x => Svc.Config.GetKnownPoints(x).Any(y => y.GatherLocation == null));
     public bool Contains(uint dataId) => Nodes.Contains(dataId);
@@ -80,11 +80,11 @@ public class GatherPointBase
 
     public GatheringPointTransient? GetTransient()
     {
-        var gpt = Svc.ExcelRow<GatheringPointTransient>(Nodes[0]);
-        if (gpt == null)
+        var gpt2 = Svc.ExcelRowMaybe<GatheringPointTransient>(Nodes[0]);
+        if (gpt2 is not GatheringPointTransient gpt)
             return null;
 
-        if (gpt.EphemeralStartTime == 65535 && gpt.EphemeralEndTime == 65535 && gpt.GatheringRarePopTimeTable.Row == 0)
+        if (gpt.EphemeralStartTime == 65535 && gpt.EphemeralEndTime == 65535 && gpt.GatheringRarePopTimeTable.RowId == 0)
             return null;
 
         return gpt;
@@ -272,7 +272,7 @@ public class Configuration : IPluginConfiguration
     public void RegisterGameItems()
     {
         var allGatherPoints = Svc.ExcelSheet<GatheringPoint>()!;
-        foreach (var gatherPointGroup in allGatherPoints.GroupBy(gp => gp.GatheringPointBase.Row))
+        foreach (var gatherPointGroup in allGatherPoints.GroupBy(gp => gp.GatheringPointBase.RowId))
         {
             // diadem nodes don't function like overworld nodes. custom ordered routes should be created for these instead
             if (GenericDiademNodes.Contains(gatherPointGroup.Key))
@@ -290,15 +290,15 @@ public class Configuration : IPluginConfiguration
 
             // gathering point is not associated with a territory type, meaning it doesn't appear anywhere in the game
             // (for old diadem stuff etc)
-            if (gatherPointGroup.First().TerritoryType.Row < 128)
+            if (gatherPointGroup.First().TerritoryType.RowId < 128)
                 continue;
 
             // territorytype is not wrong but placename is, still a bad mat
-            if (gatherPointGroup.First().PlaceName.Row == 0)
+            if (gatherPointGroup.First().PlaceName.RowId == 0)
                 continue;
 
             // more old diadem stuff
-            if (gatherPointGroup.First().GatheringSubCategory.Value?.Quest.Row == ObsoleteDiademUnlockQuest)
+            if (gatherPointGroup.First().GatheringSubCategory.Value.Quest.RowId == ObsoleteDiademUnlockQuest)
                 continue;
 
             // already got a route for this
@@ -308,9 +308,9 @@ public class Configuration : IPluginConfiguration
             var ttName = gatherPointGroup.First().TerritoryType.Value!.PlaceName.Value!.Name;
 
             if (ttName == "")
-                throw new Exception($"territory type {gatherPointGroup.First().TerritoryType.Row} is wrong");
+                throw new Exception($"territory type {gatherPointGroup.First().TerritoryType.RowId} is wrong");
 
-            var gatherType = gpBase.GatheringType.Row switch
+            var gatherType = gpBase.GatheringType.RowId switch
             {
                 4 or 5 => "Spearfishing",
                 _ => gpBase.GatheringType.Value!.Name
@@ -321,26 +321,18 @@ public class Configuration : IPluginConfiguration
             var newGPB = new GatherPointBase()
             {
                 Label = label,
-                Zone = gatherPointGroup.First().TerritoryType.Row,
+                Zone = gatherPointGroup.First().TerritoryType.RowId,
                 Nodes = gatherPointGroup.Select(x => x.RowId).ToList(),
                 GatheringPointBaseId = gpBase.RowId,
                 Class = gpBase.GetRequiredClass(),
-                Items = gpBase.Item.Where(x => x > 0).Select(it =>
+                Items = gpBase.Item.Where(x => x.RowId > 0).Select(it =>
                 {
-                    if (it >= 20000)
-                    {
-                        var spearfishItem = Svc.ExcelRow<SpearfishingItem>((uint)it);
-                        if (spearfishItem == null)
-                            throw new Exception($"{it} is not valid for a SpearfishingItem (GPBase ID: {gpBase.RowId})");
-                        return spearfishItem.Item.Row;
-                    }
+                    if (it.TryGetValue<SpearfishingItem>(out var spearfishItem))
+                        return spearfishItem.Item.RowId;
+                    else if (it.TryGetValue<GatheringItem>(out var gatherit))
+                        return gatherit.Item.RowId;
                     else
-                    {
-                        var gatherit = Svc.ExcelRow<GatheringItem>((uint)it);
-                        if (gatherit == null)
-                            throw new Exception($"{it} is not valid for a GatheringItem (GPBase ID: {gpBase.RowId})");
-                        return (uint)gatherit.Item;
-                    }
+                        throw new Exception($"unknown item type for {it}");
                 }).ToList()
             };
 

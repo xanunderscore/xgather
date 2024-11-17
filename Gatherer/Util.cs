@@ -1,5 +1,5 @@
 using FFXIVClientStructs.FFXIV.Client.System.Framework;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -59,7 +59,7 @@ internal static class Utils
         }
     }
 
-    public static bool IsGatherer => Svc.Player?.ClassJob.Id is 16 or 17 or 18;
+    public static bool IsGatherer => Svc.Player?.ClassJob.RowId is 16 or 17 or 18;
 
     [StructLayout(LayoutKind.Explicit)]
     private readonly struct ChatPayload : IDisposable
@@ -91,11 +91,14 @@ internal static class Utils
 
     public static uint GetMinCollectability(uint itemId)
     {
-        var collectableItem = Svc.ExcelSheet<CollectablesShopItem>().FirstOrDefault(x => x.Item.Row == itemId);
+        /*
+        var collectableItem = Svc.SubrowExcelSheet<CollectablesShopItem>().FirstOrDefault(x => x.Item.Row == itemId);
         if (collectableItem?.CollectablesShopRefine?.Value is not CollectablesShopRefine rewardData)
             return 0;
 
         return rewardData.LowCollectability;
+        */
+        throw new Exception("figure out what CollectablesShopItem does now");
     }
 
     public static unsafe bool PlayerIsFalling
@@ -121,25 +124,30 @@ internal static class Utils
 
     public static unsafe (DateTime Start, DateTime End) GetNextAvailable(uint itemId)
     {
-        var gpt = Svc.ExcelRow<GatheringPointTransient>(itemId);
-        if (gpt == null)
+        var gpt2 = Svc.ExcelRowMaybe<GatheringPointTransient>(itemId);
+        if (gpt2 == null)
             return (DateTime.MinValue, DateTime.MaxValue);
+
+        var gpt = gpt2.Value;
 
         if (gpt.EphemeralStartTime != 65535 && gpt.EphemeralEndTime != 65535)
             return CalcAvailability(gpt.EphemeralStartTime, gpt.EphemeralEndTime);
 
         if (gpt.GatheringRarePopTimeTable.Value is GatheringRarePopTimeTable gptt && gptt.RowId > 0)
-            return gptt.UnkData0.Select(CalcAvailability).MinBy(x => x.Start);
+            return CalcAvailability(gptt).MinBy(x => x.Start);
 
         return (DateTime.MinValue, DateTime.MaxValue);
     }
 
-    public static (DateTime Start, DateTime End) CalcAvailability(GatheringRarePopTimeTable.GatheringRarePopTimeTableUnkData0Obj obj)
+    public static IEnumerable<(DateTime Start, DateTime End)> CalcAvailability(GatheringRarePopTimeTable obj)
     {
-        if (obj.StartTime == 65535)
-            return (DateTime.MaxValue, DateTime.MaxValue);
+        foreach (var (start, dur) in obj.StartTime.Zip(obj.Duration))
+        {
+            if (start == 65535)
+                yield return (DateTime.MaxValue, DateTime.MaxValue);
 
-        return CalcAvailability(obj.StartTime, obj.StartTime + obj.Durationm);
+            yield return CalcAvailability(start, start + dur);
+        }
     }
 
     public static (DateTime Start, DateTime End) CalcAvailability(int EorzeaMinStart, int EorzeaMinEnd)
@@ -182,7 +190,7 @@ internal static class VectorExt
 
 internal static class GPBaseExt
 {
-    public static GatherClass GetRequiredClass(this GatheringPointBase gpBase) => gpBase.GatheringType.Row switch
+    public static GatherClass GetRequiredClass(this GatheringPointBase gpBase) => gpBase.GatheringType.RowId switch
     {
         0 or 1 => GatherClass.MIN,
         2 or 3 => GatherClass.BTN,

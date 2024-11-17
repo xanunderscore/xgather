@@ -1,5 +1,5 @@
 using ImGuiNET;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 using System.Linq;
 
 namespace xgather.UI.Windows;
@@ -25,8 +25,6 @@ internal class ItemSearch(string initialSearchText)
             foreach ((var itemId, var routes) in Svc.Config.ItemDB)
             {
                 var it = Svc.ExcelRow<Item>(itemId);
-                if (it == null)
-                    continue;
 
                 if (!it.Name.ToString().Contains(_searchText, System.StringComparison.InvariantCultureIgnoreCase))
                     continue;

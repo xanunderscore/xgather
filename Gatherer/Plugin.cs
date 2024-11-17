@@ -4,9 +4,9 @@ using Dalamud.Game.Text.SeStringHandling.Payloads;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
+using Lumina.Excel.Sheets;
 using System.Collections.Generic;
 using System.Linq;
-using xgather.GameData;
 using xgather.UI;
 using xgather.UI.Windows;
 
@@ -15,14 +15,13 @@ namespace xgather;
 public sealed class Plugin : IDalamudPlugin
 {
     public string Name => "xgather";
-    private const string CommandName = "/xgather";
 
     public WindowSystem WindowSystem = new("xgather");
 
     internal MainWindow MainWindow { get; init; }
     private Overlay Overlay { get; init; }
 
-    internal List<Aetheryte> Aetherytes;
+    internal List<GameData.Aetheryte> Aetherytes;
 
     public bool RecordMode { get; set; } = false;
 
@@ -38,15 +37,13 @@ public sealed class Plugin : IDalamudPlugin
         WindowSystem.AddWindow(MainWindow);
         WindowSystem.AddWindow(Overlay);
 
-        commandManager.AddHandler(
-            CommandName,
-            new CommandInfo(OnCommand) { HelpMessage = "Open it" }
-        );
+        commandManager.AddHandler("/xgather", new CommandInfo(OnCommand) { HelpMessage = "Open it" });
+        commandManager.AddHandler("/xgatherfish", new CommandInfo(Gatherfish) { HelpMessage = "Gather fish" });
 
         Svc.PluginInterface.UiBuilder.Draw += DrawUI;
         Svc.Framework.Update += Tick;
 
-        Aetherytes = Aetheryte.LoadAetherytes().ToList();
+        Aetherytes = GameData.Aetheryte.LoadAetherytes().ToList();
     }
 
     public void Dispose()
@@ -54,9 +51,28 @@ public sealed class Plugin : IDalamudPlugin
         WindowSystem.RemoveAllWindows();
         Svc.Config.Save();
         IPCHelper.PathStop();
-        Svc.CommandManager.RemoveHandler(CommandName);
+        Svc.CommandManager.RemoveHandler("/xgather");
+        Svc.CommandManager.RemoveHandler("/xgatherfish");
         Svc.Framework.Update -= Tick;
         Svc.PluginInterface.UiBuilder.Draw -= DrawUI;
+    }
+
+    private void Gatherfish(string command, string args)
+    {
+        if (args == "")
+        {
+            Alerts.Error($"Usage: /xgatherfish name-of-fish");
+            return;
+        }
+
+        var gfish = Svc.ExcelSheet<SpearfishingItem>()?.FirstOrDefault(it => it.Item.Value.Name.ToString().Contains(args, System.StringComparison.InvariantCultureIgnoreCase));
+        if (gfish == null)
+        {
+            Alerts.Error($"No fish found for query {args}");
+            return;
+        }
+
+        DoGatherItem(args, gfish.Value.Item.Value!);
     }
 
     private void OnCommand(string command, string args)
@@ -73,16 +89,21 @@ public sealed class Plugin : IDalamudPlugin
             return;
         }
 
-        var git = Svc.ExcelSheet<Lumina.Excel.GeneratedSheets.GatheringItem>().FirstOrDefault(it =>
-        Svc.ExcelRow<Lumina.Excel.GeneratedSheets.Item>((uint)it.Item).Name.ToString().Contains(args, System.StringComparison.InvariantCultureIgnoreCase));
+        var git = Svc.ExcelSheet<GatheringItem>()?.FirstOrDefault(it =>
+        Svc.ExcelRow<Item>(it.Item.RowId).Name.ToString().Contains(args, System.StringComparison.InvariantCultureIgnoreCase));
         if (git == null)
         {
             Alerts.Error($"No item found for query {args}");
             return;
         }
 
-        var it = Svc.ExcelRow<Lumina.Excel.GeneratedSheets.Item>((uint)git.Item)!;
+        var it = Svc.ExcelRow<Item>(git.Value.RowId)!;
 
+        DoGatherItem(args, it);
+    }
+
+    private void DoGatherItem(string args, Item it)
+    {
         foreach (var rte in Svc.Config.GetGatherPointGroupsForItem(it.RowId))
         {
             var msg = new SeString().Append("Identified ").Append(new UIForegroundPayload(1)).Append(new ItemPayload(it.RowId)).Append(it.Name.ToString()).Append(RawPayload.LinkTerminator).Append(new UIForegroundPayload(0)).Append($" for \"{args}\"");

@@ -6,7 +6,7 @@ using FFXIVClientStructs.FFXIV.Client.Game.Control;
 using FFXIVClientStructs.FFXIV.Client.Game.Object;
 using FFXIVClientStructs.FFXIV.Client.System.String;
 using FFXIVClientStructs.FFXIV.Client.UI.Misc;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +18,7 @@ namespace xgather.Executors;
 public abstract class Planner : IDisposable
 {
     public abstract IWaypoint? NextDestination(ICollection<uint> pointsToSkip);
-    public abstract IEnumerable<uint> DesiredItems();
+    public abstract ICollection<uint> DesiredItems();
     public abstract ClassJob? DesiredClass();
     public abstract void Debug();
 
@@ -188,7 +188,7 @@ public sealed class GatherExecutor : IDisposable
             CurrentState = State.Gathering;
             Destination = null;
             SkippedPoints.Clear();
-            AutoGather.DesiredItems = Planner.DesiredItems().ToHashSet();
+            AutoGather.DesiredItems = Planner.DesiredItems();
 
             var tar = Svc.TargetManager.Target;
             if (tar != null)
@@ -235,7 +235,7 @@ public sealed class GatherExecutor : IDisposable
 
             case State.Gearset:
                 var dc = Planner.DesiredClass();
-                if (dc == null || dc.RowId == Svc.Player!.ClassJob.Id)
+                if (dc == null || dc.Value.RowId == Svc.Player!.ClassJob.RowId)
                     Done(State.Gearset);
                 return;
 
@@ -368,10 +368,10 @@ public sealed class GatherExecutor : IDisposable
     private unsafe bool ChangeGearset()
     {
         var wantJob = Planner.DesiredClass();
-        if (wantJob == null || wantJob.RowId == Svc.Player!.ClassJob.Id)
+        if (wantJob == null || wantJob.Value.RowId == Svc.Player!.ClassJob.RowId)
             return false;
 
-        var needClass = wantJob.NameEnglish.ToString();
+        var needClass = wantJob.Value.NameEnglish.ToString();
         var gearsetModule = RaptureGearsetModule.Instance();
         var gearsetId = gearsetModule->FindGearsetIdByName(Utf8String.FromString(needClass));
         if (gearsetId == -1)

@@ -1,8 +1,8 @@
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using GameAetheryte = Lumina.Excel.GeneratedSheets.Aetheryte;
+using GameAetheryte = Lumina.Excel.Sheets.Aetheryte;
 
 namespace xgather.GameData;
 
@@ -18,7 +18,7 @@ internal class Aetheryte
     {
         var map = aetheryte.Territory.Value!.Map.Value!;
 
-        var marker = Svc.Data.GetExcelSheet<MapMarker>()!.FirstOrDefault(m => m.DataType == 3 && m.DataKey == aetheryte.RowId) ?? throw new System.Exception($"No aetheryte found for {aetheryte}");
+        var marker = Svc.Data.GetSubrowExcelSheet<MapMarker>()!.Flatten().FirstOrDefault(m => m.DataType == 3 && m.DataKey.RowId == aetheryte.RowId);
 
         WorldX = ConvertMapMarkerToRawPosition(marker.X, map.SizeFactor);
         WorldY = ConvertMapMarkerToRawPosition(marker.Y, map.SizeFactor);
@@ -33,7 +33,7 @@ internal class Aetheryte
         if (GameAetheryte.RowId is 148)
             return float.MaxValue;
 
-        if (rte.TerritoryType == Territory && rte.GatherAreaCenter() is Vector3 pos)
+        if (rte.TerritoryType.RowId == Territory.RowId && rte.GatherAreaCenter() is Vector3 pos)
             return (new Vector2(WorldX, WorldY) - new Vector2(pos.X, pos.Z)).Length();
 
         return float.MaxValue;
@@ -56,6 +56,6 @@ internal class Aetheryte
 
     public static IEnumerable<Aetheryte> LoadAetherytes()
     {
-        return Svc.Data.GetExcelSheet<GameAetheryte>()!.Where(x => x.IsAetheryte && x.AethernetName.Row == 0 && x.RowId > 1).Select(x => new Aetheryte(x));
+        return Svc.Data.GetExcelSheet<GameAetheryte>()!.Where(x => x.IsAetheryte && x.AethernetName.RowId == 0 && x.RowId > 1).Select(x => new Aetheryte(x));
     }
 }
