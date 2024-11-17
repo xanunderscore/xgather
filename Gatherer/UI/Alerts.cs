@@ -15,7 +15,7 @@ internal static class Alerts
     public static void Error(SeString message)
     {
         Svc.Chat.Print(Wrap(message, iconColor: 17));
-        UIModule.PlayChatSoundEffect(4);
+        UIGlobals.PlayChatSoundEffect(4);
         LastError = message.TextValue;
     }
 
@@ -24,7 +24,7 @@ internal static class Alerts
     public static void Success(SeString message)
     {
         Svc.Chat.Print(Wrap(message, iconColor: 45));
-        UIModule.PlayChatSoundEffect(1);
+        UIGlobals.PlayChatSoundEffect(1);
     }
     public static void Success(string message) => Success((SeString)message);
 

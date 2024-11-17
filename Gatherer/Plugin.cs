@@ -97,9 +97,14 @@ public sealed class Plugin : IDalamudPlugin
             return;
         }
 
-        var it = Svc.ExcelRow<Item>(git.Value.RowId)!;
+        var it = git.Value.Item.GetValueOrDefault<Item>();
+        if (it == null)
+        {
+            Alerts.Error($"Item doesn't exist");
+            return;
+        }
 
-        DoGatherItem(args, it);
+        DoGatherItem(args, it.Value);
     }
 
     private void DoGatherItem(string args, Item it)

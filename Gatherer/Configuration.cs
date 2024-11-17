@@ -298,7 +298,7 @@ public class Configuration : IPluginConfiguration
                 continue;
 
             // more old diadem stuff
-            if (gatherPointGroup.First().GatheringSubCategory.Value.Quest.RowId == ObsoleteDiademUnlockQuest)
+            if (gatherPointGroup.First().GatheringSubCategory.ValueNullable?.Quest.RowId == ObsoleteDiademUnlockQuest)
                 continue;
 
             // already got a route for this
