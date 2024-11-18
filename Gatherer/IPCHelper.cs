@@ -18,7 +18,8 @@ public static class IPCHelper
 
     public static bool PathfindAndMoveTo(Vector3 dest, bool fly) => _pathfindAndMoveTo.InvokeFunc(dest, fly);
     public static void PathStop() => _pathStop.InvokeAction();
-    public static void PathfindCancel() => _pathfindCancelAll.InvokeAction();
+    // uncomment when vnav reload is fixed
+    public static void PathfindCancel() { } // _pathfindCancelAll.InvokeAction();
     public static Vector3? PointOnFloor(Vector3 pos, bool allowUnlandable, float radius) => _pointOnFloor.InvokeFunc(pos, allowUnlandable, radius);
     public static bool PathIsRunning() => _pathIsRunning.InvokeFunc();
     public static bool PathfindInProgress() => _pathfindInProgress.InvokeFunc();

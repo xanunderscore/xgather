@@ -114,9 +114,9 @@ internal static class Utils
             // 3 = going up
             // 4 = stopped
             // 5 = going down
-            var isJumping = *(byte*)(p.Address + 736) > 0;
+            var isJumping = *(byte*)(p.Address + 704) > 0;
             // 1 iff dismounting and haven't hit the ground yet
-            var isAirDismount = **(byte**)(p.Address + 1432) == 1;
+            var isAirDismount = **(byte**)(p.Address + 1400) == 1;
 
             return isJumping || isAirDismount;
         }
