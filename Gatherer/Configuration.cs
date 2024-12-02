@@ -302,8 +302,8 @@ public class Configuration : IPluginConfiguration
                 continue;
 
             // already got a route for this
-            if (AllGatherPointGroups.Any(r => r.Item2.GatheringPointBaseId == gpBase.RowId))
-                continue;
+            //if (AllGatherPointGroups.Any(r => r.Item2.GatheringPointBaseId == gpBase.RowId))
+            //    continue;
 
             var ttName = gatherPointGroup.First().TerritoryType.Value!.PlaceName.Value!.Name;
 

@@ -6,7 +6,9 @@ using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using Lumina.Excel.Sheets;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using xgather.UI;
 using xgather.UI.Windows;
 
@@ -44,6 +46,10 @@ public sealed class Plugin : IDalamudPlugin
         Svc.Framework.Update += Tick;
 
         Aetherytes = GameData.Aetheryte.LoadAetherytes().ToList();
+
+        var p = Process.GetCurrentProcess().MainModule!;
+        Svc.Log.Debug($"{p.BaseAddress:X2}");
+        Svc.Log.Debug($"new offset: {Marshal.ReadInt32(p.BaseAddress, 0x3C)}");
     }
 
     public void Dispose()
@@ -89,22 +95,34 @@ public sealed class Plugin : IDalamudPlugin
             return;
         }
 
-        var git = Svc.ExcelSheet<GatheringItem>()?.FirstOrDefault(it =>
-        Svc.ExcelRow<Item>(it.Item.RowId).Name.ToString().Contains(args, System.StringComparison.InvariantCultureIgnoreCase));
-        if (git == null)
+        var it = FindGatheringItemByName(args);
+        if (it == null)
         {
             Alerts.Error($"No item found for query {args}");
             return;
         }
 
-        var it = git.Value.Item.GetValueOrDefault<Item>();
-        if (it == null)
-        {
-            Alerts.Error($"Item doesn't exist");
-            return;
-        }
+        Svc.Log.Debug($"Identified {it.Value.RowId}");
 
         DoGatherItem(args, it.Value);
+    }
+
+    private Item? FindGatheringItemByName(string query)
+    {
+        Item? filter(IEnumerable<Item>? list) =>
+            list?.Where(i => i.Name.ToString().Contains(query, System.StringComparison.InvariantCultureIgnoreCase))
+            .Select(i => (Item?)i)
+            .FirstOrDefault();
+
+        if (filter(Svc.ExcelSheet<GatheringItem>()?
+            .SelectMany(i => i.Item.TryGetValue<Item>(out var realItem) ? new Item[] { realItem } : [])) is Item i)
+            return i;
+
+        if (filter(Svc.ExcelSheet<SpearfishingItem>()?
+            .Select(s => s.Item.Value)) is Item s)
+            return s;
+
+        return null;
     }
 
     private void DoGatherItem(string args, Item it)
