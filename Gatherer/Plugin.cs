@@ -1,3 +1,7 @@
+﻿using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Runtime.InteropServices;
 using Dalamud.Game.Command;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
@@ -5,10 +9,6 @@ using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using Lumina.Excel.Sheets;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Runtime.InteropServices;
 using xgather.UI;
 using xgather.UI.Windows;
 
@@ -71,7 +71,10 @@ public sealed class Plugin : IDalamudPlugin
             return;
         }
 
-        var gfish = Svc.ExcelSheet<SpearfishingItem>()?.FirstOrDefault(it => it.Item.Value.Name.ToString().Contains(args, System.StringComparison.InvariantCultureIgnoreCase));
+        var gfish = Svc.ExcelSheet<SpearfishingItem>()
+            ?.FirstOrDefault(
+                it => it.Item.Value.Name.ToString().Contains(args, System.StringComparison.InvariantCultureIgnoreCase)
+            );
         if (gfish == null)
         {
             Alerts.Error($"No fish found for query {args}");
@@ -111,15 +114,19 @@ public sealed class Plugin : IDalamudPlugin
     {
         Item? filter(IEnumerable<Item>? list) =>
             list?.Where(i => i.Name.ToString().Contains(query, System.StringComparison.InvariantCultureIgnoreCase))
-            .Select(i => (Item?)i)
-            .FirstOrDefault();
+                .Select(i => (Item?)i)
+                .FirstOrDefault();
 
-        if (filter(Svc.ExcelSheet<GatheringItem>()?
-            .SelectMany(i => i.Item.TryGetValue<Item>(out var realItem) ? new Item[] { realItem } : [])) is Item i)
+        if (
+            filter(
+                Svc.ExcelSheet<GatheringItem>()
+                    ?.SelectMany(i => i.Item.TryGetValue<Item>(out var realItem) ? new Item[] { realItem } : [])
+            )
+            is Item i
+        )
             return i;
 
-        if (filter(Svc.ExcelSheet<SpearfishingItem>()?
-            .Select(s => s.Item.Value)) is Item s)
+        if (filter(Svc.ExcelSheet<SpearfishingItem>()?.Select(s => s.Item.Value)) is Item s)
             return s;
 
         return null;
@@ -129,7 +136,14 @@ public sealed class Plugin : IDalamudPlugin
     {
         foreach (var rte in Svc.Config.GetGatherPointGroupsForItem(it.RowId))
         {
-            var msg = new SeString().Append("Identified ").Append(new UIForegroundPayload(1)).Append(new ItemPayload(it.RowId)).Append(it.Name.ToString()).Append(RawPayload.LinkTerminator).Append(new UIForegroundPayload(0)).Append($" for \"{args}\"");
+            var msg = new SeString()
+                .Append("Identified ")
+                .Append(new UIForegroundPayload(1))
+                .Append(new ItemPayload(it.RowId))
+                .Append(it.Name.ToString())
+                .Append(RawPayload.LinkTerminator)
+                .Append(new UIForegroundPayload(0))
+                .Append($" for \"{args}\"");
             Alerts.Info(msg);
             Svc.Executor.StartAdHoc(rte, it.RowId);
             Overlay.IsOpen = true;
@@ -147,7 +161,11 @@ public sealed class Plugin : IDalamudPlugin
     private void Tick(IFramework framework)
     {
         if (RecordMode)
-            foreach (var obj in Svc.ObjectTable.Where(x => x.ObjectKind is Dalamud.Game.ClientState.Objects.Enums.ObjectKind.GatheringPoint))
+            foreach (
+                var obj in Svc.ObjectTable.Where(
+                    x => x.ObjectKind is Dalamud.Game.ClientState.Objects.Enums.ObjectKind.GatheringPoint
+                )
+            )
                 Svc.Config.RecordPosition(obj);
     }
 }

@@ -1,5 +1,3 @@
-using FFXIVClientStructs.FFXIV.Client.System.Framework;
-using Lumina.Excel.Sheets;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -7,6 +5,8 @@ using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
+using FFXIVClientStructs.FFXIV.Client.System.Framework;
+using Lumina.Excel.Sheets;
 using xgather.GameData;
 
 namespace xgather;
@@ -20,6 +20,7 @@ internal static class Utils
             internal const string SendChat = "48 89 5C 24 ?? 57 48 83 EC 20 48 8B FA 48 8B D9 45 84 C9";
             internal const string SanitiseString = "E8 ?? ?? ?? ?? EB 0A 48 8D 4C 24 ?? E8 ?? ?? ?? ?? 48 8D 8D";
         }
+
         private delegate void ProcessChatBoxDelegate(IntPtr uiModule, IntPtr message, IntPtr unused, byte a4);
         private ProcessChatBoxDelegate ProcessChatBox { get; }
 
@@ -66,12 +67,16 @@ internal static class Utils
     {
         [FieldOffset(0)]
         private readonly IntPtr textPtr;
+
         [FieldOffset(16)]
         private readonly ulong textLen;
+
         [FieldOffset(8)]
         private readonly ulong unk1;
+
         [FieldOffset(24)]
         private readonly ulong unk2;
+
         internal ChatPayload(byte[] stringBytes)
         {
             textPtr = Marshal.AllocHGlobal(stringBytes.Length + 30);
@@ -81,6 +86,7 @@ internal static class Utils
             unk1 = 64;
             unk2 = 0;
         }
+
         public void Dispose()
         {
             Marshal.FreeHGlobal(textPtr);
@@ -122,7 +128,7 @@ internal static class Utils
         }
     }
 
-    public static unsafe (DateTime Start, DateTime End) GetNextAvailable(uint itemId)
+    public static (DateTime Start, DateTime End) GetNextAvailable(uint itemId)
     {
         var gpt2 = Svc.ExcelRowMaybe<GatheringPointTransient>(itemId);
         if (gpt2 == null)
@@ -181,27 +187,34 @@ internal static class Utils
 
 internal static class VectorExt
 {
-    public static float DistanceFromPlayer(this Vector3 vec) => Svc.Player == null ? float.MaxValue : (vec - Svc.Player.Position).Length();
+    public static float DistanceFromPlayer(this Vector3 vec) =>
+        Svc.Player == null ? float.MaxValue : (vec - Svc.Player.Position).Length();
 
-    public static float DistanceFromPlayerXZ(this Vector3 vec) => Svc.Player == null ? float.MaxValue : (vec.V2() - Svc.Player.Position.V2()).Length();
+    public static float DistanceFromPlayerXZ(this Vector3 vec) =>
+        Svc.Player == null ? float.MaxValue : (vec.V2() - Svc.Player.Position.V2()).Length();
 
     public static Vector2 V2(this Vector3 vec) => new(vec.X, vec.Z);
 }
 
 internal static class GPBaseExt
 {
-    public static GatherClass GetRequiredClass(this GatheringPointBase gpBase) => gpBase.GatheringType.RowId switch
-    {
-        0 or 1 => GatherClass.MIN,
-        2 or 3 => GatherClass.BTN,
-        4 or 5 => GatherClass.FSH,
-        _ => GatherClass.None
-    };
+    public static GatherClass GetRequiredClass(this GatheringPointBase gpBase) =>
+        gpBase.GatheringType.RowId switch
+        {
+            0 or 1 => GatherClass.MIN,
+            2 or 3 => GatherClass.BTN,
+            4 or 5 => GatherClass.FSH,
+            _ => GatherClass.None
+        };
 }
 
 internal static class EnumerableExt
 {
-    public static bool TryFirst<T>(this IEnumerable<T> list, Func<T, bool> condition, [MaybeNullWhen(false)] out T result)
+    public static bool TryFirst<T>(
+        this IEnumerable<T> list,
+        Func<T, bool> condition,
+        [MaybeNullWhen(false)] out T result
+    )
     {
         foreach (var item in list)
         {
