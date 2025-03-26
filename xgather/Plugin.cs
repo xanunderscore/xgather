@@ -41,6 +41,8 @@ public sealed class Plugin : IDalamudPlugin
         commandManager.AddHandler("/xgatherfish", new CommandInfo(Gatherfish) { HelpMessage = "Gather fish" });
 
         Svc.PluginInterface.UiBuilder.Draw += DrawUI;
+        Svc.PluginInterface.UiBuilder.OpenConfigUi += () => MainWindow.IsOpen = true;
+        Svc.PluginInterface.UiBuilder.OpenMainUi += () => Overlay.IsOpen = true;
         Svc.Framework.Update += Tick;
 
         Aetherytes = GameData.Aetheryte.LoadAetherytes().ToList();
