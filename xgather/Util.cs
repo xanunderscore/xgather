@@ -1,3 +1,8 @@
+using Dalamud.Game.ClientState.Conditions;
+using Dalamud.Game.ClientState.Objects.SubKinds;
+using FFXIVClientStructs.FFXIV.Client.Game;
+using FFXIVClientStructs.FFXIV.Client.System.Framework;
+using Lumina.Excel.Sheets;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -5,8 +10,6 @@ using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
-using FFXIVClientStructs.FFXIV.Client.System.Framework;
-using Lumina.Excel.Sheets;
 using xgather.GameData;
 
 namespace xgather;
@@ -107,26 +110,15 @@ internal static class Utils
         throw new Exception("figure out what CollectablesShopItem does now");
     }
 
-    public static unsafe bool PlayerIsFalling
+    private static readonly nint IsPlayerAirbornePtr = Svc.SigScanner.ScanText("40 53 48 83 EC 20 48 8D 99 ?? ?? ?? ?? 48 8B CB E8 ?? ?? ?? ?? 84 C0 75 12");
+    private static readonly unsafe delegate* unmanaged<nint, byte> isPlayerAirborne = (delegate* unmanaged<nint, byte>)IsPlayerAirbornePtr;
+
+    private static unsafe bool IsPlayerFalling(IPlayerCharacter? pc)
     {
-        get
-        {
-            var p = Svc.ClientState.LocalPlayer;
-            if (p == null)
-                return true;
-
-            // 0 if grounded
-            // 1 = "jumpsquat"
-            // 3 = going up
-            // 4 = stopped
-            // 5 = going down
-            var isJumping = *(byte*)(p.Address + 704) > 0;
-            // 1 iff dismounting and haven't hit the ground yet
-            var isAirDismount = **(byte**)(p.Address + 1400) == 1;
-
-            return isJumping || isAirDismount;
-        }
+        return pc == null || isPlayerAirborne(pc.Address) == 1;
     }
+
+    public static bool PlayerIsFalling => IsPlayerFalling(Svc.ClientState.LocalPlayer);
 
     public static (DateTime Start, DateTime End) GetNextAvailable(uint itemId)
     {
@@ -183,6 +175,7 @@ internal static class Utils
     }
 
     public static (DateTime Start, DateTime End) GetNextAvailable(GatherPointBase b) => GetNextAvailable(b.Nodes[0]);
+    public static unsafe bool PlayerIsBusy() => Svc.Condition[ConditionFlag.BetweenAreas] || Svc.Condition[ConditionFlag.Casting] || ActionManager.Instance()->AnimationLock > 0;
 }
 
 internal static class VectorExt

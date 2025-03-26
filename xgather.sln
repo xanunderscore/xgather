@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.34928.147
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xgather", "Gatherer\xgather.csproj", "{13C812E9-0D42-4B95-8646-40EEBF30636F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xgather", "xgather\xgather.csproj", "{7E1D2936-095B-41DB-B17A-FE1EEB6EDAAD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +11,10 @@ Global
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{13C812E9-0D42-4B95-8646-40EEBF30636F}.Debug|x64.ActiveCfg = Debug|x64
-		{13C812E9-0D42-4B95-8646-40EEBF30636F}.Debug|x64.Build.0 = Debug|x64
-		{13C812E9-0D42-4B95-8646-40EEBF30636F}.Release|x64.ActiveCfg = Release|x64
-		{13C812E9-0D42-4B95-8646-40EEBF30636F}.Release|x64.Build.0 = Release|x64
+		{7E1D2936-095B-41DB-B17A-FE1EEB6EDAAD}.Debug|x64.ActiveCfg = Debug|x64
+		{7E1D2936-095B-41DB-B17A-FE1EEB6EDAAD}.Debug|x64.Build.0 = Debug|x64
+		{7E1D2936-095B-41DB-B17A-FE1EEB6EDAAD}.Release|x64.ActiveCfg = Release|x64
+		{7E1D2936-095B-41DB-B17A-FE1EEB6EDAAD}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

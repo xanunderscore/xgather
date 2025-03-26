@@ -1,7 +1,3 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Runtime.InteropServices;
 using Dalamud.Game.Command;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
@@ -9,6 +5,8 @@ using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using Lumina.Excel.Sheets;
+using System.Collections.Generic;
+using System.Linq;
 using xgather.UI;
 using xgather.UI.Windows;
 
@@ -46,10 +44,6 @@ public sealed class Plugin : IDalamudPlugin
         Svc.Framework.Update += Tick;
 
         Aetherytes = GameData.Aetheryte.LoadAetherytes().ToList();
-
-        var p = Process.GetCurrentProcess().MainModule!;
-        Svc.Log.Debug($"{p.BaseAddress:X2}");
-        Svc.Log.Debug($"new offset: {Marshal.ReadInt32(p.BaseAddress, 0x3C)}");
     }
 
     public void Dispose()
