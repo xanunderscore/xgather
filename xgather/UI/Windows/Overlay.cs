@@ -5,6 +5,7 @@ using Dalamud.Interface.Components;
 using Dalamud.Interface.Windowing;
 using ImGuiNET;
 using System;
+using System.Numerics;
 using xgather.Executors;
 
 namespace xgather.UI.Windows;
@@ -108,6 +109,12 @@ public class Overlay : Window
         {
             ImGui.Text($"Destination: {pt} ({pt.GetZone()})");
             ImGui.Text($"Distance to target: {pt.GetPosition().DistanceFromPlayer():F2} ({pt.GetPosition().DistanceFromPlayerXZ():F2} horizontally)");
+
+            DrawNode(pt.GetPosition());
+            if (pt is GatherPointSearch s)
+                foreach (var d in s.DataIDs)
+                    foreach (var k in Svc.Config.GetKnownPoints(d))
+                        DrawNode(k.Position, radius: 5, color: k.GatherLocation == null ? 0xFF6666FF : 0xFF66FF66);
         }
 
         if (Svc.Player?.TargetObject is IGameObject tar)
@@ -165,6 +172,12 @@ public class Overlay : Window
 
         //if (ImGui.Button("Target Aurvael"))
         //    RouteExec.EnterDiadem();
+    }
+
+    private void DrawNode(Vector3 position, float radius = 25, uint color = 0xFF00FFFF, float thickness = 10)
+    {
+        if (Svc.GameGui.WorldToScreen(position, out var screen))
+            ImGui.GetBackgroundDrawList().AddCircle(screen, radius, color, 0, thickness);
     }
 
     private float MarkerToMap(float x, float scale) => (int)(2 * x / scale + 100.9);

@@ -4,6 +4,7 @@ using Dalamud.Plugin.Services;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
 using FFXIVClientStructs.FFXIV.Client.Game.Object;
+using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using FFXIVClientStructs.FFXIV.Client.System.String;
 using FFXIVClientStructs.FFXIV.Client.UI.Misc;
 using Lumina.Excel.Sheets;
@@ -259,7 +260,8 @@ public sealed class GatherExecutor : IDisposable
             GatherNext();
             return;
         }
-        else if (Destination.GetNextAvailable().Start > DateTime.Now)
+        // slight delay before node actually spawns in the world
+        else if (Destination.GetNextAvailable().Start.AddSeconds(5) > DateTime.Now)
             return;
 
         if (Destination is FloorPoint p && p.FloorPosition.DistanceFromPlayer() < 1 && !PathfindInProgress)
@@ -404,7 +406,10 @@ public sealed class GatherExecutor : IDisposable
             Stop();
         }
         else
-            IPCHelper.Teleport(closest.GameAetheryte.RowId);
+            unsafe
+            {
+                UIState.Instance()->Telepo.Teleport(closest.GameAetheryte.RowId, 0);
+            }
         WaitFor(State.Teleport, TimeSpan.FromSeconds(6));
     }
 
@@ -454,10 +459,10 @@ public sealed class GatherExecutor : IDisposable
 
 public interface IWaypoint
 {
-    public uint GetZone();
-    public Vector3 GetPosition();
-    public bool GetLandable();
-    public (DateTime Start, DateTime End) GetNextAvailable();
+    uint GetZone();
+    Vector3 GetPosition();
+    bool GetLandable();
+    (DateTime Start, DateTime End) GetNextAvailable();
 }
 
 public class GatherPointSearch : IWaypoint

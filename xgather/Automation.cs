@@ -1,5 +1,12 @@
+using Dalamud.Game.ClientState.Conditions;
+using Dalamud.Plugin.Ipc;
+using FFXIVClientStructs.FFXIV.Client.Game;
+using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -85,6 +92,7 @@ public abstract class AutoTask
     protected DebugContext BeginScope(string name) => new(this, name);
 
     // abort a task unconditionally
+    [DoesNotReturn]
     protected void Error(string message)
     {
         Log($"Error: {message}");
@@ -92,10 +100,99 @@ public abstract class AutoTask
     }
 
     // abort a task if condition is true
-    protected void ErrorIf(bool condition, string message)
+    protected void ErrorIf([DoesNotReturnIf(true)] bool condition, string message)
     {
         if (condition)
             Error(message);
+    }
+
+    private readonly ICallGateSubscriber<float> _navBuildProgress = Svc.PluginInterface.GetIpcSubscriber<float>("vnavmesh.Nav.BuildProgress");
+    private readonly ICallGateSubscriber<bool> _navIsReady = Svc.PluginInterface.GetIpcSubscriber<bool>("vnavmesh.Nav.IsReady");
+    private readonly ICallGateSubscriber<Vector3, bool, bool> _navPathfindAndMoveTo = Svc.PluginInterface.GetIpcSubscriber<Vector3, bool, bool>("vnavmesh.SimpleMove.PathfindAndMoveTo");
+
+    private bool NavIsReady() => _navIsReady.InvokeFunc();
+    private float NavBuildProgress() => _navBuildProgress.InvokeFunc();
+    private bool PathMove(Vector3 dest, bool fly = false) => _navPathfindAndMoveTo.InvokeFunc(dest, fly);
+
+    protected async Task WaitForBusy(string tag)
+    {
+        await WaitWhile(() => !Utils.PlayerIsBusy(), $"{tag}Start");
+        await WaitWhile(Utils.PlayerIsBusy, $"{tag}Finish");
+    }
+
+    protected async Task TeleportToZone(uint territoryId, Vector3 destination)
+    {
+        var currentZone = Svc.ClientState.TerritoryType;
+        var goalZone = territoryId;
+        if (goalZone == currentZone || (goalZone == 901 && currentZone == 939))
+            return;
+
+        using var scope = BeginScope("Teleport");
+
+        var closest = Svc.Plugin.Aetherytes.MinBy(a => a.DistanceToPoint(goalZone, destination));
+        ErrorIf(closest == null, $"No aetheryte near zone {goalZone}");
+
+        Status = "Teleporting";
+
+        bool success;
+        unsafe
+        {
+            success = UIState.Instance()->Telepo.Teleport(closest.GameAetheryte.RowId, 0);
+        }
+        ErrorIf(!success, $"Failed to teleport to {closest.GameAetheryte.RowId}");
+        await WaitForBusy("Teleport");
+    }
+
+    protected async Task MoveTo(Vector3 destination, float tolerance, bool mount = false, bool fly = false, bool dismount = false)
+    {
+        using var scope = BeginScope("MoveTo");
+        if (Utils.PlayerInRange(destination, tolerance))
+            return;
+
+        Status = "Waiting for Navmesh";
+        await WaitWhile(() => NavBuildProgress() >= 0, "BuildMesh");
+        ErrorIf(!NavIsReady(), "Failed to build navmesh");
+        ErrorIf(!PathMove(destination, fly), "Failed to start pathfind");
+        Status = $"Moving to {destination}";
+
+        if (mount || fly)
+            await Mount();
+
+        await WaitWhile(() => !Utils.PlayerInRange(destination, tolerance), "Navigate");
+
+        if (dismount)
+            await Dismount();
+    }
+
+    protected async Task Mount()
+    {
+        using var scope = BeginScope("Mount");
+        if (Svc.Condition[ConditionFlag.Mounted])
+            return;
+
+        Status = "Mounting";
+        ErrorIf(!Utils.UseAction(ActionType.GeneralAction, 24), "Failed to mount");
+        await WaitWhile(() => !Svc.Condition[ConditionFlag.Mounted], "Mounting");
+        ErrorIf(!Svc.Condition[ConditionFlag.Mounted], "Failed to mount");
+    }
+
+    protected async Task Dismount()
+    {
+        using var scope = BeginScope("Dismount");
+        if (!Svc.Condition[ConditionFlag.Mounted])
+            return;
+
+        if (Svc.Condition[ConditionFlag.InFlight])
+        {
+            Utils.UseAction(ActionType.GeneralAction, 23);
+            await WaitWhile(() => Svc.Condition[ConditionFlag.InFlight], "WaitingToLand");
+        }
+        if (Svc.Condition[ConditionFlag.Mounted] && !Svc.Condition[ConditionFlag.InFlight])
+        {
+            Utils.UseAction(ActionType.GeneralAction, 23);
+            await WaitWhile(() => Svc.Condition[ConditionFlag.Mounted] || Utils.PlayerIsFalling, "WaitingToDismount");
+        }
+        ErrorIf(Svc.Condition[ConditionFlag.Mounted], "Failed to dismount");
     }
 }
 

@@ -14,8 +14,6 @@ public static class IPCHelper
     private static readonly ICallGateSubscriber<bool> _navmeshIsReady;
     private static readonly ICallGateSubscriber<uint> _pathfindQueue;
 
-    private static readonly ICallGateSubscriber<uint, byte, bool> _teleport;
-
     public static bool PathfindAndMoveTo(Vector3 dest, bool fly) => _pathfindAndMoveTo.InvokeFunc(dest, fly);
     public static void PathStop() => _pathStop.InvokeAction();
     // uncomment when vnav reload is fixed
@@ -25,8 +23,6 @@ public static class IPCHelper
     public static bool PathfindInProgress() => _pathfindInProgress.InvokeFunc();
     public static bool NavmeshIsReady() => _navmeshIsReady.InvokeFunc();
     public static uint PathfindQueued() => _pathfindQueue.InvokeFunc();
-
-    public static bool Teleport(uint aetheryteId) => _teleport.InvokeFunc(aetheryteId, 0);
 
     static IPCHelper()
     {
@@ -38,7 +34,5 @@ public static class IPCHelper
         _pathfindInProgress = Svc.PluginInterface.GetIpcSubscriber<bool>("vnavmesh.Nav.PathfindInProgress");
         _navmeshIsReady = Svc.PluginInterface.GetIpcSubscriber<bool>("vnavmesh.Nav.IsReady");
         _pathfindQueue = Svc.PluginInterface.GetIpcSubscriber<uint>("vnavmesh.Nav.PathfindNumQueued");
-
-        _teleport = Svc.PluginInterface.GetIpcSubscriber<uint, byte, bool>("Teleport");
     }
 }

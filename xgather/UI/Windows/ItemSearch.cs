@@ -51,7 +51,7 @@ internal class ItemSearch(string initialSearchText)
 
                 ImGui.TableNextColumn();
                 if (ImGuiComponents.IconButton((int)itemId, Dalamud.Interface.FontAwesomeIcon.Play))
-                    _auto.Start(new Single(itemId, 10, false));
+                    _auto.Start(new GatherItem(itemId, 10, false));
             }
         }
 

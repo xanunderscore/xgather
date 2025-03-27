@@ -23,7 +23,7 @@ public sealed class Plugin : IDalamudPlugin
 
     internal List<GameData.Aetheryte> Aetherytes;
 
-    public bool RecordMode { get; set; } = false;
+    public bool RecordMode { get; set; } = true;
 
     public Plugin(IDalamudPluginInterface pluginInterface, ICommandManager commandManager)
     {

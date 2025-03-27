@@ -19,6 +19,7 @@ public class Svc
     [PluginService] public static ICommandManager CommandManager { get; private set; }
     [PluginService] public static IObjectTable ObjectTable { get; private set; }
     [PluginService] public static IPluginLog Log { get; private set; }
+    [PluginService] public static IGameGui GameGui { get; private set; }
     [PluginService] public static IClientState ClientState { get; private set; }
     [PluginService] public static ITargetManager TargetManager { get; private set; }
     [PluginService] public static IFramework Framework { get; private set; }

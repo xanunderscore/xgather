@@ -1,6 +1,7 @@
 using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using FFXIVClientStructs.FFXIV.Client.Game;
+using FFXIVClientStructs.FFXIV.Client.Game.Character;
 using FFXIVClientStructs.FFXIV.Client.System.Framework;
 using Lumina.Excel.Sheets;
 using System;
@@ -110,12 +111,9 @@ internal static class Utils
         throw new Exception("figure out what CollectablesShopItem does now");
     }
 
-    private static readonly nint IsPlayerAirbornePtr = Svc.SigScanner.ScanText("40 53 48 83 EC 20 48 8D 99 ?? ?? ?? ?? 48 8B CB E8 ?? ?? ?? ?? 84 C0 75 12");
-    private static readonly unsafe delegate* unmanaged<nint, byte> isPlayerAirborne = (delegate* unmanaged<nint, byte>)IsPlayerAirbornePtr;
-
     private static unsafe bool IsPlayerFalling(IPlayerCharacter? pc)
     {
-        return pc == null || isPlayerAirborne(pc.Address) == 1;
+        return pc == null || ((Character*)pc.Address)->IsJumping();
     }
 
     public static bool PlayerIsFalling => IsPlayerFalling(Svc.ClientState.LocalPlayer);
@@ -176,6 +174,17 @@ internal static class Utils
 
     public static (DateTime Start, DateTime End) GetNextAvailable(GatherPointBase b) => GetNextAvailable(b.Nodes[0]);
     public static unsafe bool PlayerIsBusy() => Svc.Condition[ConditionFlag.BetweenAreas] || Svc.Condition[ConditionFlag.Casting] || ActionManager.Instance()->AnimationLock > 0;
+
+    public static Item Item(uint itemId) => Svc.ExcelRow<Item>(itemId);
+    public static string ItemName(uint itemId) => Item(itemId).Name.ToString();
+
+    public static bool PlayerInRange(Vector3 dest, float dist)
+    {
+        var d = dest - (Svc.Player?.Position ?? default);
+        return d.LengthSquared() <= dist * dist;
+    }
+
+    public static unsafe bool UseAction(ActionType actionType, uint actionId) => ActionManager.Instance()->UseAction(actionType, actionId);
 }
 
 internal static class VectorExt
