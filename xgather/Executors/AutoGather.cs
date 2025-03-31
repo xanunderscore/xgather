@@ -5,7 +5,6 @@ using Dalamud.Plugin.Services;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace xgather.Executors;
 

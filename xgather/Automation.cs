@@ -2,6 +2,7 @@ using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Plugin.Ipc;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
+using FFXIVClientStructs.FFXIV.Client.UI.Misc;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -76,7 +77,7 @@ public abstract class AutoTask
     protected Task NextFrame(int numFramesToWait = 1) => Svc.Framework.DelayTicks(numFramesToWait, cts.Token);
 
     // wait until condition function returns false, checking once every N frames
-    protected async Task WaitWhile(Func<bool> condition, string scopeName, int checkFrequency = 1)
+    protected async Task WaitWhile(Func<bool> condition, string scopeName, int checkFrequency = 10)
     {
         using var scope = BeginScope(scopeName);
         while (condition())
@@ -109,10 +110,12 @@ public abstract class AutoTask
     private readonly ICallGateSubscriber<float> _navBuildProgress = Svc.PluginInterface.GetIpcSubscriber<float>("vnavmesh.Nav.BuildProgress");
     private readonly ICallGateSubscriber<bool> _navIsReady = Svc.PluginInterface.GetIpcSubscriber<bool>("vnavmesh.Nav.IsReady");
     private readonly ICallGateSubscriber<Vector3, bool, bool> _navPathfindAndMoveTo = Svc.PluginInterface.GetIpcSubscriber<Vector3, bool, bool>("vnavmesh.SimpleMove.PathfindAndMoveTo");
+    private readonly ICallGateSubscriber<object> _navStop = Svc.PluginInterface.GetIpcSubscriber<object>("vnavmesh.Path.Stop");
 
-    private bool NavIsReady() => _navIsReady.InvokeFunc();
-    private float NavBuildProgress() => _navBuildProgress.InvokeFunc();
-    private bool PathMove(Vector3 dest, bool fly = false) => _navPathfindAndMoveTo.InvokeFunc(dest, fly);
+    protected bool NavIsReady() => _navIsReady.InvokeFunc();
+    protected float NavBuildProgress() => _navBuildProgress.InvokeFunc();
+    protected bool PathMove(Vector3 dest, bool fly = false) => _navPathfindAndMoveTo.InvokeFunc(dest, fly);
+    protected void NavStop() => _navStop.InvokeAction();
 
     protected async Task WaitForBusy(string tag)
     {
@@ -143,25 +146,43 @@ public abstract class AutoTask
         await WaitForBusy("Teleport");
     }
 
-    protected async Task MoveTo(Vector3 destination, float tolerance, bool mount = false, bool fly = false, bool dismount = false)
+    protected async Task WaitNavmesh()
+    {
+        Status = "Waiting for Navmesh";
+        await WaitWhile(() => NavBuildProgress() >= 0, "BuildMesh");
+        ErrorIf(!NavIsReady(), "Failed to build navmesh");
+    }
+
+    protected async Task MoveTo(Vector3 destination, float tolerance, bool mount = false, bool fly = false, bool dismount = false, Func<bool>? interrupt = null)
     {
         using var scope = BeginScope("MoveTo");
         if (Utils.PlayerInRange(destination, tolerance))
             return;
 
-        Status = "Waiting for Navmesh";
-        await WaitWhile(() => NavBuildProgress() >= 0, "BuildMesh");
-        ErrorIf(!NavIsReady(), "Failed to build navmesh");
+        await WaitNavmesh();
         ErrorIf(!PathMove(destination, fly), "Failed to start pathfind");
         Status = $"Moving to {destination}";
 
-        if (mount || fly)
-            await Mount();
+        using (new OnDispose(NavStop))
+        {
+            if (mount || fly)
+                await Mount();
 
-        await WaitWhile(() => !Utils.PlayerInRange(destination, tolerance), "Navigate");
+            bool shouldStop() => (interrupt?.Invoke() ?? false) || Utils.PlayerInRange(destination, tolerance);
+
+            await WaitWhile(() => !shouldStop(), "Navigate");
+        }
 
         if (dismount)
             await Dismount();
+    }
+
+    protected async Task<Vector3> PointOnFloor(Vector3 destination, bool allowUnlandable, float radius)
+    {
+        await WaitNavmesh();
+        var point = IPCHelper.PointOnFloor(destination, allowUnlandable, radius);
+        ErrorIf(point == null, $"Unable to find point near {destination}");
+        return point.Value;
     }
 
     protected async Task Mount()
@@ -170,7 +191,6 @@ public abstract class AutoTask
         if (Svc.Condition[ConditionFlag.Mounted])
             return;
 
-        Status = "Mounting";
         ErrorIf(!Utils.UseAction(ActionType.GeneralAction, 24), "Failed to mount");
         await WaitWhile(() => !Svc.Condition[ConditionFlag.Mounted], "Mounting");
         ErrorIf(!Svc.Condition[ConditionFlag.Mounted], "Failed to mount");
@@ -193,6 +213,40 @@ public abstract class AutoTask
             await WaitWhile(() => Svc.Condition[ConditionFlag.Mounted] || Utils.PlayerIsFalling, "WaitingToDismount");
         }
         ErrorIf(Svc.Condition[ConditionFlag.Mounted], "Failed to dismount");
+    }
+
+    protected async Task ChangeClass(GatherClass cls)
+    {
+        using var scope = BeginScope("Gearset");
+
+        if (cls.GetClassJob() is not { } desired)
+            return;
+
+        if (Svc.Player?.ClassJob is not { } current)
+            return;
+
+        if (current.RowId == desired.RowId)
+            return;
+
+        var equipped = false;
+        unsafe
+        {
+            var gm = RaptureGearsetModule.Instance();
+            foreach (var gs in gm->Entries)
+            {
+                if (gs.ClassJob == 0)
+                    break;
+
+                if (gs.ClassJob == desired.RowId)
+                {
+                    equipped = gm->EquipGearset(gs.Id) == 0;
+                    break;
+                }
+            }
+        }
+        ErrorIf(!equipped, $"No gearset found for {cls}");
+
+        await WaitWhile(() => Svc.Player?.ClassJob.RowId != desired.RowId, "WaitEquip");
     }
 }
 

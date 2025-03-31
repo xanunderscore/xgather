@@ -1,7 +1,7 @@
+using Lumina.Excel.Sheets;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using Lumina.Excel.Sheets;
 using GameAetheryte = Lumina.Excel.Sheets.Aetheryte;
 
 namespace xgather.GameData;
@@ -32,11 +32,11 @@ internal class Aetheryte
 
     public float DistanceToRoute(GatherPointBase rte)
     {
-        // amaurot
-        if (GameAetheryte.RowId is 148)
+        // badly behaved aetherytes: amaurot, tamamizu
+        if (GameAetheryte.RowId is 105 or 148)
             return float.MaxValue;
 
-        if (rte.TerritoryType.RowId == Territory.RowId && rte.GatherAreaCenter() is Vector3 pos)
+        if (rte.TerritoryType.RowId == Territory.RowId && rte.Location is Vector3 pos)
             return (new Vector2(WorldX, WorldY) - new Vector2(pos.X, pos.Z)).Length();
 
         return float.MaxValue;
@@ -50,7 +50,7 @@ internal class Aetheryte
         return float.MaxValue;
     }
 
-    private static float ConvertMapMarkerToRawPosition(int pos, float scale)
+    public static float ConvertMapMarkerToRawPosition(int pos, float scale)
     {
         float num = scale / 100f;
         var rawPosition = ((float)(pos - 1024.0) / num);

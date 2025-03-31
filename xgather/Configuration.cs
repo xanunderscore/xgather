@@ -72,11 +72,11 @@ public class GatherPointBase
 
     public bool MissingPoints() => Nodes.Any(x => Svc.Config.GetKnownPoints(x).Any(y => y.GatherLocation == null));
     public bool Contains(uint dataId) => Nodes.Contains(dataId);
-    public Vector3 GatherAreaCenter()
-    {
-        var exp = Svc.ExcelRow<ExportedGatheringPoint>(GatheringPointBaseId);
-        return new(exp.X, 0, exp.Y);
-    }
+    [JsonIgnore] public ExportedGatheringPoint Row => Svc.ExcelRow<ExportedGatheringPoint>(GatheringPointBaseId);
+    [JsonIgnore] public Vector3 Location => new(Row.X, 0, Row.Y);
+    [JsonIgnore] public Vector2 LocXZ => new(Row.X, Row.Y);
+
+    public bool ContainsPoint(Vector2 pt) => (pt - LocXZ).LengthSquared() <= Row.Radius * Row.Radius;
 
     public GatheringPointTransient? GetTransient()
     {
@@ -174,6 +174,7 @@ public class Configuration : IPluginConfiguration
     public bool Fly = true;
 
     public bool OverlayOpen = false;
+    public bool MainWindowOpen = false;
 
     public string ItemSearchText = "";
 

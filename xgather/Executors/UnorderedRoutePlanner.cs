@@ -17,7 +17,7 @@ public class UnorderedRoutePlanner(GatherPointBase route, uint wantItem) : Plann
         {
             return new GatherPointSearch()
             {
-                Center = CurrentRoute.GatherAreaCenter(),
+                Center = CurrentRoute.Location,
                 DataIDs = CurrentRoute.Nodes,
                 Landable = false,
                 Zone = CurrentRoute.Zone,

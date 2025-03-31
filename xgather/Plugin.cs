@@ -24,6 +24,7 @@ public sealed class Plugin : IDalamudPlugin
     internal List<GameData.Aetheryte> Aetherytes;
 
     public bool RecordMode { get; set; } = true;
+    private Debug? Debug;
 
     public Plugin(IDalamudPluginInterface pluginInterface, ICommandManager commandManager)
     {
@@ -31,7 +32,7 @@ public sealed class Plugin : IDalamudPlugin
 
         Svc.Config.RegisterGameItems();
 
-        MainWindow = new(new Routes(), new ItemSearch(Svc.Config.ItemSearchText), new Lists());
+        MainWindow = new(new Routes(), new ItemSearch(Svc.Config.ItemSearchText), new Lists()) { IsOpen = Svc.Config.MainWindowOpen };
         Overlay = new() { IsOpen = Svc.Config.OverlayOpen };
 
         WindowSystem.AddWindow(MainWindow);
@@ -45,18 +46,22 @@ public sealed class Plugin : IDalamudPlugin
         Svc.PluginInterface.UiBuilder.OpenMainUi += () => Overlay.IsOpen = true;
         Svc.Framework.Update += Tick;
 
-        Aetherytes = GameData.Aetheryte.LoadAetherytes().ToList();
+        Aetherytes = [.. GameData.Aetheryte.LoadAetherytes()];
+
+        Debug = new();
     }
 
     public void Dispose()
     {
         WindowSystem.RemoveAllWindows();
+        MainWindow.Dispose();
         Svc.Config.Save();
         IPCHelper.PathStop();
         Svc.CommandManager.RemoveHandler("/xgather");
         Svc.CommandManager.RemoveHandler("/xgatherfish");
         Svc.Framework.Update -= Tick;
         Svc.PluginInterface.UiBuilder.Draw -= DrawUI;
+        Debug?.Dispose();
     }
 
     private void Gatherfish(string command, string args)

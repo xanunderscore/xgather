@@ -2,19 +2,20 @@ using Dalamud.Interface.Components;
 using Dalamud.Interface.Utility.Raii;
 using ImGuiNET;
 using Lumina.Excel.Sheets;
+using System;
 using System.Linq;
 using xgather.Tasks;
 
 namespace xgather.UI.Windows;
 
-internal class ItemSearch(string initialSearchText)
+internal class ItemSearch(string initialSearchText) : IDisposable
 {
     private string _searchText = initialSearchText;
-    private Automation _auto = new();
+    private readonly Automation _auto = new();
 
     public void Draw()
     {
-        using (ImRaii.Disabled(_auto.Running))
+        using (ImRaii.Disabled(!_auto.Running))
             if (ImGui.Button("Stop"))
                 _auto.Stop();
         ImGui.SameLine();
@@ -51,7 +52,7 @@ internal class ItemSearch(string initialSearchText)
 
                 ImGui.TableNextColumn();
                 if (ImGuiComponents.IconButton((int)itemId, Dalamud.Interface.FontAwesomeIcon.Play))
-                    _auto.Start(new GatherItem(itemId, 10, false));
+                    _auto.Start(new GatherItem(itemId, 999));
             }
         }
 
@@ -74,5 +75,10 @@ internal class ItemSearch(string initialSearchText)
             }
         }
         */
+    }
+
+    public void Dispose()
+    {
+        _auto.Dispose();
     }
 }

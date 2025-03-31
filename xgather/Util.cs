@@ -1,8 +1,11 @@
 using Dalamud.Game.ClientState.Conditions;
-using Dalamud.Game.ClientState.Objects.SubKinds;
+using Dalamud.Game.ClientState.Objects.Types;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.Character;
+using FFXIVClientStructs.FFXIV.Client.Game.Control;
+using FFXIVClientStructs.FFXIV.Client.Game.Object;
 using FFXIVClientStructs.FFXIV.Client.System.Framework;
+using FFXIVClientStructs.FFXIV.Client.UI;
 using Lumina.Excel.Sheets;
 using System;
 using System.Collections.Generic;
@@ -15,7 +18,7 @@ using xgather.GameData;
 
 namespace xgather;
 
-internal static class Utils
+internal static unsafe class Utils
 {
     internal class Chat
     {
@@ -101,22 +104,19 @@ internal static class Utils
 
     public static uint GetMinCollectability(uint itemId)
     {
-        /*
-        var collectableItem = Svc.SubrowExcelSheet<CollectablesShopItem>().FirstOrDefault(x => x.Item.Row == itemId);
-        if (collectableItem?.CollectablesShopRefine?.Value is not CollectablesShopRefine rewardData)
-            return 0;
+        foreach (var group in Svc.SubrowExcelSheet<CollectablesShopItem>())
+        {
+            foreach (var item in group)
+            {
+                if (item.Item.RowId == itemId)
+                    return item.CollectablesShopRefine.Value.LowCollectability;
+            }
+        }
 
-        return rewardData.LowCollectability;
-        */
-        throw new Exception("figure out what CollectablesShopItem does now");
+        return 0;
     }
 
-    private static unsafe bool IsPlayerFalling(IPlayerCharacter? pc)
-    {
-        return pc == null || ((Character*)pc.Address)->IsJumping();
-    }
-
-    public static bool PlayerIsFalling => IsPlayerFalling(Svc.ClientState.LocalPlayer);
+    public static bool PlayerIsFalling => ((Character*)Player())->IsJumping();
 
     public static (DateTime Start, DateTime End) GetNextAvailable(uint itemId)
     {
@@ -152,8 +152,8 @@ internal static class Utils
         var (startHr, startMin) = (EorzeaMinStart / 100, EorzeaMinStart % 100);
         var (endHr, endMin) = (EorzeaMinEnd / 100, EorzeaMinEnd % 100);
 
-        var realStartMin = startHr * 60 + startMin;
-        var realEndMin = endHr * 60 + endMin;
+        var realStartMin = (startHr * 60) + startMin;
+        var realEndMin = (endHr * 60) + endMin;
 
         if (realEndMin < realStartMin)
             realEndMin += Timestamp.MinPerDay;
@@ -178,13 +178,74 @@ internal static class Utils
     public static Item Item(uint itemId) => Svc.ExcelRow<Item>(itemId);
     public static string ItemName(uint itemId) => Item(itemId).Name.ToString();
 
+    public static GameObject* Player() => GameObjectManager.Instance()->Objects.IndexSorted[0].Value;
+
     public static bool PlayerInRange(Vector3 dest, float dist)
     {
-        var d = dest - (Svc.Player?.Position ?? default);
+        var d = dest - (Vector3)Player()->Position;
         return d.LengthSquared() <= dist * dist;
     }
 
     public static unsafe bool UseAction(ActionType actionType, uint actionId) => ActionManager.Instance()->UseAction(actionType, actionId);
+
+    public static unsafe void InteractWithObject(IGameObject obj) => TargetSystem.Instance()->OpenObjectInteraction((GameObject*)obj.Address);
+
+    public static unsafe AddonGathering* GetAddonGathering() => (AddonGathering*)RaptureAtkUnitManager.Instance()->GetAddonByName("Gathering");
+
+    public static unsafe bool GatheringAddonReady()
+    {
+        var gat = GetAddonGathering();
+        return gat != null && gat->IsVisible && gat->IsReady && gat->GatherStatus == 1;
+    }
+
+    public static unsafe bool AddonReady(string name)
+    {
+        var sp = RaptureAtkUnitManager.Instance()->GetAddonByName(name);
+        return sp != null && sp->IsVisible && sp->IsReady;
+    }
+
+    public static unsafe int GatheringIntegrityLeft()
+    {
+        var gat = GetAddonGathering();
+        if (gat == null || gat->IntegrityGaugeBar == null)
+            return 0;
+
+        return gat->IntegrityGaugeBar->Values[0].ValueInt;
+    }
+
+    public static unsafe void GatheringSelectItem(uint itemId)
+    {
+        var gat = GetAddonGathering();
+        if (gat == null)
+            throw new Exception("Addon is null");
+
+        var items = gat->ItemIds.ToArray();
+        var index = Array.IndexOf(items, itemId);
+        if (index < 0)
+            throw new Exception($"{itemId} not found at gathering point");
+
+        gat->GatheredItemComponentCheckbox[index].Value->AtkComponentButton.IsChecked = true;
+        gat->FireCallbackInt(index);
+    }
+
+    public static unsafe bool PlayerHasStatus(int statusId)
+    {
+        foreach (var stat in ((Character*)Player())->GetStatusManager()->Status)
+        {
+            if (stat.StatusId == statusId)
+                return true;
+        }
+
+        return false;
+    }
+
+    public const float Cos120 = -0.5f;
+    public const float Sin120 = 0.8660254f;
+
+    public static Vector2 Rotate120Degrees(Vector2 input)
+    {
+        return new((input.X * Cos120) - (input.Y * Sin120), (input.X * Sin120) + (input.Y * Cos120));
+    }
 }
 
 internal static class VectorExt
@@ -193,9 +254,9 @@ internal static class VectorExt
         Svc.Player == null ? float.MaxValue : (vec - Svc.Player.Position).Length();
 
     public static float DistanceFromPlayerXZ(this Vector3 vec) =>
-        Svc.Player == null ? float.MaxValue : (vec.V2() - Svc.Player.Position.V2()).Length();
+        Svc.Player == null ? float.MaxValue : (vec.XZ() - Svc.Player.Position.XZ()).Length();
 
-    public static Vector2 V2(this Vector3 vec) => new(vec.X, vec.Z);
+    public static Vector2 XZ(this Vector3 vec) => new(vec.X, vec.Z);
 }
 
 internal static class GPBaseExt
@@ -230,4 +291,9 @@ internal static class EnumerableExt
         result = default;
         return false;
     }
+}
+
+internal readonly record struct OnDispose(System.Action a) : IDisposable
+{
+    public void Dispose() => a();
 }

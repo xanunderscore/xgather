@@ -30,6 +30,7 @@ public class Svc
     [PluginService] public static IChatGui Chat { get; private set; }
     [PluginService] public static IAddonLifecycle AddonLifecycle { get; private set; }
     [PluginService] public static IToastGui Toast { get; private set; }
+    [PluginService] public static IGameInteropProvider Hook { get; private set; }
     public static Configuration Config { get; private set; }
 #nullable enable
 
@@ -49,8 +50,8 @@ public class Svc
         Plugin = plugin;
     }
 
-    public static ExcelSheet<T>? ExcelSheet<T>() where T : struct, IExcelRow<T> => Data.Excel.GetSheet<T>();
-    public static SubrowExcelSheet<T>? SubrowExcelSheet<T>() where T : struct, IExcelSubrow<T> => Data.Excel.GetSubrowSheet<T>();
-    public static T? ExcelRowMaybe<T>(uint id) where T : struct, IExcelRow<T> => Data.Excel.GetSheet<T>()?.GetRow(id);
+    public static ExcelSheet<T> ExcelSheet<T>() where T : struct, IExcelRow<T> => Data.Excel.GetSheet<T>();
+    public static SubrowExcelSheet<T> SubrowExcelSheet<T>() where T : struct, IExcelSubrow<T> => Data.Excel.GetSubrowSheet<T>();
+    public static T? ExcelRowMaybe<T>(uint id) where T : struct, IExcelRow<T> => Data.Excel.GetSheet<T>().TryGetRow(id, out var row) ? row : null;
     public static T ExcelRow<T>(uint id) where T : struct, IExcelRow<T> => ExcelRowMaybe<T>(id)!.Value;
 }
