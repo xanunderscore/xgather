@@ -37,9 +37,6 @@ public class GatherItem : AutoTask
         if (needed == 0)
             return;
 
-        if (IsCollectable && IsFishing && !Utils.PlayerHasStatus(805))
-            ErrorIf(!Utils.UseAction(ActionType.Action, 4101), "Unable to use Collector's Glove");
-
         var route = Svc.Config.GetGatherPointGroupsForItem(itemId).FirstOrDefault();
         ErrorIf(route == null, $"No route found for item {itemId}");
 
@@ -56,8 +53,26 @@ public class GatherItem : AutoTask
         await TeleportToZone(gpBase.Zone, gpBase.Location);
         await ChangeClass(gpBase.Class);
 
+        if (IsCollectable && IsFishing)
+            await UseCollectorsGlove();
+
         var point = await FindPoint(gpBase);
-        await MoveTo(point.Position, 3.5f, mount: point.Position.DistanceFromPlayer() > 20, fly: Svc.Condition[ConditionFlag.InFlight] | Svc.Condition[ConditionFlag.Diving], dismount: Svc.Condition[ConditionFlag.Mounted]);
+
+        var flying = Svc.Condition[ConditionFlag.InFlight] | Svc.Condition[ConditionFlag.Diving];
+
+        Vector3 groundPoint;
+        var tolerance = 3.5f;
+        if (gpBase.Class == GatherClass.FSH || !Svc.Condition[ConditionFlag.InFlight])
+            groundPoint = point.Position;
+        else
+        {
+            groundPoint = await PointOnFloor(point.Position with { Y = point.Position.Y + 5 }, false, 2.5f);
+            tolerance = 1;
+        }
+
+        var mount = groundPoint.DistanceFromPlayer() > 20;
+
+        await MoveTo(groundPoint, tolerance, mount: mount, fly: flying, dismount: mount || Svc.Condition[ConditionFlag.Mounted]);
 
         await DoGather(point);
     }
@@ -127,10 +142,11 @@ public class GatherItem : AutoTask
     {
         using var scope = BeginScope("GatherAtPoint");
 
-        Status = $"Gathering {itemId} at {obj.Position}";
+        Status = $"Gathering {Utils.ItemName(itemId)} at {obj.Position}";
 
         _lastPoint = obj.Position;
-        Utils.InteractWithObject(obj);
+        if (!Svc.Condition[(ConditionFlag)85])
+            Utils.InteractWithObject(obj);
 
         if (IsFishing)
             await DoSpearfish();
@@ -164,6 +180,8 @@ public class GatherItem : AutoTask
     private async Task DoSpearfish()
     {
         await WaitWhile(() => !Utils.AddonReady("SpearFishing"), "FishStart");
+
+        await WaitWhile(() => Svc.Condition[(ConditionFlag)85], "FishFinish");
     }
 
     private unsafe uint GetQuantityNeeded()

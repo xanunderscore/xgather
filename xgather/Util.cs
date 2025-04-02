@@ -4,7 +4,6 @@ using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.Character;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
 using FFXIVClientStructs.FFXIV.Client.Game.Object;
-using FFXIVClientStructs.FFXIV.Client.System.Framework;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using Lumina.Excel.Sheets;
 using System;
@@ -12,93 +11,13 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Numerics;
-using System.Runtime.InteropServices;
-using System.Text;
 using xgather.GameData;
 
 namespace xgather;
 
 internal static unsafe class Utils
 {
-    internal class Chat
-    {
-        private static class Signatures
-        {
-            internal const string SendChat = "48 89 5C 24 ?? 57 48 83 EC 20 48 8B FA 48 8B D9 45 84 C9";
-            internal const string SanitiseString = "E8 ?? ?? ?? ?? EB 0A 48 8D 4C 24 ?? E8 ?? ?? ?? ?? 48 8D 8D";
-        }
-
-        private delegate void ProcessChatBoxDelegate(IntPtr uiModule, IntPtr message, IntPtr unused, byte a4);
-        private ProcessChatBoxDelegate ProcessChatBox { get; }
-
-        internal static Chat instance;
-        public static Chat Instance
-        {
-            get
-            {
-                instance ??= new();
-                return instance;
-            }
-        }
-
-        public Chat()
-        {
-            if (Svc.SigScanner.TryScanText(Signatures.SendChat, out var processChatBoxPtr))
-            {
-                ProcessChatBox = Marshal.GetDelegateForFunctionPointer<ProcessChatBoxDelegate>(processChatBoxPtr);
-            }
-        }
-
-        public unsafe void Send(string message)
-        {
-            var bytes = Encoding.UTF8.GetBytes(message);
-            if (bytes.Length == 0)
-                throw new ArgumentException("message is empty", nameof(message));
-
-            if (ProcessChatBox == null)
-                throw new InvalidOperationException("Could not find signature for ProcessChat");
-
-            var uiModule = (IntPtr)Framework.Instance()->GetUIModule();
-            using var payload = new ChatPayload(bytes);
-            var mem1 = Marshal.AllocHGlobal(400);
-            Marshal.StructureToPtr(payload, mem1, false);
-            ProcessChatBox(uiModule, mem1, IntPtr.Zero, 0);
-            Marshal.FreeHGlobal(mem1);
-        }
-    }
-
     public static bool IsGatherer => Svc.Player?.ClassJob.RowId is 16 or 17 or 18;
-
-    [StructLayout(LayoutKind.Explicit)]
-    private readonly struct ChatPayload : IDisposable
-    {
-        [FieldOffset(0)]
-        private readonly IntPtr textPtr;
-
-        [FieldOffset(16)]
-        private readonly ulong textLen;
-
-        [FieldOffset(8)]
-        private readonly ulong unk1;
-
-        [FieldOffset(24)]
-        private readonly ulong unk2;
-
-        internal ChatPayload(byte[] stringBytes)
-        {
-            textPtr = Marshal.AllocHGlobal(stringBytes.Length + 30);
-            Marshal.Copy(stringBytes, 0, textPtr, stringBytes.Length);
-            Marshal.WriteByte(textPtr + stringBytes.Length, 0);
-            textLen = (ulong)(stringBytes.Length + 1);
-            unk1 = 64;
-            unk2 = 0;
-        }
-
-        public void Dispose()
-        {
-            Marshal.FreeHGlobal(textPtr);
-        }
-    }
 
     internal static string ShowV3(Vector3 vec) => $"[{vec.X:F2}, {vec.Y:F2}, {vec.Z:F2}]";
 

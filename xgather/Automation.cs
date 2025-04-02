@@ -210,8 +210,9 @@ public abstract class AutoTask
         if (Svc.Condition[ConditionFlag.Mounted] && !Svc.Condition[ConditionFlag.InFlight])
         {
             Utils.UseAction(ActionType.GeneralAction, 23);
-            await WaitWhile(() => Svc.Condition[ConditionFlag.Mounted] || Utils.PlayerIsFalling, "WaitingToDismount");
+            await WaitWhile(() => Svc.Condition[ConditionFlag.Mounted], "WaitingToDismount");
         }
+        await WaitWhile(() => Utils.PlayerIsFalling, "WaitingToLand2");
         ErrorIf(Svc.Condition[ConditionFlag.Mounted], "Failed to dismount");
     }
 
@@ -247,6 +248,15 @@ public abstract class AutoTask
         ErrorIf(!equipped, $"No gearset found for {cls}");
 
         await WaitWhile(() => Svc.Player?.ClassJob.RowId != desired.RowId, "WaitEquip");
+    }
+
+    protected async Task UseCollectorsGlove()
+    {
+        if (Utils.PlayerHasStatus(805))
+            return;
+
+        ErrorIf(!Utils.UseAction(ActionType.Action, 4101), "Unable to use Collector's Glove");
+        await WaitForBusy("UseAction");
     }
 }
 
