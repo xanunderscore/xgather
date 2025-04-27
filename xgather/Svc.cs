@@ -5,7 +5,6 @@ using Dalamud.IoC;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using Lumina.Excel;
-using xgather.Executors;
 
 namespace xgather;
 
@@ -13,7 +12,6 @@ public class Svc
 {
 #nullable disable
     public static Plugin Plugin { get; private set; }
-    public static MultipurposeExecutor Executor { get; private set; }
 
     [PluginService] public static IDalamudPluginInterface PluginInterface { get; private set; }
     [PluginService] public static ICommandManager CommandManager { get; private set; }
@@ -50,7 +48,6 @@ public class Svc
 #endif
 
         Config = pi.GetPluginConfig() as Configuration ?? new Configuration();
-        Executor = new();
         Plugin = plugin;
     }
 

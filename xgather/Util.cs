@@ -8,7 +8,6 @@ using FFXIVClientStructs.FFXIV.Client.UI;
 using Lumina.Excel.Sheets;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Numerics;
 using xgather.GameData;
@@ -203,28 +202,6 @@ internal static class GPBaseExt
             4 or 5 => GatherClass.FSH,
             _ => GatherClass.None
         };
-}
-
-internal static class EnumerableExt
-{
-    public static bool TryFirst<T>(
-        this IEnumerable<T> list,
-        Func<T, bool> condition,
-        [MaybeNullWhen(false)] out T result
-    )
-    {
-        foreach (var item in list)
-        {
-            if (condition(item))
-            {
-                result = item;
-                return true;
-            }
-        }
-
-        result = default;
-        return false;
-    }
 }
 
 internal readonly record struct OnDispose(System.Action a) : IDisposable

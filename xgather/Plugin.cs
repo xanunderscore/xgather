@@ -25,7 +25,7 @@ public sealed class Plugin : IDalamudPlugin
     internal List<GameData.Aetheryte> Aetherytes;
     internal readonly Automation _auto = new();
 
-    public bool RecordMode { get; set; } = true;
+    public bool RecordMode { get; set; } = false;
     private Debug? Debug;
 
     public Plugin(IDalamudPluginInterface pluginInterface, ICommandManager commandManager)
@@ -154,7 +154,7 @@ public sealed class Plugin : IDalamudPlugin
                 .Append(new UIForegroundPayload(0))
                 .Append($" for \"{args}\"");
             Alerts.Info(msg);
-            Svc.Executor.StartAdHoc(rte, it.RowId);
+            _auto.Start(new GatherItem(it.RowId, 999));
             Overlay.IsOpen = true;
             return;
         }

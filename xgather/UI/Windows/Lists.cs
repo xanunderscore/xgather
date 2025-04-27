@@ -64,8 +64,8 @@ internal class Lists
 
         var list = Svc.Config.Lists[selectedList];
 
-        if (ImGuiComponents.IconButton(FontAwesomeIcon.Play))
-            Svc.Executor.StartList(list);
+        //if (ImGuiComponents.IconButton(FontAwesomeIcon.Play))
+        //    Svc.Executor.StartList(list);
 
         ImGui.SameLine();
 
