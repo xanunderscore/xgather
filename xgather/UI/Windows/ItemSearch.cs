@@ -1,5 +1,4 @@
 using Dalamud.Interface.Components;
-using Dalamud.Interface.Utility.Raii;
 using ImGuiNET;
 using Lumina.Excel.Sheets;
 using System;
@@ -8,19 +7,13 @@ using xgather.Tasks;
 
 namespace xgather.UI.Windows;
 
-internal class ItemSearch(string initialSearchText) : IDisposable
+internal class ItemSearch(Automation auto, string initialSearchText) : IDisposable
 {
     private string _searchText = initialSearchText;
-    private readonly Automation _auto = new();
+    private readonly Automation _auto = auto;
 
     public void Draw()
     {
-        using (ImRaii.Disabled(!_auto.Running))
-            if (ImGui.Button("Stop"))
-                _auto.Stop();
-        ImGui.SameLine();
-        ImGui.TextUnformatted($"Status: {_auto.CurrentTask?.Status ?? "idle"}");
-
         if (ImGui.InputText("###isearch", ref _searchText, 256))
             Svc.Config.ItemSearchText = _searchText;
 

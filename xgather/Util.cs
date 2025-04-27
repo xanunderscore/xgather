@@ -126,7 +126,7 @@ internal static unsafe class Utils
     public static unsafe int GatheringIntegrityLeft()
     {
         var gat = GetAddonGathering();
-        if (gat == null || gat->IntegrityGaugeBar == null)
+        if (gat == null || gat->IntegrityGaugeBar == null || !gat->IsVisible || !gat->IsReady)
             return 0;
 
         return gat->IntegrityGaugeBar->Values[0].ValueInt;
@@ -142,6 +142,21 @@ internal static unsafe class Utils
         var index = Array.IndexOf(items, itemId);
         if (index < 0)
             throw new Exception($"{itemId} not found at gathering point");
+
+        gat->GatheredItemComponentCheckbox[index].Value->AtkComponentButton.IsChecked = true;
+        gat->FireCallbackInt(index);
+    }
+
+    public static unsafe void GatheringSelectFirst()
+    {
+        var gat = GetAddonGathering();
+        if (gat == null)
+            throw new Exception("Addon is null");
+
+        var items = gat->ItemIds.ToArray();
+        var index = Array.FindIndex(items, i => i > 0);
+        if (index < 0)
+            throw new Exception("No items found at gathering point");
 
         gat->GatheredItemComponentCheckbox[index].Value->AtkComponentButton.IsChecked = true;
         gat->FireCallbackInt(index);

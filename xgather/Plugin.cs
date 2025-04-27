@@ -7,6 +7,7 @@ using Dalamud.Plugin.Services;
 using Lumina.Excel.Sheets;
 using System.Collections.Generic;
 using System.Linq;
+using xgather.Tasks;
 using xgather.UI;
 using xgather.UI.Windows;
 
@@ -22,6 +23,7 @@ public sealed class Plugin : IDalamudPlugin
     private Overlay Overlay { get; init; }
 
     internal List<GameData.Aetheryte> Aetherytes;
+    internal readonly Automation _auto = new();
 
     public bool RecordMode { get; set; } = true;
     private Debug? Debug;
@@ -32,8 +34,8 @@ public sealed class Plugin : IDalamudPlugin
 
         Svc.Config.RegisterGameItems();
 
-        MainWindow = new(new Routes(), new ItemSearch(Svc.Config.ItemSearchText), new Lists()) { IsOpen = Svc.Config.MainWindowOpen };
-        Overlay = new() { IsOpen = Svc.Config.OverlayOpen };
+        MainWindow = new(new Routes(), new ItemSearch(_auto, Svc.Config.ItemSearchText), new Lists()) { IsOpen = Svc.Config.MainWindowOpen };
+        Overlay = new(_auto) { IsOpen = Svc.Config.OverlayOpen };
 
         WindowSystem.AddWindow(MainWindow);
         WindowSystem.AddWindow(Overlay);
@@ -96,6 +98,12 @@ public sealed class Plugin : IDalamudPlugin
         if (args == "items")
         {
             MainWindow.IsOpen = true;
+            return;
+        }
+
+        if (args == "moonfate")
+        {
+            _auto.Start(new MoonFate());
             return;
         }
 

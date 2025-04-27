@@ -2,11 +2,13 @@ using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Interface;
 using Dalamud.Interface.Colors;
 using Dalamud.Interface.Components;
+using Dalamud.Interface.Utility.Raii;
 using Dalamud.Interface.Windowing;
 using ImGuiNET;
 using System;
 using System.Numerics;
 using xgather.Executors;
+using xgather.Tasks;
 
 namespace xgather.UI.Windows;
 
@@ -17,8 +19,11 @@ public class Overlay : Window
     //private readonly byte _currentDiademWeather = 0;
     //private readonly DateTime _diademWeatherSwap = DateTime.MinValue;
 
-    public Overlay() : base("xgather", ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse)
+    private Automation _auto;
+
+    public Overlay(Automation auto) : base("xgather", ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse)
     {
+        _auto = auto;
         TitleBarButtons.Add(new TitleBarButton()
         {
             Icon = FontAwesomeIcon.Cog,
@@ -47,6 +52,16 @@ public class Overlay : Window
         if (ImGui.Checkbox("Record gathering point locations", ref record))
             Svc.Plugin.RecordMode = record;
         */
+
+        using (ImRaii.Disabled(!_auto.Running))
+            if (ImGui.Button("Stop"))
+                _auto.Stop();
+        ImGui.SameLine();
+        ImGui.TextUnformatted($"Status: {_auto.CurrentTask?.Status ?? "idle"}");
+
+        using (ImRaii.Disabled(_auto.Running))
+            if (ImGuiComponents.IconButton(FontAwesomeIcon.Moon))
+                _auto.Start(new GatherMoon());
 
         var gatherer = Svc.Executor.Gather;
 

@@ -110,12 +110,14 @@ public abstract class AutoTask
     private readonly ICallGateSubscriber<float> _navBuildProgress = Svc.PluginInterface.GetIpcSubscriber<float>("vnavmesh.Nav.BuildProgress");
     private readonly ICallGateSubscriber<bool> _navIsReady = Svc.PluginInterface.GetIpcSubscriber<bool>("vnavmesh.Nav.IsReady");
     private readonly ICallGateSubscriber<Vector3, bool, bool> _navPathfindAndMoveTo = Svc.PluginInterface.GetIpcSubscriber<Vector3, bool, bool>("vnavmesh.SimpleMove.PathfindAndMoveTo");
+    private readonly ICallGateSubscriber<bool> _navPathfindInProgress = Svc.PluginInterface.GetIpcSubscriber<bool>("vnavmesh.SimpleMove.PathfindInProgress");
     private readonly ICallGateSubscriber<object> _navStop = Svc.PluginInterface.GetIpcSubscriber<object>("vnavmesh.Path.Stop");
 
     protected bool NavIsReady() => _navIsReady.InvokeFunc();
     protected float NavBuildProgress() => _navBuildProgress.InvokeFunc();
     protected bool PathMove(Vector3 dest, bool fly = false) => _navPathfindAndMoveTo.InvokeFunc(dest, fly);
     protected void NavStop() => _navStop.InvokeAction();
+    protected bool PathInProgress() => _navPathfindInProgress.InvokeFunc();
 
     protected async Task WaitForBusy(string tag)
     {
@@ -151,14 +153,15 @@ public abstract class AutoTask
         Status = "Waiting for Navmesh";
         await WaitWhile(() => NavBuildProgress() >= 0, "BuildMesh");
         ErrorIf(!NavIsReady(), "Failed to build navmesh");
+        await WaitWhile(PathInProgress, "PathfindInProgress");
     }
 
     protected async Task MoveTo(Vector3 destination, float tolerance, bool mount = false, bool fly = false, bool dismount = false, Func<bool>? interrupt = null)
     {
-        using var scope = BeginScope("MoveTo");
         if (Utils.PlayerInRange(destination, tolerance))
             return;
 
+        using var scope = BeginScope("MoveTo");
         await WaitNavmesh();
         ErrorIf(!PathMove(destination, fly), "Failed to start pathfind");
         Status = $"Moving to {destination}";

@@ -45,6 +45,10 @@ public class Svc
         IsInitialized = true;
         pi.Create<Svc>();
 
+#if DEBUG
+        Data.GameData.Options.PanicOnSheetChecksumMismatch = false;
+#endif
+
         Config = pi.GetPluginConfig() as Configuration ?? new Configuration();
         Executor = new();
         Plugin = plugin;
