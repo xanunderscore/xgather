@@ -147,7 +147,7 @@ internal class Lists
 
             if (newItemInput.Length >= 3)
             {
-                foreach (var (itemId, routes) in Svc.Config.ItemDB)
+                foreach (var (itemId, _) in Svc.ItemDB.ItemIdGroupLookup)
                 {
                     var it = Svc.ExcelRow<Item>(itemId);
 

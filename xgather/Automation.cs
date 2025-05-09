@@ -6,10 +6,10 @@ using FFXIVClientStructs.FFXIV.Client.UI.Misc;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
+using xgather.GameData;
 
 // copied from vsatisfy
 namespace xgather;
@@ -132,9 +132,11 @@ public abstract class AutoTask
         if (goalZone == currentZone || (goalZone == 901 && currentZone == 939))
             return;
 
+        ErrorIf(goalZone == 901, "Diadem teleportation not implemented yet");
+
         using var scope = BeginScope("Teleport");
 
-        var closest = Svc.Plugin.Aetherytes.MinBy(a => a.DistanceToPoint(goalZone, destination));
+        var closest = AetheryteDatabase.Closest(goalZone, destination);
         ErrorIf(closest == null, $"No aetheryte near zone {goalZone}");
 
         Status = "Teleporting";
@@ -194,6 +196,7 @@ public abstract class AutoTask
         if (Svc.Condition[ConditionFlag.Mounted])
             return;
 
+        await WaitWhile(Utils.PlayerIsBusy, "MountBusy");
         ErrorIf(!Utils.UseAction(ActionType.GeneralAction, 24), "Failed to mount");
         await WaitWhile(() => !Svc.Condition[ConditionFlag.Mounted], "Mounting");
         ErrorIf(!Svc.Condition[ConditionFlag.Mounted], "Failed to mount");

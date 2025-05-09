@@ -5,7 +5,6 @@ using FFXIVClientStructs.FFXIV.Client.Game.Character;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
 using FFXIVClientStructs.FFXIV.Client.Game.Object;
 using FFXIVClientStructs.FFXIV.Client.UI;
-using Lumina.Excel.Sheets;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,7 +21,7 @@ internal static unsafe class Utils
 
     public static uint GetMinCollectability(uint itemId)
     {
-        foreach (var group in Svc.SubrowExcelSheet<CollectablesShopItem>())
+        foreach (var group in Svc.SubrowExcelSheet<Lumina.Excel.Sheets.CollectablesShopItem>())
         {
             foreach (var item in group)
             {
@@ -38,7 +37,7 @@ internal static unsafe class Utils
 
     public static (DateTime Start, DateTime End) GetNextAvailable(uint itemId)
     {
-        var gpt2 = Svc.ExcelRowMaybe<GatheringPointTransient>(itemId);
+        var gpt2 = Svc.ExcelRowMaybe<Lumina.Excel.Sheets.GatheringPointTransient>(itemId);
         if (gpt2 == null)
             return (DateTime.MinValue, DateTime.MaxValue);
 
@@ -47,13 +46,13 @@ internal static unsafe class Utils
         if (gpt.EphemeralStartTime != 65535 && gpt.EphemeralEndTime != 65535)
             return CalcAvailability(gpt.EphemeralStartTime, gpt.EphemeralEndTime);
 
-        if (gpt.GatheringRarePopTimeTable.Value is GatheringRarePopTimeTable gptt && gptt.RowId > 0)
+        if (gpt.GatheringRarePopTimeTable.Value is Lumina.Excel.Sheets.GatheringRarePopTimeTable gptt && gptt.RowId > 0)
             return CalcAvailability(gptt).MinBy(x => x.Start);
 
         return (DateTime.MinValue, DateTime.MaxValue);
     }
 
-    public static IEnumerable<(DateTime Start, DateTime End)> CalcAvailability(GatheringRarePopTimeTable obj)
+    public static IEnumerable<(DateTime Start, DateTime End)> CalcAvailability(Lumina.Excel.Sheets.GatheringRarePopTimeTable obj)
     {
         foreach (var (start, dur) in obj.StartTime.Zip(obj.Duration))
         {
@@ -90,10 +89,10 @@ internal static unsafe class Utils
         return (ts.AsDateTime, tsend.AsDateTime);
     }
 
-    public static (DateTime Start, DateTime End) GetNextAvailable(GatherPointBase b) => GetNextAvailable(b.Nodes[0]);
+    public static (DateTime Start, DateTime End) GetNextAvailable(GatheringPointBase b) => GetNextAvailable(b.Nodes[0]);
     public static unsafe bool PlayerIsBusy() => Svc.Condition[ConditionFlag.BetweenAreas] || Svc.Condition[ConditionFlag.Casting] || ActionManager.Instance()->AnimationLock > 0;
 
-    public static Item Item(uint itemId) => Svc.ExcelRow<Item>(itemId);
+    public static Lumina.Excel.Sheets.Item Item(uint itemId) => Svc.ExcelRow<Lumina.Excel.Sheets.Item>(itemId);
     public static string ItemName(uint itemId) => Item(itemId).Name.ToString();
 
     public static GameObject* Player() => GameObjectManager.Instance()->Objects.IndexSorted[0].Value;
@@ -190,11 +189,13 @@ internal static class VectorExt
         Svc.Player == null ? float.MaxValue : (vec.XZ() - Svc.Player.Position.XZ()).Length();
 
     public static Vector2 XZ(this Vector3 vec) => new(vec.X, vec.Z);
+
+    public static Vector3 WithY(this Vector2 xz, float y) => new(xz.X, y, xz.Y);
 }
 
 internal static class GPBaseExt
 {
-    public static GatherClass GetRequiredClass(this GatheringPointBase gpBase) =>
+    public static GatherClass GetRequiredClass(this Lumina.Excel.Sheets.GatheringPointBase gpBase) =>
         gpBase.GatheringType.RowId switch
         {
             0 or 1 => GatherClass.MIN,

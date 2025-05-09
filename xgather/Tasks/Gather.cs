@@ -1,5 +1,7 @@
+using Dalamud.Game.ClientState.Conditions;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
+using System;
 using System.Numerics;
 using System.Threading.Tasks;
 
@@ -33,4 +35,36 @@ public abstract class GatherBase : AutoTask
             return new Vector2(mk.MapMarker.X, mk.MapMarker.Y) / 16f * map->CurrentMapSizeFactorFloat;
         }
     }
+
+    protected async Task DoNormalGather(Func<uint?> getItem)
+    {
+        await WaitWhile(() => !Utils.GatheringAddonReady(), "GatherStart");
+
+        var iters = 0;
+        while (Utils.GatheringIntegrityLeft() > 0)
+        {
+            ErrorIf(iters++ > 50, "loop");
+            var itemId = getItem();
+            if (itemId == null)
+                Utils.GatheringSelectFirst();
+            else
+                Utils.GatheringSelectItem(itemId.Value);
+            await WaitWhile(() => Svc.Condition[ConditionFlag.ExecutingGatheringAction], "GatherItemFinish");
+        }
+        await WaitWhile(() => Svc.Condition[ConditionFlag.Gathering], "GatherFinish");
+    }
+
+    protected async Task DoNormalGather(uint itemId) => await DoNormalGather(() => itemId);
+
+    protected async Task DoCollectableGather(Func<uint> getItem)
+    {
+        await WaitWhile(() => !Utils.GatheringAddonReady(), "GatherStart");
+        Utils.GatheringSelectItem(getItem());
+
+        await WaitWhile(() => !Utils.AddonReady("GatheringMasterpiece"), "GatherStart");
+
+        Error("Collectables gathering isn't implemented!");
+    }
+
+    protected async Task DoCollectableGather(uint itemId) => await DoCollectableGather(() => itemId);
 }

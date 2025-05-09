@@ -5,7 +5,6 @@ using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using Lumina.Excel.Sheets;
-using System.Collections.Generic;
 using System.Linq;
 using xgather.Tasks;
 using xgather.UI;
@@ -22,7 +21,6 @@ public sealed class Plugin : IDalamudPlugin
     internal MainWindow MainWindow { get; init; }
     private Overlay Overlay { get; init; }
 
-    internal List<GameData.Aetheryte> Aetherytes;
     internal readonly Automation _auto = new();
 
     public bool RecordMode { get; set; } = false;
@@ -32,9 +30,7 @@ public sealed class Plugin : IDalamudPlugin
     {
         Svc.Init(this, pluginInterface);
 
-        Svc.Config.RegisterGameItems();
-
-        MainWindow = new(new Routes(), new ItemSearch(_auto, Svc.Config.ItemSearchText), new Lists()) { IsOpen = Svc.Config.MainWindowOpen };
+        MainWindow = new(new ItemSearch(_auto, Svc.Config.ItemSearchText), new Lists()) { IsOpen = Svc.Config.MainWindowOpen };
         Overlay = new(_auto) { IsOpen = Svc.Config.OverlayOpen };
 
         WindowSystem.AddWindow(MainWindow);
@@ -48,16 +44,13 @@ public sealed class Plugin : IDalamudPlugin
         Svc.PluginInterface.UiBuilder.OpenMainUi += () => Overlay.IsOpen = true;
         Svc.Framework.Update += Tick;
 
-        Aetherytes = [.. GameData.Aetheryte.LoadAetherytes()];
-
         Debug = new();
     }
 
     public void Dispose()
     {
         WindowSystem.RemoveAllWindows();
-        MainWindow.Dispose();
-        Svc.Config.Save();
+        Svc.OnDispose();
         IPCHelper.PathStop();
         Svc.CommandManager.RemoveHandler("/xgather");
         Svc.CommandManager.RemoveHandler("/xgatherfish");
@@ -107,43 +100,26 @@ public sealed class Plugin : IDalamudPlugin
             return;
         }
 
-        var it = FindGatheringItemByName(args);
+        var it = FindItemByName(args);
         if (it == null)
         {
             Alerts.Error($"No item found for query {args}");
             return;
         }
 
-        Svc.Log.Debug($"Identified {it.Value.RowId}");
+        Svc.Log.Debug($"Identified {it.Value.RowId} for {args}");
 
         DoGatherItem(args, it.Value);
     }
 
-    private Item? FindGatheringItemByName(string query)
+    private Item? FindItemByName(string query)
     {
-        Item? filter(IEnumerable<Item>? list) =>
-            list?.Where(i => i.Name.ToString().Contains(query, System.StringComparison.InvariantCultureIgnoreCase))
-                .Select(i => (Item?)i)
-                .FirstOrDefault();
-
-        if (
-            filter(
-                Svc.ExcelSheet<GatheringItem>()
-                    ?.SelectMany(i => i.Item.TryGetValue<Item>(out var realItem) ? new Item[] { realItem } : [])
-            )
-            is Item i
-        )
-            return i;
-
-        if (filter(Svc.ExcelSheet<SpearfishingItem>()?.Select(s => s.Item.Value)) is Item s)
-            return s;
-
-        return null;
+        return Svc.ExcelSheet<Item>().Where(i => i.Name.ToString().Contains(query, System.StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
     }
 
     private void DoGatherItem(string args, Item it)
     {
-        foreach (var rte in Svc.Config.GetGatherPointGroupsForItem(it.RowId))
+        foreach (var rte in Svc.ItemDB.GetGatherPointGroupsForItem(it.RowId))
         {
             var msg = new SeString()
                 .Append("Identified ")
@@ -175,6 +151,6 @@ public sealed class Plugin : IDalamudPlugin
                     x => x.ObjectKind is Dalamud.Game.ClientState.Objects.Enums.ObjectKind.GatheringPoint
                 )
             )
-                Svc.Config.RecordPosition(obj);
+                Svc.ItemDB.RecordPosition(obj);
     }
 }

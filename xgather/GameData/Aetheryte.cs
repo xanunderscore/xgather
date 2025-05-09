@@ -6,7 +6,39 @@ using GameAetheryte = Lumina.Excel.Sheets.Aetheryte;
 
 namespace xgather.GameData;
 
-internal class Aetheryte
+public static class AetheryteDatabase
+{
+    private static readonly List<Aetheryte> _all = [];
+
+    static AetheryteDatabase()
+    {
+        _all = [.. Svc.Data
+            .GetExcelSheet<GameAetheryte>()!
+            .Where(x => x.IsAetheryte && x.AethernetName.RowId == 0 && x.RowId > 1)
+            .Select(x => new Aetheryte(x))];
+    }
+
+    public static Aetheryte? Closest(uint territory, Vector3 pos)
+    {
+        Aetheryte? best = null;
+        var bestDist = float.MaxValue;
+        foreach (var a in _all)
+        {
+            var dist = a.DistanceToPoint(territory, pos);
+            if (dist < bestDist)
+            {
+                best = a;
+                bestDist = dist;
+            }
+        }
+
+        return best;
+    }
+
+    public static Aetheryte? Closest(GatheringPointBase group) => Closest(group.Zone, group.WorldPos.WithY(0));
+}
+
+public class Aetheryte
 {
     public GameAetheryte GameAetheryte;
     public TerritoryType Territory;
@@ -30,20 +62,12 @@ internal class Aetheryte
         GameAetheryte = aetheryte;
     }
 
-    public float DistanceToRoute(GatherPointBase rte)
+    public float DistanceToPoint(uint territory, Vector3 pos)
     {
         // badly behaved aetherytes: amaurot, tamamizu
         if (GameAetheryte.RowId is 105 or 148)
             return float.MaxValue;
 
-        if (rte.TerritoryType.RowId == Territory.RowId && rte.Location is Vector3 pos)
-            return (new Vector2(WorldX, WorldY) - new Vector2(pos.X, pos.Z)).Length();
-
-        return float.MaxValue;
-    }
-
-    public float DistanceToPoint(uint territory, Vector3 pos)
-    {
         if (Territory.RowId == territory)
             return (new Vector2(WorldX, WorldY) - new Vector2(pos.X, pos.Z)).Length();
 

@@ -1,11 +1,10 @@
 using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Interface.Windowing;
 using ImGuiNET;
-using System;
 
 namespace xgather.UI.Windows;
 
-internal class MainWindow(Routes routes, ItemSearch items, Lists lists) : Window("xgather browser"), IDisposable
+internal class MainWindow(ItemSearch items, Lists lists) : Window("xgather browser")
 {
     public override bool DrawConditions() => !(Svc.GameGui.GameUiHidden || Svc.Condition[ConditionFlag.OccupiedInCutSceneEvent] || Svc.Condition[ConditionFlag.WatchingCutscene78] || Svc.Condition[ConditionFlag.WatchingCutscene]);
 
@@ -16,11 +15,6 @@ internal class MainWindow(Routes routes, ItemSearch items, Lists lists) : Window
             if (ImGui.BeginTabItem("Lists"))
             {
                 lists.Draw();
-                ImGui.EndTabItem();
-            }
-            if (ImGui.BeginTabItem("Routes"))
-            {
-                routes.Draw();
                 ImGui.EndTabItem();
             }
             if (ImGui.BeginTabItem("Items"))
@@ -42,10 +36,5 @@ internal class MainWindow(Routes routes, ItemSearch items, Lists lists) : Window
     {
         Svc.Config.MainWindowOpen = true;
         base.OnOpen();
-    }
-
-    public void Dispose()
-    {
-        items.Dispose();
     }
 }

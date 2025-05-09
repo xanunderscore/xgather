@@ -5,6 +5,7 @@ using FFXIVClientStructs.FFXIV.Client.Game;
 using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
+using xgather.GameData;
 
 namespace xgather.Tasks;
 
@@ -36,7 +37,8 @@ public class GatherItem : GatherBase
         if (needed == 0)
             return;
 
-        var route = Svc.Config.GetGatherPointGroupsForItem(itemId).FirstOrDefault();
+        var route = Svc.ItemDB.GetGatherPointGroupsForItem(itemId).FirstOrDefault();
+        Svc.Log.Debug(route.ToString());
         ErrorIf(route == null, $"No route found for item {itemId}");
 
         var iters = 0;
@@ -47,9 +49,10 @@ public class GatherItem : GatherBase
         }
     }
 
-    private async Task GatherNext(GatherPointBase gpBase)
+    private async Task GatherNext(GatheringPointBase gpBase)
     {
-        await TeleportToZone(gpBase.Zone, gpBase.Location);
+        var pos = new Vector3(gpBase.WorldPos.X, 0, gpBase.WorldPos.Y);
+        await TeleportToZone(gpBase.Zone, pos);
         await ChangeClass(gpBase.Class);
 
         if (IsCollectable && IsFishing)
@@ -78,7 +81,7 @@ public class GatherItem : GatherBase
         await DoGather(point);
     }
 
-    private async Task<IGameObject> FindPoint(GatherPointBase gpBase)
+    private async Task<IGameObject> FindPoint(GatheringPointBase gpBase)
     {
         using var scope = BeginScope("FindPoint");
 
@@ -90,9 +93,9 @@ public class GatherItem : GatherBase
 
         Vector3 guess;
         if (Svc.Condition[ConditionFlag.Diving])
-            guess = gpBase.Location with { Y = Svc.Player!.Position.Y };
+            guess = gpBase.WorldPos.WithY(Svc.Player!.Position.Y);
         else
-            guess = await PointOnFloor(gpBase.Location with { Y = 1024 }, false, 10);
+            guess = await PointOnFloor(gpBase.WorldPos.WithY(1024), false, 10);
 
         await MoveTo(guess, 10, true, true, interrupt: () => find() != null);
 
@@ -102,7 +105,12 @@ public class GatherItem : GatherBase
         var surveyPoint = await Survey();
         ErrorIf(!gpBase.ContainsPoint(surveyPoint), "Gathering marker is for a different node");
 
-        var surveyFloor = await PointOnFloor(new Vector3(surveyPoint.X, 1024, surveyPoint.Y), false, 10);
+        Vector3 surveyFloor;
+        if (Svc.Condition[ConditionFlag.Diving])
+            surveyFloor = new Vector3(surveyPoint.X, Svc.Player!.Position.Y, surveyPoint.Y);
+        else
+            surveyFloor = await PointOnFloor(new Vector3(surveyPoint.X, 1024, surveyPoint.Y), false, 10);
+
         await MoveTo(surveyFloor, 10, true, true, interrupt: () => find() != null);
 
         if (find() is { } s)
@@ -119,46 +127,23 @@ public class GatherItem : GatherBase
         Status = $"Gathering {Utils.ItemName(itemId)} at {obj.Position}";
 
         _lastPoint = obj.Position;
-        if (!Svc.Condition[(ConditionFlag)85])
+        if (!Svc.Condition[ConditionFlag.Unknown85])
             Utils.InteractWithObject(obj);
 
         if (IsFishing)
             await DoSpearfish();
         else if (IsCollectable)
-            await DoCollectableGather();
+            await DoCollectableGather(itemId);
         else
-            await DoNormalGather();
-    }
-
-    private async Task DoNormalGather()
-    {
-        await WaitWhile(() => !Utils.GatheringAddonReady(), "GatherStart");
-
-        var iters = 0;
-        while (Utils.GatheringIntegrityLeft() > 0)
-        {
-            ErrorIf(iters++ > 50, "loop");
-            Utils.GatheringSelectItem(itemId);
-            await WaitWhile(() => Svc.Condition[ConditionFlag.Gathering42], "GatherItemFinish");
-        }
-        await WaitWhile(() => Svc.Condition[ConditionFlag.Gathering], "GatherFinish");
-    }
-
-    private async Task DoCollectableGather()
-    {
-        await WaitWhile(() => !Utils.GatheringAddonReady(), "GatherStart");
-        Utils.GatheringSelectItem(itemId);
-
-        await WaitWhile(() => !Utils.AddonReady("GatheringMasterpiece"), "GatherStart");
-
-        Error("Collectables gathering isn't implemented!");
+            await DoNormalGather(itemId);
     }
 
     private async Task DoSpearfish()
     {
         await WaitWhile(() => !Utils.AddonReady("SpearFishing"), "FishStart");
 
-        await WaitWhile(() => Svc.Condition[(ConditionFlag)85], "FishFinish");
+        // assuming autohook
+        await WaitWhile(() => Svc.Condition[ConditionFlag.Unknown85], "FishFinish");
     }
 
     private unsafe uint GetQuantityNeeded()

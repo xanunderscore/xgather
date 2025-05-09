@@ -38,7 +38,7 @@ internal class GatherMoon : GatherBase
             {
                 if (id > 0)
                 {
-                    var realid = Svc.ExcelRow<WKSItemInfo>(id).Unknown0;
+                    var realid = Svc.ExcelRow<WKSItemInfo>(id).Item;
                     _requiredItems[realid] = quant;
                 }
             }
@@ -93,28 +93,10 @@ internal class GatherMoon : GatherBase
 
         Status = $"Gathering at {obj.Position}";
 
-        if (!Svc.Condition[(ConditionFlag)85])
+        if (!Svc.Condition[ConditionFlag.Unknown85])
             Utils.InteractWithObject(obj);
 
-        await DoNormalGather();
-    }
-
-    private async Task DoNormalGather()
-    {
-        await WaitWhile(() => !Utils.GatheringAddonReady(), "GatherStart");
-
-        var iters = 0;
-        while (Utils.GatheringIntegrityLeft() > 0)
-        {
-            ErrorIf(iters++ > 50, "loop");
-            var it = GetNeededItem();
-            if (it == 0)
-                Utils.GatheringSelectFirst();
-            else
-                Utils.GatheringSelectItem(it);
-            await WaitWhile(() => Svc.Condition[ConditionFlag.Gathering42], "GatherItemFinish");
-        }
-        await WaitWhile(() => Svc.Condition[ConditionFlag.Gathering], "GatherFinish");
+        await DoNormalGather(GetNeededItem);
     }
 
     private async Task DoCollectableGather()
@@ -127,7 +109,7 @@ internal class GatherMoon : GatherBase
         Error("Collectables gathering isn't implemented!");
     }
 
-    private unsafe uint GetNeededItem()
+    private unsafe uint? GetNeededItem()
     {
         var im = InventoryManager.Instance();
         foreach (var (itemId, count) in _requiredItems)
@@ -137,7 +119,7 @@ internal class GatherMoon : GatherBase
                 return itemId;
         }
 
-        return 0;
+        return null;
     }
 }
 
