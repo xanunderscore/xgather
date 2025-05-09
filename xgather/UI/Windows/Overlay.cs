@@ -14,6 +14,10 @@ public class Overlay : Window
     public Overlay(Automation auto) : base("xgather", ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse)
     {
         _auto = auto;
+        SizeConstraints = new()
+        {
+            MinimumSize = new(200, 100)
+        };
         TitleBarButtons.Add(new TitleBarButton()
         {
             Icon = FontAwesomeIcon.Cog,
@@ -37,14 +41,31 @@ public class Overlay : Window
 
     public override unsafe void Draw()
     {
+        ImGui.TextUnformatted($"Status: {_auto.CurrentTask?.Status ?? "idle"}");
         using (ImRaii.Disabled(!_auto.Running))
             if (ImGui.Button("Stop"))
                 _auto.Stop();
         ImGui.SameLine();
+        var hovermoon = false;
+        var hoverlist = false;
+#if DEBUG
         using (ImRaii.Disabled(_auto.Running))
+        {
             if (ImGuiComponents.IconButton(FontAwesomeIcon.Moon))
                 _auto.Start(new GatherMoon());
-        ImGui.SameLine();
-        ImGui.TextUnformatted($"Status: {_auto.CurrentTask?.Status ?? "idle"}");
+            hovermoon = ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled);
+            ImGui.SameLine();
+            if (ImGuiComponents.IconButton(FontAwesomeIcon.ListUl))
+            {
+                var missing = IPCHelper._atoolsGetMissingItems.InvokeFunc();
+                _auto.Start(new GatherMulti(missing));
+            }
+            hoverlist = ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled);
+        }
+#endif
+        if (hovermoon)
+            ImGui.SetTooltip("Run current Cosmic Exploration mission");
+        if (hoverlist)
+            ImGui.SetTooltip("Collect all missing items from active Inventory Tools crafting list");
     }
 }

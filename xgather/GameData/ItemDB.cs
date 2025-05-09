@@ -98,6 +98,8 @@ public class ItemDatabase
     public readonly Dictionary<ItemId, HashSet<BaseId>> ItemIdGroupLookup = [];
     public readonly Dictionary<string, NodeLocation> KnownNodes = [];
 
+    public bool CanGather(ItemId id) => GetGatherPointGroupsForItem(id).Any();
+
     public IEnumerable<GatheringPointBase> GetGatherPointGroupsForItem(uint itemId)
     {
         if (ItemIdGroupLookup.TryGetValue(itemId, out var groups))

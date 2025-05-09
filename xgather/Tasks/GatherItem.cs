@@ -38,7 +38,6 @@ public class GatherItem : GatherBase
             return;
 
         var route = Svc.ItemDB.GetGatherPointGroupsForItem(itemId).FirstOrDefault();
-        Svc.Log.Debug(route.ToString());
         ErrorIf(route == null, $"No route found for item {itemId}");
 
         var iters = 0;

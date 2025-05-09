@@ -51,13 +51,10 @@ public class Svc
 
         if (pi.IsDev)
         {
-            ItemDB = ItemDBM.Create();
+            // ItemDB = ItemDBM.Create();
             Data.GameData.Options.PanicOnSheetChecksumMismatch = false;
         }
-        else
-        {
-            ItemDB = ItemDBM.OpenOrCreate();
-        }
+        ItemDB = ItemDBM.OpenOrCreate();
 
         Config = pi.GetPluginConfig() as Configuration ?? new Configuration();
         Plugin = plugin;

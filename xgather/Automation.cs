@@ -49,9 +49,20 @@ public abstract class AutoTask
         }
     }
 
-    public string Status { get; protected set; } = ""; // user-facing status string
-    private readonly CancellationTokenSource cts = new();
+    public string Status
+    {
+        get => _status;
+        protected set
+        {
+            _status = value;
+            OnStatusChange.Invoke(value);
+        }
+    }
+    private string _status = "";
+    private CancellationTokenSource cts = new();
     private readonly List<string> debugContext = [];
+
+    private event Action<string> OnStatusChange = delegate { };
 
     public void Cancel() => cts.Cancel();
 
@@ -70,6 +81,14 @@ public abstract class AutoTask
 
     // implementations are typically expected to be async (coroutines)
     protected abstract Task Execute();
+
+    // run another AutoTask, it inherits our cancellation token and we inherit its status
+    protected async Task RunSubtask(AutoTask t)
+    {
+        t.cts = cts;
+        t.OnStatusChange = s => Status = s;
+        await t.Execute();
+    }
 
     protected CancellationToken CancelToken => cts.Token;
 

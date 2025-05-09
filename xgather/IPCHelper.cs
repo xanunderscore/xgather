@@ -1,4 +1,5 @@
 using Dalamud.Plugin.Ipc;
+using System.Collections.Generic;
 using System.Numerics;
 
 namespace xgather;
@@ -13,11 +14,11 @@ public static class IPCHelper
     private static readonly ICallGateSubscriber<bool> _pathfindInProgress;
     private static readonly ICallGateSubscriber<bool> _navmeshIsReady;
     private static readonly ICallGateSubscriber<uint> _pathfindQueue;
+    public static readonly ICallGateSubscriber<Dictionary<uint, uint>> _atoolsGetMissingItems;
 
     public static bool PathfindAndMoveTo(Vector3 dest, bool fly) => _pathfindAndMoveTo.InvokeFunc(dest, fly);
     public static void PathStop() => _pathStop.InvokeAction();
-    // uncomment when vnav reload is fixed
-    public static void PathfindCancel() { } // _pathfindCancelAll.InvokeAction();
+    public static void PathfindCancel() => _pathfindCancelAll.InvokeAction();
     public static Vector3? PointOnFloor(Vector3 pos, bool allowUnlandable, float radius) => _pointOnFloor.InvokeFunc(pos, allowUnlandable, radius);
     public static bool PathIsRunning() => _pathIsRunning.InvokeFunc();
     public static bool PathfindInProgress() => _pathfindInProgress.InvokeFunc();
@@ -34,5 +35,6 @@ public static class IPCHelper
         _pathfindInProgress = Svc.PluginInterface.GetIpcSubscriber<bool>("vnavmesh.Nav.PathfindInProgress");
         _navmeshIsReady = Svc.PluginInterface.GetIpcSubscriber<bool>("vnavmesh.Nav.IsReady");
         _pathfindQueue = Svc.PluginInterface.GetIpcSubscriber<uint>("vnavmesh.Nav.PathfindNumQueued");
+        _atoolsGetMissingItems = Svc.PluginInterface.GetIpcSubscriber<Dictionary<uint, uint>>("AllaganTools.GetMissingItems");
     }
 }
