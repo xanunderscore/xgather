@@ -45,27 +45,28 @@ public class Overlay : Window
         using (ImRaii.Disabled(!_auto.Running))
             if (ImGui.Button("Stop"))
                 _auto.Stop();
-        ImGui.SameLine();
-        var hovermoon = false;
-        var hoverlist = false;
-#if DEBUG
-        using (ImRaii.Disabled(_auto.Running))
+        if (Svc.IsDev)
         {
-            if (ImGuiComponents.IconButton(FontAwesomeIcon.Moon))
-                _auto.Start(new GatherMoon());
-            hovermoon = ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled);
             ImGui.SameLine();
-            if (ImGuiComponents.IconButton(FontAwesomeIcon.ListUl))
+            var hovermoon = false;
+            var hoverlist = false;
+            using (ImRaii.Disabled(_auto.Running))
             {
-                var missing = IPCHelper._atoolsGetMissingItems.InvokeFunc();
-                _auto.Start(new GatherMulti(missing));
+                if (ImGuiComponents.IconButton(FontAwesomeIcon.Moon))
+                    _auto.Start(new GatherMoon());
+                hovermoon = ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled);
+                ImGui.SameLine();
+                if (ImGuiComponents.IconButton(FontAwesomeIcon.ListUl))
+                {
+                    var missing = IPCHelper._atoolsGetMissingItems.InvokeFunc();
+                    _auto.Start(new GatherMulti(missing));
+                }
+                hoverlist = ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled);
             }
-            hoverlist = ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled);
+            if (hovermoon)
+                ImGui.SetTooltip("Run current Cosmic Exploration mission");
+            if (hoverlist)
+                ImGui.SetTooltip("Collect all missing items from active Inventory Tools crafting list");
         }
-#endif
-        if (hovermoon)
-            ImGui.SetTooltip("Run current Cosmic Exploration mission");
-        if (hoverlist)
-            ImGui.SetTooltip("Collect all missing items from active Inventory Tools crafting list");
     }
 }

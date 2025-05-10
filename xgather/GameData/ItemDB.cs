@@ -83,7 +83,7 @@ public record class GatheringPointBase(
     bool IsValid
 )
 {
-    public bool ContainsPoint(Vector2 point) => (point - WorldPos).LengthSquared() > Radius * Radius * 1.1f;
+    public bool ContainsPoint(Vector2 point) => (point - WorldPos).LengthSquared() < Radius * Radius * 1.1f;
 }
 
 public record class NodeLocation(

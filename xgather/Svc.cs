@@ -40,6 +40,8 @@ public class Svc
 
     internal static bool IsInitialized = false;
 
+    public static bool IsDev => PluginInterface.IsDev;
+
     public static void Init(Plugin plugin, IDalamudPluginInterface pi)
     {
         if (IsInitialized)
@@ -49,12 +51,10 @@ public class Svc
 
         ItemDBM = new ItemDatabaseManager(pi);
 
-        if (pi.IsDev)
-        {
-            // ItemDB = ItemDBM.Create();
+        if (IsDev)
             Data.GameData.Options.PanicOnSheetChecksumMismatch = false;
-        }
-        ItemDB = ItemDBM.OpenOrCreate();
+
+        ItemDB = IsDev ? ItemDBM.Create() : ItemDBM.OpenOrCreate();
 
         Config = pi.GetPluginConfig() as Configuration ?? new Configuration();
         Plugin = plugin;
