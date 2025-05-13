@@ -83,10 +83,11 @@ public abstract class AutoTask
     protected abstract Task Execute();
 
     // run another AutoTask, it inherits our cancellation token and we inherit its status
-    protected async Task RunSubtask(AutoTask t)
+    protected async Task RunSubtask(AutoTask t, Action<string>? onStatusChange = null)
     {
         t.cts = cts;
-        t.OnStatusChange = s => Status = s;
+        if (onStatusChange != null)
+            t.OnStatusChange = onStatusChange;
         await t.Execute();
     }
 
@@ -216,7 +217,7 @@ public abstract class AutoTask
             return;
 
         await WaitWhile(Utils.PlayerIsBusy, "MountBusy");
-        ErrorIf(!Utils.UseAction(ActionType.GeneralAction, 24), "Failed to mount");
+        ErrorIf(!Utils.UseAction(ActionType.GeneralAction, 9), "Failed to mount");
         await WaitWhile(() => !Svc.Condition[ConditionFlag.Mounted], "Mounting");
         ErrorIf(!Svc.Condition[ConditionFlag.Mounted], "Failed to mount");
     }

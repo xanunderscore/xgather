@@ -39,7 +39,7 @@ public class Overlay : Window
         base.OnOpen();
     }
 
-    public override unsafe void Draw()
+    public override void Draw()
     {
         ImGui.TextUnformatted($"Status: {_auto.CurrentTask?.Status ?? "idle"}");
         using (ImRaii.Disabled(!_auto.Running))
@@ -62,6 +62,9 @@ public class Overlay : Window
                     _auto.Start(new GatherMulti(missing));
                 }
                 hoverlist = ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled);
+                ImGui.SameLine();
+                if (ImGuiComponents.IconButton(FontAwesomeIcon.Leaf))
+                    _auto.Start(new GatherIsland());
             }
             if (hovermoon)
                 ImGui.SetTooltip("Run current Cosmic Exploration mission");

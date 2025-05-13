@@ -1,7 +1,7 @@
 using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Game.ClientState.Objects.Types;
-using FFXIVClientStructs.FFXIV.Client.Game;
+using System;
 using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
@@ -22,7 +22,7 @@ public class GatherItem : GatherBase
     public GatherItem(uint itemId, uint quantity)
     {
         this.itemId = itemId;
-        this.quantity = quantity;
+        this.quantity = quantity + (uint)Utils.GetQuantityOwned(itemId);
 
         var it = Utils.Item(itemId);
         IsFishing = it.ItemUICategory.RowId == 47; // 47 = seafood
@@ -67,7 +67,7 @@ public class GatherItem : GatherBase
             groundPoint = point.Position;
         else
         {
-            groundPoint = await PointOnFloor(point.Position with { Y = point.Position.Y + 5 }, false, 2.5f);
+            groundPoint = await PointOnFloor(point.Position with { Y = point.Position.Y + 5 }, false, 1);
             tolerance = 1;
         }
 
@@ -147,7 +147,7 @@ public class GatherItem : GatherBase
 
     private unsafe uint GetQuantityNeeded()
     {
-        var owned = (uint)InventoryManager.Instance()->GetInventoryItemCount(itemId, minCollectability: (short)Utils.GetMinCollectability(itemId));
-        return owned >= quantity ? 0 : quantity - owned;
+        var owned = Utils.GetQuantityOwned(itemId);
+        return (uint)Math.Max(0, quantity - owned);
     }
 }

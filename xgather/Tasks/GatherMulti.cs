@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,6 +14,7 @@ public class GatherMulti : GatherBase
         if (preFilterItems)
         {
             Items = items.Where(k => k.Value > 0 && Svc.ItemDB.CanGather(k.Key)).ToDictionary();
+            Svc.Log.Debug(JsonConvert.SerializeObject(Items));
         }
         else
         {
@@ -24,7 +26,10 @@ public class GatherMulti : GatherBase
     {
         foreach (var (itemId, quantity) in Items)
         {
-            await RunSubtask(new GatherItem(itemId, quantity));
+            await RunSubtask(new GatherItem(itemId, quantity), s =>
+            {
+                Status = $"{s}\n{Utils.ItemName(itemId)}";
+            });
         }
     }
 }

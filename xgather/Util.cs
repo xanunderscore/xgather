@@ -92,6 +92,8 @@ internal static unsafe class Utils
     public static (DateTime Start, DateTime End) GetNextAvailable(GatheringPointBase b) => GetNextAvailable(b.Nodes[0]);
     public static unsafe bool PlayerIsBusy() => Svc.Condition[ConditionFlag.BetweenAreas] || Svc.Condition[ConditionFlag.Casting] || ActionManager.Instance()->AnimationLock > 0;
 
+    public static bool PlayerIsZiplining => Svc.Condition[ConditionFlag.Unknown101];
+
     public static Lumina.Excel.Sheets.Item Item(uint itemId) => Svc.ExcelRow<Lumina.Excel.Sheets.Item>(itemId);
     public static string ItemName(uint itemId) => Item(itemId).Name.ToString();
 
@@ -178,6 +180,8 @@ internal static unsafe class Utils
     {
         return new((input.X * Cos120) - (input.Y * Sin120), (input.X * Sin120) + (input.Y * Cos120));
     }
+
+    public static int GetQuantityOwned(uint itemId) => InventoryManager.Instance()->GetInventoryItemCount(itemId, minCollectability: (short)GetMinCollectability(itemId));
 }
 
 internal static class VectorExt
