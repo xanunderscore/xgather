@@ -5,6 +5,7 @@ using FFXIVClientStructs.FFXIV.Client.Game.Character;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
 using FFXIVClientStructs.FFXIV.Client.Game.Object;
 using FFXIVClientStructs.FFXIV.Client.UI;
+using FFXIVClientStructs.FFXIV.Component.GUI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -113,18 +114,20 @@ internal static unsafe class Utils
 
     public static unsafe void InteractWithObject(IGameObject obj) => TargetSystem.Instance()->OpenObjectInteraction((GameObject*)obj.Address);
 
-    public static unsafe AddonGathering* GetAddonGathering() => (AddonGathering*)RaptureAtkUnitManager.Instance()->GetAddonByName("Gathering");
+    public static unsafe AtkUnitBase* GetAddonByName(string name) => RaptureAtkUnitManager.Instance()->GetAddonByName(name);
 
-    public static unsafe bool GatheringAddonReady()
+    public static unsafe bool IsAddonReady(string name)
+    {
+        var sp = GetAddonByName(name);
+        return sp != null && sp->IsVisible && sp->IsReady;
+    }
+
+    public static unsafe AddonGathering* GetAddonGathering() => (AddonGathering*)GetAddonByName("Gathering");
+
+    public static unsafe bool IsGatheringAddonReady()
     {
         var gat = GetAddonGathering();
         return gat != null && gat->IsVisible && gat->IsReady && gat->GatherStatus == 1;
-    }
-
-    public static unsafe bool AddonReady(string name)
-    {
-        var sp = RaptureAtkUnitManager.Instance()->GetAddonByName(name);
-        return sp != null && sp->IsVisible && sp->IsReady;
     }
 
     public static unsafe int GatheringIntegrityLeft()

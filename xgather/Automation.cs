@@ -297,6 +297,11 @@ public abstract class AutoTask
         ErrorIf(!Utils.UseAction(ActionType.Action, 4101), "Unable to use Collector's Glove");
         await WaitForBusy("UseAction");
     }
+
+    protected async Task WaitAddon(string name, int checkFrequency = 1)
+    {
+        await WaitWhile(() => !Utils.IsAddonReady(name), $"Addon{name}", checkFrequency);
+    }
 }
 
 // utility that allows concurrently executing only one task; starting a new task if one is already in progress automatically cancels olds one

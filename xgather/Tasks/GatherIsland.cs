@@ -54,12 +54,36 @@ public class GatherIsland : AutoTask
 
     private async Task SetGatherMode()
     {
-        if (IsleUtils.SetGatherMode())
+        unsafe
         {
-            await WaitWhile(() => !IsleUtils.IsContextMenuOpen(), "MenuOpen");
-            IsleUtils.HideMenu();
-            await WaitWhile(IsleUtils.IsContextMenuOpen, "MenuClose");
+            if (MJIManager.Instance()->CurrentMode == 1)
+                return;
+
+            var hud = Utils.GetAddonByName("MJIHud");
+            var hv = stackalloc AtkValue[2];
+            hv[0].Type = ValueType.Int;
+            hv[0].Int = 11;
+            hv[1].Type = ValueType.Int;
+            hud->FireCallback(2, hv);
         }
+
+        await WaitAddon("ContextIconMenu");
+
+        unsafe
+        {
+            var icon = RaptureAtkUnitManager.Instance()->GetAddonByName("ContextIconMenu");
+            var cv = stackalloc AtkValue[5];
+            cv[0].Type = ValueType.Int;
+            cv[1].Type = ValueType.Int;
+            cv[1].Int = 1;
+            cv[2].Type = ValueType.UInt;
+            cv[2].UInt = 82042;
+            cv[3].Type = ValueType.UInt;
+            icon->FireCallback(5, cv, true);
+            icon->FireCallbackInt(-1);
+        }
+
+        await WaitWhile(IsleUtils.IsContextMenuOpen, "MenuClose");
     }
 }
 
@@ -84,30 +108,6 @@ public static class IsleUtils
         foreach (var mat in ((PouchInventoryData*)AgentMJIPouch.Instance()->InventoryData)->Materials)
             counts[mat.Value->RowId] = mat.Value->StackSize;
         return counts;
-    }
-
-    public static unsafe bool SetGatherMode()
-    {
-        if (MJIManager.Instance()->CurrentMode != 1)
-        {
-            var hud = RaptureAtkUnitManager.Instance()->GetAddonByName("MJIHud");
-            var hv = stackalloc AtkValue[2];
-            hv[0].Type = ValueType.Int;
-            hv[0].Int = 11;
-            hv[1].Type = ValueType.Int;
-            hud->FireCallback(2, hv);
-            var ctx = RaptureAtkUnitManager.Instance()->GetAddonByName("ContextIconMenu");
-            var cv = stackalloc AtkValue[5];
-            cv[0].Type = ValueType.Int;
-            cv[1].Type = ValueType.Int;
-            cv[1].Int = 1;
-            cv[2].Type = ValueType.UInt;
-            cv[2].UInt = 82042;
-            cv[3].Type = ValueType.UInt;
-            ctx->FireCallback(5, cv, true);
-            return true;
-        }
-        return false;
     }
 
     public static unsafe bool IsContextMenuOpen() => RaptureAtkUnitManager.Instance()->GetAddonByName("ContextIconMenu")->IsVisible;

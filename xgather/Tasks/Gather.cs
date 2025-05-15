@@ -38,7 +38,7 @@ public abstract class GatherBase : AutoTask
 
     protected async Task DoNormalGather(Func<uint?> getItem)
     {
-        await WaitWhile(() => !Utils.GatheringAddonReady(), "GatherStart");
+        await WaitWhile(() => !Utils.IsGatheringAddonReady(), "GatherStart");
 
         while (Svc.Condition[ConditionFlag.Gathering])
         {
@@ -61,10 +61,10 @@ public abstract class GatherBase : AutoTask
 
     protected async Task DoCollectableGather(Func<uint> getItem)
     {
-        await WaitWhile(() => !Utils.GatheringAddonReady(), "GatherStart");
+        await WaitWhile(() => !Utils.IsGatheringAddonReady(), "GatherStart");
         Utils.GatheringSelectItem(getItem());
 
-        await WaitWhile(() => !Utils.AddonReady("GatheringMasterpiece"), "GatherStart");
+        await WaitAddon("GatheringMasterpiece");
 
         Error("Collectables gathering isn't implemented!");
     }

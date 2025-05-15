@@ -101,10 +101,10 @@ internal class GatherMoon : GatherBase
 
     private async Task DoCollectableGather()
     {
-        await WaitWhile(() => !Utils.GatheringAddonReady(), "GatherStart");
+        await WaitWhile(() => !Utils.IsGatheringAddonReady(), "GatherStart");
         Utils.GatheringSelectFirst();
 
-        await WaitWhile(() => !Utils.AddonReady("GatheringMasterpiece"), "GatherStart");
+        await WaitWhile(() => !Utils.IsAddonReady("GatheringMasterpiece"), "GatherStart");
 
         Error("Collectables gathering isn't implemented!");
     }

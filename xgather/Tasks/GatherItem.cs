@@ -139,7 +139,7 @@ public class GatherItem : GatherBase
 
     private async Task DoSpearfish()
     {
-        await WaitWhile(() => !Utils.AddonReady("SpearFishing"), "FishStart");
+        await WaitWhile(() => !Utils.IsAddonReady("SpearFishing"), "FishStart");
 
         // assuming autohook
         await WaitWhile(() => Svc.Condition[ConditionFlag.Unknown85], "FishFinish");
