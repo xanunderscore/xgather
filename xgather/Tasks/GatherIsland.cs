@@ -1,4 +1,3 @@
-using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.MJI;
 using FFXIVClientStructs.FFXIV.Client.System.String;
 using FFXIVClientStructs.FFXIV.Client.UI;
@@ -66,104 +65,60 @@ public class GatherIsland : AutoTask
 
 public static class IsleUtils
 {
-    public static bool OnIsland()
+    public static unsafe bool OnIsland() => MJIManager.Instance()->IsPlayerInSanctuary == 1;
+
+    public static unsafe void ToggleCraftSchedule() => RaptureAtkUnitManager.Instance()->GetAddonByName("MJIHud")->FireCallbackInt(20);
+
+    public static unsafe bool IsScheduleOpen()
     {
-        unsafe
-        {
-            return GameMain.Instance()->CurrentTerritoryIntendedUseId == 49;
-        }
+        var agent = AgentMJICraftSchedule.Instance();
+        return agent->IsAgentActive() && agent->Data != null && agent->Data->UpdateState == 2;
     }
 
-    public static void ToggleCraftSchedule()
-    {
-        unsafe
-        {
-            var addon = RaptureAtkUnitManager.Instance()->GetAddonByName("MJIHud");
-            addon->FireCallbackInt(20);
-        }
-    }
+    public static unsafe ushort[] GetUsedMaterials() => AgentMJICraftSchedule.Instance()->Data->MaterialUse.Entries[2].UsedAmounts.ToArray();
 
-    public static bool IsScheduleOpen()
-    {
-        unsafe
-        {
-            var agent = AgentMJICraftSchedule.Instance();
-            return agent->IsAgentActive() && agent->Data != null && agent->Data->UpdateState == 2;
-        }
-    }
-
-    public static ushort[] GetUsedMaterials()
-    {
-        unsafe
-        {
-            return AgentMJICraftSchedule.Instance()->Data->MaterialUse.Entries[2].UsedAmounts.ToArray();
-        }
-    }
-
-    public static int[] GetIsleventory()
+    public static unsafe int[] GetIsleventory()
     {
         var counts = new int[109];
         Array.Fill(counts, -1);
-        unsafe
-        {
-            foreach (var mat in ((PouchInventoryData*)AgentMJIPouch.Instance()->InventoryData)->Materials)
-            {
-                counts[mat.Value->RowId] = mat.Value->StackSize;
-            }
-        }
+        foreach (var mat in ((PouchInventoryData*)AgentMJIPouch.Instance()->InventoryData)->Materials)
+            counts[mat.Value->RowId] = mat.Value->StackSize;
         return counts;
     }
 
-    public static bool SetGatherMode()
+    public static unsafe bool SetGatherMode()
     {
-        unsafe
+        if (MJIManager.Instance()->CurrentMode != 1)
         {
-            if (MJIManager.Instance()->CurrentMode != 1)
-            {
-                var hud = RaptureAtkUnitManager.Instance()->GetAddonByName("MJIHud");
-                var hv = stackalloc AtkValue[2];
-                hv[0].Type = ValueType.Int;
-                hv[0].Int = 11;
-                hv[1].Type = ValueType.Int;
-                hud->FireCallback(2, hv);
-                var ctx = RaptureAtkUnitManager.Instance()->GetAddonByName("ContextIconMenu");
-                var cv = stackalloc AtkValue[5];
-                cv[0].Type = ValueType.Int;
-                cv[1].Type = ValueType.Int;
-                cv[1].Int = 1;
-                cv[2].Type = ValueType.UInt;
-                cv[2].UInt = 82042;
-                cv[3].Type = ValueType.UInt;
-                ctx->FireCallback(5, cv, true);
-                return true;
-            }
+            var hud = RaptureAtkUnitManager.Instance()->GetAddonByName("MJIHud");
+            var hv = stackalloc AtkValue[2];
+            hv[0].Type = ValueType.Int;
+            hv[0].Int = 11;
+            hv[1].Type = ValueType.Int;
+            hud->FireCallback(2, hv);
+            var ctx = RaptureAtkUnitManager.Instance()->GetAddonByName("ContextIconMenu");
+            var cv = stackalloc AtkValue[5];
+            cv[0].Type = ValueType.Int;
+            cv[1].Type = ValueType.Int;
+            cv[1].Int = 1;
+            cv[2].Type = ValueType.UInt;
+            cv[2].UInt = 82042;
+            cv[3].Type = ValueType.UInt;
+            ctx->FireCallback(5, cv, true);
+            return true;
         }
         return false;
     }
 
-    public static bool IsContextMenuOpen()
-    {
-        unsafe
-        {
-            return RaptureAtkUnitManager.Instance()->GetAddonByName("ContextIconMenu")->IsVisible;
-        }
-    }
+    public static unsafe bool IsContextMenuOpen() => RaptureAtkUnitManager.Instance()->GetAddonByName("ContextIconMenu")->IsVisible;
 
-    public static void HideMenu()
-    {
-        unsafe
-        {
-            var ctx = RaptureAtkUnitManager.Instance()->GetAddonByName("ContextIconMenu");
-            ctx->FireCallbackInt(-1);
-        }
-    }
+    public static unsafe void HideMenu() => RaptureAtkUnitManager.Instance()->GetAddonByName("ContextIconMenu")->FireCallbackInt(-1);
 }
 
 [StructLayout(LayoutKind.Explicit, Size = 0x1A0)]
 public struct PouchInventoryData
 {
     [FieldOffset(0x90 + 40)] public StdVector<Pointer<PouchInventoryItem>> Materials;
-    [FieldOffset(0xA8 + 40)] public StdVector<Pointer<PouchInventoryItem>> Produce;
 }
 
 [StructLayout(LayoutKind.Explicit, Size = 0x80)]

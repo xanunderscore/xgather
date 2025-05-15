@@ -1,45 +1,92 @@
 using Dalamud.Hooking;
-using FFXIVClientStructs.FFXIV.Component.GUI;
+using FFXIVClientStructs.FFXIV.Client.Game;
+using FFXIVClientStructs.FFXIV.Client.Game.Object;
 using System;
-using System.Diagnostics;
+using System.Numerics;
 
 namespace xgather;
-internal unsafe class Debug : IDisposable
-{
-    private readonly long moduleStart;
 
-    private delegate AtkValue* CallHandlerDelegate(AtkExternalInterface* thisPtr, AtkValue* result, uint handlerIndex, uint valueCount, AtkValue* values);
-    private readonly Hook<CallHandlerDelegate> _callHandler;
+public unsafe class Debug : IDisposable
+{
+    private readonly Hook<ActionManager.Delegates.UseAction> _useActionHook;
+    private readonly Hook<ActionManager.Delegates.UseActionLocation> _useActionLocationHook;
+    private readonly Hook<ResolveTargetDelegate> _resolveTargetHook;
+    private readonly Hook<ActionManager.Delegates.GetActionInRangeOrLoS> _getLosHook;
+    private readonly Hook<CanUseAction2Delegate> _canUse2Hook;
+
+    private delegate GameObject* ResolveTargetDelegate(ActionManager* thisPtr, uint spellId, byte* actionRow, ulong targetId);
+    private delegate char CanUseAction2Delegate(uint spellId, byte* actionRow, GameObject* target);
 
     public Debug()
     {
-        moduleStart = Process.GetCurrentProcess().MainModule!.BaseAddress.ToInt64();
+        _useActionHook = Svc.Hook.HookFromAddress<ActionManager.Delegates.UseAction>(ActionManager.Addresses.UseAction.Value, UseActionDetour);
+        _useActionLocationHook = Svc.Hook.HookFromAddress<ActionManager.Delegates.UseActionLocation>(ActionManager.Addresses.UseActionLocation.Value, UseActionLocationDetour);
+        _resolveTargetHook = Svc.Hook.HookFromSignature<ResolveTargetDelegate>("48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 83 EC 20 48 8B 35 ?? ?? ?? ?? 49 8B F8", ResolveTargetDetour);
+        _getLosHook = Svc.Hook.HookFromAddress<ActionManager.Delegates.GetActionInRangeOrLoS>(ActionManager.Addresses.GetActionInRangeOrLoS.Value, GetActionInRangeDetour);
+        _canUse2Hook = Svc.Hook.HookFromSignature<CanUseAction2Delegate>("E8 ?? ?? ?? ?? 84 C0 0F 84 ?? ?? ?? ?? 80 7E 34 06", CanUseAction2Detour);
 
-        _callHandler = Svc.Hook.HookFromSignature<CallHandlerDelegate>("40 53 48 83 EC 40 48 8B 81 ?? ?? ?? ?? 48 8B DA", CallHandlerDetour);
-        //_callHandler.Enable();
+        //_useActionHook.Enable();
+        //_useActionLocationHook.Enable();
+        //_resolveTargetHook.Enable();
+        //_getLosHook.Enable();
+        //_canUse2Hook.Enable();
     }
 
-    private unsafe AtkValue* CallHandlerDetour(AtkExternalInterface* thisPtr, AtkValue* result, uint handlerIndex, uint valueCount, AtkValue* values)
+    public void Draw()
     {
-        if (handlerIndex == 51)
-            return null;
+    }
 
-        var handlersStart = thisPtr[3663].VirtualTable;
-        var handlersEnd = thisPtr[3664].VirtualTable;
-        var handlersLen = handlersEnd - handlersStart;
-        if (handlerIndex < handlersLen)
+    private bool UseActionDetour(ActionManager* thisPtr, ActionType actionType, uint actionId, ulong targetId, uint extraParam, ActionManager.UseActionMode mode, uint comboRouteId, bool* outOptAreaTargeted)
+    {
+        Svc.Log.Debug($"UseAction({actionType}, {actionId}, {targetId}, {extraParam}, {mode}, {comboRouteId}) = ...");
+        var result = _useActionHook.Original(thisPtr, actionType, actionId, targetId, extraParam, mode, comboRouteId, outOptAreaTargeted);
+        Svc.Log.Debug($"...{result}");
+        return result;
+    }
+
+    private bool UseActionLocationDetour(ActionManager* thisPtr, ActionType actionType, uint actionId, ulong targetId, Vector3* location, uint extraParam)
+    {
+        Svc.Log.Debug($"UseActionLocation({actionType}, {actionId}, {targetId}, {*location}, {extraParam}) = ...");
+        var result = _useActionLocationHook.Original(thisPtr, actionType, actionId, targetId, location, extraParam);
+        Svc.Log.Debug($"...{result}");
+        return result;
+    }
+
+    private GameObject* ResolveTargetDetour(ActionManager* thisPtr, uint spellId, byte* row, ulong targetId)
+    {
+        var tgt = _resolveTargetHook.Original(thisPtr, spellId, row, targetId);
+        Svc.Log.Debug($"ResolveTarget({spellId}, 0x{(nint)row:X}, {targetId:X}) = {(nint)tgt:X}");
+        if (tgt != null)
         {
-            var off = (nint)handlersStart + (handlerIndex * sizeof(nint));
-            var addr = (ulong*)off;
-            Svc.Log.Debug($"CallHandler({handlerIndex}) => {(uint)*addr:X}");
+            var id = tgt->GetGameObjectId();
+            Svc.Log.Debug($"target ID: {id.Id:X}");
         }
+        return tgt;
+    }
 
-        var res = _callHandler.Original(thisPtr, result, handlerIndex, valueCount, values);
-        return res;
+    private uint GetActionInRangeDetour(uint actionId, GameObject* src, GameObject* target)
+    {
+        var x = _getLosHook.Original(actionId, src, target);
+        Svc.Log.Debug($"GetActionInRangeOrLoS({actionId}, {(nint)src:X}, {(nint)target:X}) = {x}");
+        return x;
+    }
+
+    private char CanUseAction2Detour(uint actionId, byte* row, GameObject* target)
+    {
+        var result = _canUse2Hook.Original(actionId, row, target);
+        Svc.Log.Debug($"CanUseActionOnTarget2({actionId}, {(nint)row:X}, {(nint)target:X}) = {(byte)result}");
+        return result;
     }
 
     public void Dispose()
     {
-        _callHandler?.Dispose();
+        GC.SuppressFinalize(this);
+
+        _useActionHook.Dispose();
+        _useActionLocationHook.Dispose();
+        _resolveTargetHook.Dispose();
+        _getLosHook.Dispose();
+        _canUse2Hook.Dispose();
+        // cleanup hooks...
     }
 }

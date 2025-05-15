@@ -40,10 +40,14 @@ public abstract class GatherBase : AutoTask
     {
         await WaitWhile(() => !Utils.GatheringAddonReady(), "GatherStart");
 
-        var iters = 0;
-        while (Utils.GatheringIntegrityLeft() > 0)
+        while (Svc.Condition[ConditionFlag.Gathering])
         {
-            ErrorIf(iters++ > 50, "loop");
+            if (Utils.GatheringIntegrityLeft() == 0)
+            {
+                // node ran out, wait for addon to disappear or revisit to proc
+                await NextFrame(10);
+                continue;
+            }
             var itemId = getItem();
             if (itemId == null)
                 Utils.GatheringSelectFirst();
@@ -51,7 +55,6 @@ public abstract class GatherBase : AutoTask
                 Utils.GatheringSelectItem(itemId.Value);
             await WaitWhile(() => Svc.Condition[ConditionFlag.ExecutingGatheringAction], "GatherItemFinish");
         }
-        await WaitWhile(() => Svc.Condition[ConditionFlag.Gathering], "GatherFinish");
     }
 
     protected async Task DoNormalGather(uint itemId) => await DoNormalGather(() => itemId);

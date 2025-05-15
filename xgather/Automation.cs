@@ -145,11 +145,11 @@ public abstract class AutoTask
         await WaitWhile(Utils.PlayerIsBusy, $"{tag}Finish");
     }
 
-    protected async Task TeleportToZone(uint territoryId, Vector3 destination)
+    protected async Task TeleportToZone(uint territoryId, Vector3 destination, bool force = false)
     {
         var currentZone = Svc.ClientState.TerritoryType;
         var goalZone = territoryId;
-        if (goalZone == currentZone || (goalZone == 901 && currentZone == 939))
+        if (!force && (goalZone == currentZone || (goalZone == 901 && currentZone == 939)))
             return;
 
         ErrorIf(goalZone == 901, "Diadem teleportation not implemented yet");
@@ -167,7 +167,8 @@ public abstract class AutoTask
             success = UIState.Instance()->Telepo.Teleport(closest.GameAetheryte.RowId, 0);
         }
         ErrorIf(!success, $"Failed to teleport to {closest.GameAetheryte.RowId}");
-        await WaitForBusy("Teleport");
+        await WaitWhile(() => !Svc.Condition[ConditionFlag.BetweenAreas], "TeleportStart");
+        await WaitWhile(() => Svc.Condition[ConditionFlag.BetweenAreas], "TeleportFinish");
     }
 
     protected async Task WaitNavmesh()
@@ -195,7 +196,19 @@ public abstract class AutoTask
 
             bool shouldStop() => (interrupt?.Invoke() ?? false) || Utils.PlayerInRange(destination, tolerance);
 
-            await WaitWhile(() => !shouldStop(), "Navigate");
+            using var _ = BeginScope("Navigate");
+
+            while (!shouldStop())
+            {
+                // if grounded, we can dismount before reaching the target to save some time waiting for the dismount animation
+                if (dismount && Svc.Condition[ConditionFlag.Mounted] && !Svc.Condition[ConditionFlag.InFlight] && Utils.PlayerInRange(destination, tolerance + 9))
+                {
+                    await Dismount();
+                    dismount = false;
+                }
+
+                await NextFrame(10);
+            }
         }
 
         if (dismount)

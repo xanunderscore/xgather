@@ -90,7 +90,11 @@ internal static unsafe class Utils
     }
 
     public static (DateTime Start, DateTime End) GetNextAvailable(GatheringPointBase b) => GetNextAvailable(b.Nodes[0]);
-    public static unsafe bool PlayerIsBusy() => Svc.Condition[ConditionFlag.BetweenAreas] || Svc.Condition[ConditionFlag.Casting] || ActionManager.Instance()->AnimationLock > 0;
+    public static unsafe bool PlayerIsBusy()
+        => Svc.Condition[ConditionFlag.BetweenAreas]
+        || Svc.Condition[ConditionFlag.Casting]
+        || ActionManager.Instance()->AnimationLock > 0
+        || (Player() is var p && p != null && !p->GetIsTargetable());
 
     public static bool PlayerIsZiplining => Svc.Condition[ConditionFlag.Unknown101];
 

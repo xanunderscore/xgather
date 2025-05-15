@@ -24,14 +24,17 @@ public sealed class Plugin : IDalamudPlugin
     internal readonly Automation _auto = new();
 
     public bool RecordMode { get; set; } = false;
-    private Debug? Debug;
+    private readonly Debug? Debug;
 
     public Plugin(IDalamudPluginInterface pluginInterface, ICommandManager commandManager)
     {
         Svc.Init(this, pluginInterface);
 
+        if (Svc.IsDev)
+            Debug = new();
+
         MainWindow = new(new ItemSearch(_auto, Svc.Config.ItemSearchText), new Lists()) { IsOpen = Svc.Config.MainWindowOpen };
-        Overlay = new(_auto) { IsOpen = Svc.Config.OverlayOpen };
+        Overlay = new(_auto, Debug) { IsOpen = Svc.Config.OverlayOpen };
 
         WindowSystem.AddWindow(MainWindow);
         WindowSystem.AddWindow(Overlay);
@@ -43,8 +46,6 @@ public sealed class Plugin : IDalamudPlugin
         Svc.PluginInterface.UiBuilder.OpenConfigUi += () => MainWindow.IsOpen = true;
         Svc.PluginInterface.UiBuilder.OpenMainUi += () => Overlay.IsOpen = true;
         Svc.Framework.Update += Tick;
-
-        Debug = new();
     }
 
     public void Dispose()
@@ -57,6 +58,7 @@ public sealed class Plugin : IDalamudPlugin
         Svc.Framework.Update -= Tick;
         Svc.PluginInterface.UiBuilder.Draw -= DrawUI;
         Debug?.Dispose();
+        _auto.Dispose();
     }
 
     private void Gatherfish(string command, string args)
