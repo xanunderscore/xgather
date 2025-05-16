@@ -2,6 +2,7 @@ using Lumina.Excel.Sheets;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using xgather.Util;
 using GameAetheryte = Lumina.Excel.Sheets.Aetheryte;
 
 namespace xgather.GameData;

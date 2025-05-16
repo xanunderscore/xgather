@@ -1,5 +1,4 @@
 using Dalamud.Plugin.Ipc;
-using System.Collections.Generic;
 using System.Numerics;
 
 namespace xgather;
@@ -14,7 +13,6 @@ public static class IPCHelper
     private static readonly ICallGateSubscriber<bool> _pathfindInProgress;
     private static readonly ICallGateSubscriber<bool> _navmeshIsReady;
     private static readonly ICallGateSubscriber<uint> _pathfindQueue;
-    public static readonly ICallGateSubscriber<Dictionary<uint, uint>> _atoolsGetMissingItems;
 
     public static bool PathfindAndMoveTo(Vector3 dest, bool fly) => _pathfindAndMoveTo.InvokeFunc(dest, fly);
     public static void PathStop() => _pathStop.InvokeAction();
@@ -35,6 +33,5 @@ public static class IPCHelper
         _pathfindInProgress = Svc.PluginInterface.GetIpcSubscriber<bool>("vnavmesh.Nav.PathfindInProgress");
         _navmeshIsReady = Svc.PluginInterface.GetIpcSubscriber<bool>("vnavmesh.Nav.IsReady");
         _pathfindQueue = Svc.PluginInterface.GetIpcSubscriber<uint>("vnavmesh.Nav.PathfindNumQueued");
-        _atoolsGetMissingItems = Svc.PluginInterface.GetIpcSubscriber<Dictionary<uint, uint>>("AllaganTools.GetMissingItems");
     }
 }

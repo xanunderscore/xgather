@@ -5,6 +5,7 @@ using Lumina.Excel.Sheets;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using xgather.Util;
 using RouteId = int;
 
 namespace xgather;
@@ -66,7 +67,7 @@ public record struct TodoList(string? Name, Dictionary<uint, TodoItem> Items, bo
 public record struct TodoItem(uint ItemId, uint Required)
 {
     [JsonIgnore]
-    public readonly unsafe uint QuantityOwned => (uint)InventoryManager.Instance()->GetInventoryItemCount(ItemId, minCollectability: (short)Utils.GetMinCollectability(ItemId));
+    public readonly unsafe uint QuantityOwned => (uint)InventoryManager.Instance()->GetInventoryItemCount(ItemId, minCollectability: (short)Util.Util.GetMinCollectability(ItemId));
 
     [JsonIgnore]
     public readonly uint QuantityNeeded => QuantityOwned >= Required ? 0 : Required - QuantityOwned;

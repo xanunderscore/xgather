@@ -5,6 +5,7 @@ using Dalamud.Interface.Windowing;
 using ImGuiNET;
 using xgather.Tasks;
 using xgather.Tasks.Debug;
+using xgather.Util;
 
 namespace xgather.UI.Windows;
 
@@ -55,30 +56,36 @@ public class Overlay : Window
     private void DrawDebug()
     {
         ImGui.SameLine();
-        var hovermoon = false;
-        var hoverlist = false;
         using (ImRaii.Disabled(_auto.Running))
         {
             if (ImGuiComponents.IconButton(FontAwesomeIcon.Moon))
                 _auto.Start(new GatherMoon());
-            hovermoon = ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled);
+            if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+                ImGui.SetTooltip("Run current Cosmic Exploration mission");
+
             ImGui.SameLine();
             if (ImGuiComponents.IconButton(FontAwesomeIcon.ListUl))
             {
-                var missing = IPCHelper._atoolsGetMissingItems.InvokeFunc();
+                var missing = Reflection.GetMissingMaterialsList();
                 _auto.Start(new GatherMulti(missing));
             }
-            hoverlist = ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled);
+            if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+                ImGui.SetTooltip("Collect all missing items from active Inventory Tools crafting list");
+
             ImGui.SameLine();
             if (ImGuiComponents.IconButton(FontAwesomeIcon.Leaf))
                 _auto.Start(new GatherIsland());
-            if (ImGuiComponents.IconButton(FontAwesomeIcon.Bug))
-                _auto.Start(new TeleportMount());
+            if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+                ImGui.SetTooltip("Collect missing items for current and next cycle on Island Sanctuary (currently does nothing)");
+
+            if (Svc.IsDev)
+            {
+                ImGui.SameLine();
+                if (ImGuiComponents.IconButton(FontAwesomeIcon.Bug))
+                    _auto.Start(new TeleportMount());
+            }
         }
-        if (hovermoon)
-            ImGui.SetTooltip("Run current Cosmic Exploration mission");
-        if (hoverlist)
-            ImGui.SetTooltip("Collect all missing items from active Inventory Tools crafting list");
+
         _debugHelper?.Draw();
     }
 }

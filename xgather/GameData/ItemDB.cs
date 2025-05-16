@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using xgather.Util;
 using BaseId = uint;
 using DataId = uint;
 using ItemId = uint;

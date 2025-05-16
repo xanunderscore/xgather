@@ -10,6 +10,7 @@ using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
 using xgather.GameData;
+using xgather.Util;
 
 // copied from vsatisfy
 namespace xgather;
@@ -141,8 +142,8 @@ public abstract class AutoTask
 
     protected async Task WaitForBusy(string tag)
     {
-        await WaitWhile(() => !Utils.PlayerIsBusy(), $"{tag}Start");
-        await WaitWhile(Utils.PlayerIsBusy, $"{tag}Finish");
+        await WaitWhile(() => !Util.Util.PlayerIsBusy(), $"{tag}Start");
+        await WaitWhile(Util.Util.PlayerIsBusy, $"{tag}Finish");
     }
 
     protected async Task TeleportToZone(uint territoryId, Vector3 destination, bool force = false)
@@ -181,7 +182,7 @@ public abstract class AutoTask
 
     protected async Task MoveTo(Vector3 destination, float tolerance, bool mount = false, bool fly = false, bool dismount = false, Func<bool>? interrupt = null)
     {
-        if (Utils.PlayerInRange(destination, tolerance))
+        if (Util.Util.PlayerInRange(destination, tolerance))
             return;
 
         using var scope = BeginScope("MoveTo");
@@ -194,14 +195,14 @@ public abstract class AutoTask
             if (mount || fly)
                 await Mount();
 
-            bool shouldStop() => (interrupt?.Invoke() ?? false) || Utils.PlayerInRange(destination, tolerance);
+            bool shouldStop() => (interrupt?.Invoke() ?? false) || Util.Util.PlayerInRange(destination, tolerance);
 
             using var _ = BeginScope("Navigate");
 
             while (!shouldStop())
             {
                 // if grounded, we can dismount before reaching the target to save some time waiting for the dismount animation
-                if (dismount && Svc.Condition[ConditionFlag.Mounted] && !Svc.Condition[ConditionFlag.InFlight] && Utils.PlayerInRange(destination, tolerance + 9))
+                if (dismount && Svc.Condition[ConditionFlag.Mounted] && !Svc.Condition[ConditionFlag.InFlight] && Util.Util.PlayerInRange(destination, tolerance + 9))
                 {
                     await Dismount();
                     dismount = false;
@@ -229,8 +230,8 @@ public abstract class AutoTask
         if (Svc.Condition[ConditionFlag.Mounted])
             return;
 
-        await WaitWhile(Utils.PlayerIsBusy, "MountBusy");
-        ErrorIf(!Utils.UseAction(ActionType.GeneralAction, 9), "Failed to mount");
+        await WaitWhile(Util.Util.PlayerIsBusy, "MountBusy");
+        ErrorIf(!Util.Util.UseAction(ActionType.GeneralAction, 9), "Failed to mount");
         await WaitWhile(() => !Svc.Condition[ConditionFlag.Mounted], "Mounting");
         ErrorIf(!Svc.Condition[ConditionFlag.Mounted], "Failed to mount");
     }
@@ -243,15 +244,15 @@ public abstract class AutoTask
 
         if (Svc.Condition[ConditionFlag.InFlight])
         {
-            Utils.UseAction(ActionType.GeneralAction, 23);
+            Util.Util.UseAction(ActionType.GeneralAction, 23);
             await WaitWhile(() => Svc.Condition[ConditionFlag.InFlight], "WaitingToLand");
         }
         if (Svc.Condition[ConditionFlag.Mounted] && !Svc.Condition[ConditionFlag.InFlight])
         {
-            Utils.UseAction(ActionType.GeneralAction, 23);
+            Util.Util.UseAction(ActionType.GeneralAction, 23);
             await WaitWhile(() => Svc.Condition[ConditionFlag.Mounted], "WaitingToDismount");
         }
-        await WaitWhile(() => Utils.PlayerIsFalling, "WaitingToLand2");
+        await WaitWhile(() => Util.Util.PlayerIsFalling, "WaitingToLand2");
         ErrorIf(Svc.Condition[ConditionFlag.Mounted], "Failed to dismount");
     }
 
@@ -291,16 +292,16 @@ public abstract class AutoTask
 
     protected async Task UseCollectorsGlove()
     {
-        if (Utils.PlayerHasStatus(805))
+        if (Util.Util.PlayerHasStatus(805))
             return;
 
-        ErrorIf(!Utils.UseAction(ActionType.Action, 4101), "Unable to use Collector's Glove");
+        ErrorIf(!Util.Util.UseAction(ActionType.Action, 4101), "Unable to use Collector's Glove");
         await WaitForBusy("UseAction");
     }
 
     protected async Task WaitAddon(string name, int checkFrequency = 1)
     {
-        await WaitWhile(() => !Utils.IsAddonReady(name), $"Addon{name}", checkFrequency);
+        await WaitWhile(() => !Util.Util.IsAddonReady(name), $"Addon{name}", checkFrequency);
     }
 }
 

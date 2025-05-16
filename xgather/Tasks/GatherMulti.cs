@@ -2,6 +2,7 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using xgather.Util;
 
 namespace xgather.Tasks;
 
@@ -28,7 +29,7 @@ public class GatherMulti : GatherBase
         {
             await RunSubtask(new GatherItem(itemId, quantity), s =>
             {
-                Status = $"{s}\n{Utils.ItemName(itemId)}";
+                Status = $"{s}\n{Util.Util.ItemName(itemId)}";
             });
         }
     }

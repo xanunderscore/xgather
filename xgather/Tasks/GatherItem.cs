@@ -6,6 +6,7 @@ using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
 using xgather.GameData;
+using xgather.Util;
 
 namespace xgather.Tasks;
 
@@ -22,9 +23,9 @@ public class GatherItem : GatherBase
     public GatherItem(uint itemId, uint quantity)
     {
         this.itemId = itemId;
-        this.quantity = quantity + (uint)Utils.GetQuantityOwned(itemId);
+        this.quantity = quantity + (uint)Util.Util.GetQuantityOwned(itemId);
 
-        var it = Utils.Item(itemId);
+        var it = Util.Util.Item(itemId);
         IsFishing = it.ItemUICategory.RowId == 47; // 47 = seafood
         IsCollectable = it.IsCollectable;
     }
@@ -32,7 +33,7 @@ public class GatherItem : GatherBase
     protected override async Task Execute()
     {
         var needed = GetQuantityNeeded();
-        Log($"Gathering {needed}x {Utils.ItemName(itemId)}");
+        Log($"Gathering {needed}x {Util.Util.ItemName(itemId)}");
 
         if (needed == 0)
             return;
@@ -123,11 +124,11 @@ public class GatherItem : GatherBase
     {
         using var scope = BeginScope("GatherAtPoint");
 
-        Status = $"Gathering {Utils.ItemName(itemId)} at {obj.Position}";
+        Status = $"Gathering {Util.Util.ItemName(itemId)} at {obj.Position}";
 
         _lastPoint = obj.Position;
         if (!Svc.Condition[ConditionFlag.Unknown85])
-            Utils.InteractWithObject(obj);
+            Util.Util.InteractWithObject(obj);
 
         if (IsFishing)
             await DoSpearfish();
@@ -139,7 +140,7 @@ public class GatherItem : GatherBase
 
     private async Task DoSpearfish()
     {
-        await WaitWhile(() => !Utils.IsAddonReady("SpearFishing"), "FishStart");
+        await WaitWhile(() => !Util.Util.IsAddonReady("SpearFishing"), "FishStart");
 
         // assuming autohook
         await WaitWhile(() => Svc.Condition[ConditionFlag.Unknown85], "FishFinish");
@@ -147,7 +148,7 @@ public class GatherItem : GatherBase
 
     private unsafe uint GetQuantityNeeded()
     {
-        var owned = Utils.GetQuantityOwned(itemId);
+        var owned = Util.Util.GetQuantityOwned(itemId);
         return (uint)Math.Max(0, quantity - owned);
     }
 }

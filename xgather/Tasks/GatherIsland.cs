@@ -59,7 +59,7 @@ public class GatherIsland : AutoTask
             if (MJIManager.Instance()->CurrentMode == 1)
                 return;
 
-            var hud = Utils.GetAddonByName("MJIHud");
+            var hud = Util.Util.GetAddonByName("MJIHud");
             var hv = stackalloc AtkValue[2];
             hv[0].Type = ValueType.Int;
             hv[0].Int = 11;

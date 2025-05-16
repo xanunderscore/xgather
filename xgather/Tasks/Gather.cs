@@ -4,6 +4,7 @@ using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using System;
 using System.Numerics;
 using System.Threading.Tasks;
+using xgather.Util;
 
 namespace xgather.Tasks;
 
@@ -22,9 +23,9 @@ public abstract class GatherBase : AutoTask
         };
 
         ErrorIf(actionId == 0, "Current job has no survey action");
-        ErrorIf(!Utils.UseAction(ActionType.Action, (uint)actionId), "Unable to use survey action");
+        ErrorIf(!Util.Util.UseAction(ActionType.Action, (uint)actionId), "Unable to use survey action");
 
-        await WaitWhile(() => !Utils.PlayerHasStatus(statusId), "Survey");
+        await WaitWhile(() => !Util.Util.PlayerHasStatus(statusId), "Survey");
 
         unsafe
         {
@@ -38,11 +39,11 @@ public abstract class GatherBase : AutoTask
 
     protected async Task DoNormalGather(Func<uint?> getItem)
     {
-        await WaitWhile(() => !Utils.IsGatheringAddonReady(), "GatherStart");
+        await WaitWhile(() => !Util.Util.IsGatheringAddonReady(), "GatherStart");
 
         while (Svc.Condition[ConditionFlag.Gathering])
         {
-            if (Utils.GatheringIntegrityLeft() == 0)
+            if (Util.Util.GatheringIntegrityLeft() == 0)
             {
                 // node ran out, wait for addon to disappear or revisit to proc
                 await NextFrame(10);
@@ -50,9 +51,9 @@ public abstract class GatherBase : AutoTask
             }
             var itemId = getItem();
             if (itemId == null)
-                Utils.GatheringSelectFirst();
+                Util.Util.GatheringSelectFirst();
             else
-                Utils.GatheringSelectItem(itemId.Value);
+                Util.Util.GatheringSelectItem(itemId.Value);
             await WaitWhile(() => Svc.Condition[ConditionFlag.ExecutingGatheringAction], "GatherItemFinish");
         }
     }
@@ -61,8 +62,8 @@ public abstract class GatherBase : AutoTask
 
     protected async Task DoCollectableGather(Func<uint> getItem)
     {
-        await WaitWhile(() => !Utils.IsGatheringAddonReady(), "GatherStart");
-        Utils.GatheringSelectItem(getItem());
+        await WaitWhile(() => !Util.Util.IsGatheringAddonReady(), "GatherStart");
+        Util.Util.GatheringSelectItem(getItem());
 
         await WaitAddon("GatheringMasterpiece");
 

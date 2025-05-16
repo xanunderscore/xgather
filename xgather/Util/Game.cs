@@ -12,9 +12,9 @@ using System.Linq;
 using System.Numerics;
 using xgather.GameData;
 
-namespace xgather;
+namespace xgather.Util;
 
-internal static unsafe class Utils
+internal static unsafe partial class Util
 {
     public static bool IsGatherer => Svc.Player?.ClassJob.RowId is 16 or 17 or 18;
 
@@ -70,8 +70,8 @@ internal static unsafe class Utils
         var (startHr, startMin) = (EorzeaMinStart / 100, EorzeaMinStart % 100);
         var (endHr, endMin) = (EorzeaMinEnd / 100, EorzeaMinEnd % 100);
 
-        var realStartMin = (startHr * 60) + startMin;
-        var realEndMin = (endHr * 60) + endMin;
+        var realStartMin = startHr * 60 + startMin;
+        var realEndMin = endHr * 60 + endMin;
 
         if (realEndMin < realStartMin)
             realEndMin += Timestamp.MinPerDay;
@@ -95,7 +95,7 @@ internal static unsafe class Utils
         => Svc.Condition[ConditionFlag.BetweenAreas]
         || Svc.Condition[ConditionFlag.Casting]
         || ActionManager.Instance()->AnimationLock > 0
-        || (Player() is var p && p != null && !p->GetIsTargetable());
+        || Player() is var p && p != null && !p->GetIsTargetable();
 
     public static bool PlayerIsZiplining => Svc.Condition[ConditionFlag.Unknown101];
 
@@ -185,7 +185,7 @@ internal static unsafe class Utils
 
     public static Vector2 Rotate120Degrees(Vector2 input)
     {
-        return new((input.X * Cos120) - (input.Y * Sin120), (input.X * Sin120) + (input.Y * Cos120));
+        return new(input.X * Cos120 - input.Y * Sin120, input.X * Sin120 + input.Y * Cos120);
     }
 
     public static int GetQuantityOwned(uint itemId) => InventoryManager.Instance()->GetInventoryItemCount(itemId, minCollectability: (short)GetMinCollectability(itemId));
@@ -216,7 +216,7 @@ internal static class GPBaseExt
         };
 }
 
-internal readonly record struct OnDispose(System.Action a) : IDisposable
+internal readonly record struct OnDispose(Action a) : IDisposable
 {
     public void Dispose() => a();
 }
