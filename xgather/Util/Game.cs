@@ -12,7 +12,7 @@ using System.Linq;
 using System.Numerics;
 using xgather.GameData;
 
-namespace xgather.Util;
+namespace xgather;
 
 internal static unsafe partial class Util
 {
@@ -95,7 +95,7 @@ internal static unsafe partial class Util
         => Svc.Condition[ConditionFlag.BetweenAreas]
         || Svc.Condition[ConditionFlag.Casting]
         || ActionManager.Instance()->AnimationLock > 0
-        || Player() is var p && p != null && !p->GetIsTargetable();
+        || (Player() is var p && p != null && !p->GetIsTargetable());
 
     public static bool PlayerIsZiplining => Svc.Condition[ConditionFlag.Unknown101];
 
@@ -111,6 +111,8 @@ internal static unsafe partial class Util
     }
 
     public static unsafe bool UseAction(ActionType actionType, uint actionId) => ActionManager.Instance()->UseAction(actionType, actionId);
+
+    public static unsafe uint GetActionStatus(ActionType actionType, uint actionId) => ActionManager.Instance()->GetActionStatus(actionType, actionId);
 
     public static unsafe void InteractWithObject(IGameObject obj) => TargetSystem.Instance()->OpenObjectInteraction((GameObject*)obj.Address);
 
@@ -183,10 +185,7 @@ internal static unsafe partial class Util
     public const float Cos120 = -0.5f;
     public const float Sin120 = 0.8660254f;
 
-    public static Vector2 Rotate120Degrees(Vector2 input)
-    {
-        return new(input.X * Cos120 - input.Y * Sin120, input.X * Sin120 + input.Y * Cos120);
-    }
+    public static Vector2 Rotate120Degrees(Vector2 input) => new((input.X * Cos120) - (input.Y * Sin120), (input.X * Sin120) + (input.Y * Cos120));
 
     public static int GetQuantityOwned(uint itemId) => InventoryManager.Instance()->GetInventoryItemCount(itemId, minCollectability: (short)GetMinCollectability(itemId));
 }

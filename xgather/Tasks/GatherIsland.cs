@@ -5,9 +5,7 @@ using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using FFXIVClientStructs.Interop;
 using FFXIVClientStructs.STD;
-using Lumina.Excel.Sheets;
 using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using ValueType = FFXIVClientStructs.FFXIV.Component.GUI.ValueType;
@@ -20,6 +18,7 @@ public class GatherIsland : AutoTask
     {
         ErrorIf(!IsleUtils.OnIsland(), "Not on Island Sanctuary");
 
+        /*
         if (!IsleUtils.IsScheduleOpen())
         {
             IsleUtils.ToggleCraftSchedule();
@@ -43,13 +42,20 @@ public class GatherIsland : AutoTask
             return;
         }
 
-        await SetGatherMode();
-
         foreach (var (k, v) in needed)
         {
             var name = Svc.ExcelRow<MJIItemPouch>((uint)k).Item.Value.Name;
             Log($"Gathering {v}x {name}");
         }
+        */
+
+        await SetGatherMode();
+
+        //foreach (var (pointType, _) in Svc.ItemDB.IslandGatherPointsByType)
+        //{
+        //    Status = $"Next: {pointType.Name}";
+        //    await MoveTo(pointType.Position, 3, mount: true, dismount: true);
+        //}
     }
 
     private async Task SetGatherMode()
@@ -59,7 +65,7 @@ public class GatherIsland : AutoTask
             if (MJIManager.Instance()->CurrentMode == 1)
                 return;
 
-            var hud = Util.Util.GetAddonByName("MJIHud");
+            var hud = Util.GetAddonByName("MJIHud");
             var hv = stackalloc AtkValue[2];
             hv[0].Type = ValueType.Int;
             hv[0].Int = 11;

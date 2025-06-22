@@ -21,7 +21,7 @@ public sealed class Plugin : IDalamudPlugin
     internal MainWindow MainWindow { get; init; }
     private Overlay Overlay { get; init; }
 
-    internal readonly Automation _auto = new();
+    internal readonly Automation _auto;
 
     public bool RecordMode { get; set; } = false;
     private readonly Debug? Debug;
@@ -29,6 +29,8 @@ public sealed class Plugin : IDalamudPlugin
     public Plugin(IDalamudPluginInterface pluginInterface, ICommandManager commandManager)
     {
         Svc.Init(this, pluginInterface);
+
+        _auto = new();
 
         if (Svc.IsDev)
             Debug = new();

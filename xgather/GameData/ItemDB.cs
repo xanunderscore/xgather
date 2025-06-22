@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using xgather.Util;
 using BaseId = uint;
 using DataId = uint;
 using ItemId = uint;
@@ -53,14 +52,17 @@ internal class ItemDatabaseManager(IDalamudPluginInterface pluginInterface)
 
     public ItemDatabase OpenOrCreate()
     {
+        ItemDatabase db;
         try
         {
-            return Json.Deserialize<ItemDatabase>(GetDatabaseFile());
+            db = Json.Deserialize<ItemDatabase>(GetDatabaseFile());
         }
         catch (FileNotFoundException)
         {
-            return Create();
+            db = Create();
         }
+        db.Initialize();
+        return db;
     }
 
     public ItemDatabase Create()
@@ -93,11 +95,20 @@ public record class NodeLocation(
     Vector3? Floor = null
 );
 
+public record class IslandGatherPoint(
+    uint NameId,
+    string Name,
+    ulong ObjectId,
+    Vector3 Position
+);
+
 public class ItemDatabase
 {
     public readonly Dictionary<BaseId, GatheringPointBase> Groups = [];
     public readonly Dictionary<ItemId, HashSet<BaseId>> ItemIdGroupLookup = [];
     public readonly Dictionary<string, NodeLocation> KnownNodes = [];
+    public readonly Dictionary<ulong, IslandGatherPoint> IslandGatherPoints = [];
+    public readonly Dictionary<uint, List<IslandGatherPoint>> IslandGatherPointsByType = [];
 
     public bool CanGather(ItemId id) => GetGatherPointGroupsForItem(id).Any();
 
@@ -192,6 +203,17 @@ public class ItemDatabase
             );
 
             Groups.Add(group.Key, groupBase);
+        }
+    }
+
+    public void Initialize()
+    {
+        IslandGatherPointsByType.Clear();
+
+        foreach (var (_, point) in IslandGatherPoints)
+        {
+            IslandGatherPointsByType.TryAdd(point.NameId, []);
+            IslandGatherPointsByType[point.NameId].Add(point);
         }
     }
 }

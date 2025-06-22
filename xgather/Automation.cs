@@ -10,7 +10,6 @@ using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
 using xgather.GameData;
-using xgather.Util;
 
 // copied from vsatisfy
 namespace xgather;
@@ -83,6 +82,8 @@ public abstract class AutoTask
     // implementations are typically expected to be async (coroutines)
     protected abstract Task Execute();
 
+    public virtual void DrawDebug() { }
+
     // run another AutoTask, it inherits our cancellation token and we inherit its status
     protected async Task RunSubtask(AutoTask t, Action<string>? onStatusChange = null)
     {
@@ -131,19 +132,23 @@ public abstract class AutoTask
     private readonly ICallGateSubscriber<float> _navBuildProgress = Svc.PluginInterface.GetIpcSubscriber<float>("vnavmesh.Nav.BuildProgress");
     private readonly ICallGateSubscriber<bool> _navIsReady = Svc.PluginInterface.GetIpcSubscriber<bool>("vnavmesh.Nav.IsReady");
     private readonly ICallGateSubscriber<Vector3, bool, bool> _navPathfindAndMoveTo = Svc.PluginInterface.GetIpcSubscriber<Vector3, bool, bool>("vnavmesh.SimpleMove.PathfindAndMoveTo");
+    private readonly ICallGateSubscriber<List<Vector3>, bool, object> _navPathMoveTo = Svc.PluginInterface.GetIpcSubscriber<List<Vector3>, bool, object>("vnavmesh.Path.MoveTo");
     private readonly ICallGateSubscriber<bool> _navPathfindInProgress = Svc.PluginInterface.GetIpcSubscriber<bool>("vnavmesh.SimpleMove.PathfindInProgress");
     private readonly ICallGateSubscriber<object> _navStop = Svc.PluginInterface.GetIpcSubscriber<object>("vnavmesh.Path.Stop");
+    private readonly ICallGateSubscriber<bool> _navPathIsRunning = Svc.PluginInterface.GetIpcSubscriber<bool>("vnavmesh.Path.IsRunning");
 
     protected bool NavIsReady() => _navIsReady.InvokeFunc();
     protected float NavBuildProgress() => _navBuildProgress.InvokeFunc();
-    protected bool PathMove(Vector3 dest, bool fly = false) => _navPathfindAndMoveTo.InvokeFunc(dest, fly);
+    protected bool PathfindAndMoveTo(Vector3 dest, bool fly = false) => _navPathfindAndMoveTo.InvokeFunc(dest, fly);
+    protected void PathMoveTo(Vector3 dest, bool fly = false) => _navPathMoveTo.InvokeAction([dest], fly);
     protected void NavStop() => _navStop.InvokeAction();
     protected bool PathInProgress() => _navPathfindInProgress.InvokeFunc();
+    protected bool PathIsRunning() => _navPathIsRunning.InvokeFunc();
 
     protected async Task WaitForBusy(string tag)
     {
-        await WaitWhile(() => !Util.Util.PlayerIsBusy(), $"{tag}Start");
-        await WaitWhile(Util.Util.PlayerIsBusy, $"{tag}Finish");
+        await WaitWhile(() => !Util.PlayerIsBusy(), $"{tag}Start");
+        await WaitWhile(Util.PlayerIsBusy, $"{tag}Finish");
     }
 
     protected async Task TeleportToZone(uint territoryId, Vector3 destination, bool force = false)
@@ -180,35 +185,62 @@ public abstract class AutoTask
         await WaitWhile(PathInProgress, "PathfindInProgress");
     }
 
+    protected async Task MoveDirectlyTo(Vector3 destination, float tolerance)
+    {
+        if (Util.PlayerInRange(destination, tolerance))
+            return;
+
+        using var scope = BeginScope("MoveDirect");
+        await WaitNavmesh();
+
+        using (new OnDispose(NavStop))
+        {
+            Status = $"Moving directly to {destination}";
+            PathMoveTo(destination);
+            await WaitWhile(() => !Util.PlayerInRange(destination, tolerance), "RawMove");
+        }
+    }
+
     protected async Task MoveTo(Vector3 destination, float tolerance, bool mount = false, bool fly = false, bool dismount = false, Func<bool>? interrupt = null)
     {
-        if (Util.Util.PlayerInRange(destination, tolerance))
+        if (Util.PlayerInRange(destination, tolerance))
             return;
 
         using var scope = BeginScope("MoveTo");
         await WaitNavmesh();
-        ErrorIf(!PathMove(destination, fly), "Failed to start pathfind");
-        Status = $"Moving to {destination}";
+
+        var navRetries = 0;
+
+        bool shouldStop() => (interrupt?.Invoke() ?? false) || Util.PlayerInRange(destination, tolerance);
 
         using (new OnDispose(NavStop))
         {
+        nav_start:
+            ErrorIf(navRetries > 1000, "too many retries, giving up");
+
+            ErrorIf(!PathfindAndMoveTo(destination, fly), "Failed to start pathfind");
+            Status = $"Moving to {destination}";
+
             if (mount || fly)
                 await Mount();
-
-            bool shouldStop() => (interrupt?.Invoke() ?? false) || Util.Util.PlayerInRange(destination, tolerance);
-
-            using var _ = BeginScope("Navigate");
 
             while (!shouldStop())
             {
                 // if grounded, we can dismount before reaching the target to save some time waiting for the dismount animation
-                if (dismount && Svc.Condition[ConditionFlag.Mounted] && !Svc.Condition[ConditionFlag.InFlight] && Util.Util.PlayerInRange(destination, tolerance + 9))
+                if (dismount && Svc.Condition[ConditionFlag.Mounted] && !Svc.Condition[ConditionFlag.InFlight] && Util.PlayerInRange(destination, tolerance + 9))
                 {
                     await Dismount();
                     dismount = false;
                 }
 
                 await NextFrame(10);
+
+                // pathfind was canceled somehow
+                if (!PathIsRunning() && !PathInProgress())
+                {
+                    navRetries++;
+                    goto nav_start; // C# does not have labeled break
+                }
             }
         }
 
@@ -230,8 +262,9 @@ public abstract class AutoTask
         if (Svc.Condition[ConditionFlag.Mounted])
             return;
 
-        await WaitWhile(Util.Util.PlayerIsBusy, "MountBusy");
-        ErrorIf(!Util.Util.UseAction(ActionType.GeneralAction, 9), "Failed to mount");
+        await WaitWhile(Util.PlayerIsBusy, "MountBusy");
+        ErrorIf(Util.GetActionStatus(ActionType.GeneralAction, 9) != 0, "Mount unavailable here");
+        Util.UseAction(ActionType.GeneralAction, 9);
         await WaitWhile(() => !Svc.Condition[ConditionFlag.Mounted], "Mounting");
         ErrorIf(!Svc.Condition[ConditionFlag.Mounted], "Failed to mount");
     }
@@ -244,15 +277,15 @@ public abstract class AutoTask
 
         if (Svc.Condition[ConditionFlag.InFlight])
         {
-            Util.Util.UseAction(ActionType.GeneralAction, 23);
+            Util.UseAction(ActionType.GeneralAction, 23);
             await WaitWhile(() => Svc.Condition[ConditionFlag.InFlight], "WaitingToLand");
         }
         if (Svc.Condition[ConditionFlag.Mounted] && !Svc.Condition[ConditionFlag.InFlight])
         {
-            Util.Util.UseAction(ActionType.GeneralAction, 23);
+            Util.UseAction(ActionType.GeneralAction, 23);
             await WaitWhile(() => Svc.Condition[ConditionFlag.Mounted], "WaitingToDismount");
         }
-        await WaitWhile(() => Util.Util.PlayerIsFalling, "WaitingToLand2");
+        await WaitWhile(() => Util.PlayerIsFalling, "WaitingToLand2");
         ErrorIf(Svc.Condition[ConditionFlag.Mounted], "Failed to dismount");
     }
 
@@ -292,16 +325,25 @@ public abstract class AutoTask
 
     protected async Task UseCollectorsGlove()
     {
-        if (Util.Util.PlayerHasStatus(805))
+        if (Util.PlayerHasStatus(805))
             return;
 
-        ErrorIf(!Util.Util.UseAction(ActionType.Action, 4101), "Unable to use Collector's Glove");
+        ErrorIf(!Util.UseAction(ActionType.Action, 4101), "Unable to use Collector's Glove");
         await WaitForBusy("UseAction");
     }
 
     protected async Task WaitAddon(string name, int checkFrequency = 1)
     {
-        await WaitWhile(() => !Util.Util.IsAddonReady(name), $"Addon{name}", checkFrequency);
+        await WaitWhile(() => !Util.IsAddonReady(name), $"Addon{name}", checkFrequency);
+    }
+
+    protected async Task WaitSelectYes(int checkFrequency = 1)
+    {
+        await WaitAddon("SelectYesno");
+        unsafe
+        {
+            Util.GetAddonByName("SelectYesno")->FireCallbackInt(0);
+        }
     }
 }
 
@@ -315,12 +357,15 @@ public sealed class Automation : IDisposable
 
     public void Dispose() => Stop();
 
+    private HashSet<string>? _yesAlreadyBlock = Svc.PluginInterface.GetData<HashSet<string>>("YesAlready.StopRequests");
+
     // stop executing any running task
     // this requires tasks to cooperate by checking the token
     public void Stop()
     {
         CurrentTask?.Cancel();
         CurrentTask = null;
+        _yesAlreadyBlock?.Remove("xgather");
     }
 
     // if any other task is running, it's cancelled
@@ -328,8 +373,10 @@ public sealed class Automation : IDisposable
     {
         Stop();
         CurrentTask = task;
+        _yesAlreadyBlock?.Add("xgather");
         task.Run((exc) =>
         {
+            _yesAlreadyBlock?.Remove("xgather");
             LastError = exc;
             if (CurrentTask == task)
                 CurrentTask = null;

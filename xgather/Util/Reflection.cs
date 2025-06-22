@@ -2,7 +2,7 @@ using Dalamud.Plugin;
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace xgather.Util;
+namespace xgather;
 
 public static class Reflection
 {

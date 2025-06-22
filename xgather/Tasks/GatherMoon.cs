@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
-using xgather.Util;
+
 
 namespace xgather.Tasks;
 
@@ -95,17 +95,17 @@ internal class GatherMoon : GatherBase
         Status = $"Gathering at {obj.Position}";
 
         if (!Svc.Condition[ConditionFlag.Unknown85])
-            Util.Util.InteractWithObject(obj);
+            Util.InteractWithObject(obj);
 
         await DoNormalGather(GetNeededItem);
     }
 
     private async Task DoCollectableGather()
     {
-        await WaitWhile(() => !Util.Util.IsGatheringAddonReady(), "GatherStart");
-        Util.Util.GatheringSelectFirst();
+        await WaitWhile(() => !Util.IsGatheringAddonReady(), "GatherStart");
+        Util.GatheringSelectFirst();
 
-        await WaitWhile(() => !Util.Util.IsAddonReady("GatheringMasterpiece"), "GatherStart");
+        await WaitWhile(() => !Util.IsAddonReady("GatheringMasterpiece"), "GatherStart");
 
         Error("Collectables gathering isn't implemented!");
     }

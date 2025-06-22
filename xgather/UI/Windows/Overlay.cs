@@ -5,7 +5,7 @@ using Dalamud.Interface.Windowing;
 using ImGuiNET;
 using xgather.Tasks;
 using xgather.Tasks.Debug;
-using xgather.Util;
+
 
 namespace xgather.UI.Windows;
 
@@ -80,12 +80,19 @@ public class Overlay : Window
 
             if (Svc.IsDev)
             {
-                ImGui.SameLine();
                 if (ImGuiComponents.IconButton(FontAwesomeIcon.Bug))
                     _auto.Start(new TeleportMount());
+
+                if (Svc.ClientState.TerritoryType == 1252)
+                {
+                    ImGui.SameLine();
+                    if (ImGuiComponents.IconButton(FontAwesomeIcon.BoxOpen))
+                        _auto.Start(new OccultTreasure());
+                }
             }
         }
 
         _debugHelper?.Draw();
+        _auto.CurrentTask?.DrawDebug();
     }
 }
