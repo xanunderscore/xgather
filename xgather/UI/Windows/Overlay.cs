@@ -45,7 +45,7 @@ public class Overlay : Window
 
     public override void Draw()
     {
-        ImGui.TextUnformatted($"Status: {_auto.CurrentTask?.Status ?? "idle"}");
+        ImGui.TextUnformatted($"Status: {_auto.CurrentTask?.ContextString ?? "idle"}");
         using (ImRaii.Disabled(!_auto.Running))
             if (ImGui.Button("Stop"))
                 _auto.Stop();

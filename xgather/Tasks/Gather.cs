@@ -11,8 +11,7 @@ public abstract class GatherBase : AutoTask
 {
     protected async Task<Vector2> Survey()
     {
-        Status = "Searching for point";
-
+        using var _ = BeginScope("Survey");
         var (actionId, statusId) = Svc.Player?.ClassJob.RowId switch
         {
             16 => (228, 234), // lay of the land

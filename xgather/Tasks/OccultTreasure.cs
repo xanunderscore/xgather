@@ -204,7 +204,8 @@ public class OccultTreasure : AutoTask
 
     private async Task Return()
     {
-        Status = "Returning";
+        using var _ = BeginScope("OccultReturn");
+
         ErrorIf(Svc.ExcelRow<Lumina.Excel.Sheets.TerritoryType>(Svc.ClientState.TerritoryType).TerritoryIntendedUse.RowId != 61, "Occult Return not usable here");
 
         await WaitWhile(Util.PlayerIsBusy, "WaitBusy");

@@ -26,11 +26,6 @@ public class GatherMulti : GatherBase
     protected override async Task Execute()
     {
         foreach (var (itemId, quantity) in Items)
-        {
-            await RunSubtask(new GatherItem(itemId, quantity), s =>
-            {
-                Status = $"{s}\n{Util.ItemName(itemId)}";
-            });
-        }
+            await RunSubtask(new GatherItem(itemId, quantity));
     }
 }

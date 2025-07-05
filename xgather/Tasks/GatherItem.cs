@@ -122,9 +122,7 @@ public class GatherItem : GatherBase
 
     private async Task DoGather(IGameObject obj)
     {
-        using var scope = BeginScope("GatherAtPoint");
-
-        Status = $"Gathering {Util.ItemName(itemId)} at {obj.Position}";
+        using var scope = BeginScope($"Gathering {Util.ItemName(itemId)}");
 
         _lastPoint = obj.Position;
         if (!Svc.Condition[ConditionFlag.Unknown85])

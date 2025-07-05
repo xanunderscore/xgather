@@ -92,8 +92,6 @@ internal class GatherMoon : GatherBase
 
         ErrorIf(!obj.IsTargetable, "Gather point disappeared!");
 
-        Status = $"Gathering at {obj.Position}";
-
         if (!Svc.Condition[ConditionFlag.Unknown85])
             Util.InteractWithObject(obj);
 

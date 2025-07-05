@@ -49,21 +49,9 @@ public abstract class AutoTask
         }
     }
 
-    public string Status
-    {
-        get => _status;
-        protected set
-        {
-            _status = value;
-            OnStatusChange.Invoke(value);
-        }
-    }
-    private string _status = "";
     private CancellationTokenSource cts = new();
     private readonly List<string> debugContext = [];
     public string ContextString => string.Join(" > ", debugContext);
-
-    private event Action<string> OnStatusChange = delegate { };
 
     public void Cancel() => cts.Cancel();
 
@@ -86,12 +74,11 @@ public abstract class AutoTask
     public virtual void DrawDebug() { }
 
     // run another AutoTask, it inherits our cancellation token and we inherit its status
-    protected async Task RunSubtask(AutoTask t, Action<string>? onStatusChange = null)
+    protected async Task RunSubtask(AutoTask t)
     {
         t.cts = cts;
-        if (onStatusChange != null)
-            t.OnStatusChange = onStatusChange;
-        await t.Execute();
+        using (BeginScope($"Run {t.GetType()}"))
+            await t.Execute();
     }
 
     protected CancellationToken CancelToken => cts.Token;
@@ -166,8 +153,6 @@ public abstract class AutoTask
         var closest = AetheryteDatabase.Closest(goalZone, destination);
         ErrorIf(closest == null, $"No aetheryte near zone {goalZone}");
 
-        Status = "Teleporting";
-
         bool success;
         unsafe
         {
@@ -180,7 +165,6 @@ public abstract class AutoTask
 
     protected async Task WaitNavmesh()
     {
-        Status = "Waiting for Navmesh";
         await WaitWhile(() => NavBuildProgress() >= 0, "BuildMesh");
         ErrorIf(!NavIsReady(), "Failed to build navmesh");
         await WaitWhile(PathInProgress, "PathfindInProgress");
@@ -196,7 +180,6 @@ public abstract class AutoTask
 
         using (new OnDispose(NavStop))
         {
-            Status = $"Moving directly to {destination}";
             PathMoveTo(destination);
             await WaitWhile(() => !Util.PlayerInRange(destination, tolerance), "RawMove");
         }
@@ -220,7 +203,6 @@ public abstract class AutoTask
             ErrorIf(navRetries > 1000, "too many retries, giving up");
 
             ErrorIf(!PathfindAndMoveTo(destination, fly), "Failed to start pathfind");
-            Status = $"Moving to {destination}";
 
             if (mount || fly)
                 await Mount();
