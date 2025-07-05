@@ -147,7 +147,7 @@ public sealed class Plugin : IDalamudPlugin
         WindowSystem.Draw();
     }
 
-    private void Tick(IFramework framework)
+    private unsafe void Tick(IFramework framework)
     {
         if (RecordMode)
             foreach (

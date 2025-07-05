@@ -61,6 +61,7 @@ public abstract class AutoTask
     private string _status = "";
     private CancellationTokenSource cts = new();
     private readonly List<string> debugContext = [];
+    public string ContextString => string.Join(" > ", debugContext);
 
     private event Action<string> OnStatusChange = delegate { };
 
@@ -339,7 +340,7 @@ public abstract class AutoTask
 
     protected async Task WaitSelectYes(int checkFrequency = 1)
     {
-        await WaitAddon("SelectYesno");
+        await WaitAddon("SelectYesno", checkFrequency);
         unsafe
         {
             Util.GetAddonByName("SelectYesno")->FireCallbackInt(0);
@@ -357,7 +358,7 @@ public sealed class Automation : IDisposable
 
     public void Dispose() => Stop();
 
-    private HashSet<string>? _yesAlreadyBlock = Svc.PluginInterface.GetData<HashSet<string>>("YesAlready.StopRequests");
+    private HashSet<string>? _yesAlreadyBlock;
 
     // stop executing any running task
     // this requires tasks to cooperate by checking the token
@@ -371,6 +372,8 @@ public sealed class Automation : IDisposable
     // if any other task is running, it's cancelled
     public void Start(AutoTask task)
     {
+        if (_yesAlreadyBlock == null)
+            Svc.PluginInterface.TryGetData("YesAlready.StopRequests", out _yesAlreadyBlock);
         Stop();
         CurrentTask = task;
         _yesAlreadyBlock?.Add("xgather");

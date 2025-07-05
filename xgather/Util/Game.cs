@@ -94,6 +94,7 @@ internal static unsafe partial class Util
     public static unsafe bool PlayerIsBusy()
         => Svc.Condition[ConditionFlag.BetweenAreas]
         || Svc.Condition[ConditionFlag.Casting]
+        || Svc.Condition[ConditionFlag.InCombat]
         || ActionManager.Instance()->AnimationLock > 0
         || (Player() is var p && p != null && !p->GetIsTargetable());
 
@@ -117,6 +118,9 @@ internal static unsafe partial class Util
     public static unsafe void InteractWithObject(IGameObject obj) => TargetSystem.Instance()->OpenObjectInteraction((GameObject*)obj.Address);
 
     public static unsafe AtkUnitBase* GetAddonByName(string name) => RaptureAtkUnitManager.Instance()->GetAddonByName(name);
+
+    public static uint GetLayoutId(IGameObject obj) => ((GameObject*)obj.Address)->LayoutId;
+    public static bool IsTreasureOpen(IGameObject obj) => ((Treasure*)obj.Address)->Flags.HasFlag(Treasure.TreasureFlags.Opened);
 
     public static unsafe bool IsAddonReady(string name)
     {

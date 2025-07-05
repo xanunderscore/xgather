@@ -1,9 +1,9 @@
 using Dalamud.Game.ClientState.Conditions;
+using Dalamud.Game.ClientState.Objects.Types;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using ImGuiNET;
 using Lumina.Data.Files;
-using Lumina.Excel.Sheets;
 using Lumina.Extensions;
 using System.Collections.Generic;
 using System.IO;
@@ -98,22 +98,20 @@ public class OccultTreasure : AutoTask
     {
         using var _ = BeginScope($"Opening {label} #{order} at {c.Position}");
 
-        await MoveTo(c.Position, 2.1f, mount: true, dismount: false);
+        IGameObject? findCoffer()
+        {
+            var coffer = Svc.ObjectTable.FirstOrDefault(t => Util.GetLayoutId(t) == c.InstanceId);
+            return coffer == null || Util.IsTreasureOpen(coffer) ? null : coffer;
+        }
+
+        bool shouldInterrupt() => c.Position.DistanceFromPlayerXZ() < 60 && findCoffer() == null;
+
+        await MoveTo(c.Position, 2.1f, mount: true, dismount: false, interrupt: shouldInterrupt);
 
         while (true)
         {
-            var coffer = Svc.ObjectTable.FirstOrDefault(t => t.ObjectKind == Dalamud.Game.ClientState.Objects.Enums.ObjectKind.Treasure && (t.Position - c.Position).LengthSquared() < 5);
-
-            // coffer is in load range, but is inactive
-            if (coffer == null)
+            if (findCoffer() is not IGameObject coffer)
                 return;
-
-            unsafe
-            {
-                var flags = *(byte*)(coffer.Address + 0x1EC);
-                if ((flags & 1) == 1) // 1 = open
-                    return;
-            }
 
             Util.InteractWithObject(coffer);
             await NextFrame(10);
@@ -207,7 +205,7 @@ public class OccultTreasure : AutoTask
     private async Task Return()
     {
         Status = "Returning";
-        ErrorIf(Svc.ExcelRow<TerritoryType>(Svc.ClientState.TerritoryType).TerritoryIntendedUse.RowId != 61, "Occult Return not usable here");
+        ErrorIf(Svc.ExcelRow<Lumina.Excel.Sheets.TerritoryType>(Svc.ClientState.TerritoryType).TerritoryIntendedUse.RowId != 61, "Occult Return not usable here");
 
         await WaitWhile(Util.PlayerIsBusy, "WaitBusy");
         ErrorIf(!Util.UseAction(ActionType.GeneralAction, 8), "Unable to use Occult Return");
