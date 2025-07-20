@@ -3,6 +3,7 @@ using Dalamud.Game.ClientState.Objects.Types;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.Character;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
+using FFXIVClientStructs.FFXIV.Client.Game.Event;
 using FFXIVClientStructs.FFXIV.Client.Game.Object;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Component.GUI;
@@ -14,8 +15,44 @@ using xgather.GameData;
 
 namespace xgather;
 
+public enum ActionID : uint
+{
+    None = 0,
+    ArborCall = 211,
+    AgelessWords = 215,
+    LayOfTheLand = 228,
+    SolidReason = 232,
+    Collect = 240,
+    CollectorsGlove = 4101,
+    SharkEye = 7904,
+    ScourMIN = 22182,
+    BrazenMIN = 22183,
+    MeticulousMIN = 22184,
+    ScrutinyMIN = 22185,
+    ScourBTN = 22186,
+    BrazenBTN = 22187,
+    MeticulousBTN = 22188,
+    ScrutinyBTN = 22189,
+    WttWMIN = 26521,
+    WttWBTN = 26522
+}
+
+public enum StatusID : uint
+{
+    None = 0,
+    LayOfTheLand = 234,
+    ArborCall = 233,
+    Scrutiny = 757,
+    CollectorsGlove = 805,
+    SharkEye = 1167,
+    FATEParticipant = 2577,
+    EurekaMoment = 2765,
+}
+
 internal static unsafe partial class Util
 {
+    private static readonly delegate* unmanaged<EventFramework*, uint> _getActiveGatheringEventHandlerId = (delegate* unmanaged<EventFramework*, uint>)Svc.SigScanner.ScanText("E8 ?? ?? ?? ?? 39 43 20");
+
     public static bool IsGatherer => Svc.Player?.ClassJob.RowId is 16 or 17 or 18;
 
     internal static string ShowV3(Vector3 vec) => $"[{vec.X:F2}, {vec.Y:F2}, {vec.Z:F2}]";
@@ -111,7 +148,9 @@ internal static unsafe partial class Util
         return d.LengthSquared() <= dist * dist;
     }
 
-    public static unsafe bool UseAction(ActionType actionType, uint actionId) => ActionManager.Instance()->UseAction(actionType, actionId);
+    public static unsafe bool UseAction(ActionType actionType, uint actionId, ulong targetId = 0xE0000000) => ActionManager.Instance()->UseAction(actionType, actionId, targetId);
+
+    public static unsafe bool UseAction(ActionID id, ulong targetId = 0xE0000000) => UseAction(ActionType.Action, (uint)id, targetId);
 
     public static unsafe uint GetActionStatus(ActionType actionType, uint actionId) => ActionManager.Instance()->GetActionStatus(actionType, actionId);
 
@@ -130,10 +169,18 @@ internal static unsafe partial class Util
 
     public static unsafe AddonGathering* GetAddonGathering() => (AddonGathering*)GetAddonByName("Gathering");
 
+    public static unsafe GatheringPointEventHandler* GetGatheringEventHandler()
+    {
+        var fwk = EventFramework.Instance();
+        return (GatheringPointEventHandler*)fwk->GetEventHandlerById(_getActiveGatheringEventHandlerId(fwk));
+    }
+
     public static unsafe bool IsGatheringAddonReady()
     {
         var gat = GetAddonGathering();
-        return gat != null && gat->IsVisible && gat->IsReady && gat->GatherStatus == 1;
+        // condition flag is briefly set to true when we interact with the node, then goes back to false
+        // if we try to initialize the GatheringMasterpiece addon during this time, nothing happens (the callback is fired into the void)
+        return gat != null && gat->IsVisible && gat->IsReady && gat->GatherStatus == 1 && !Svc.Condition[ConditionFlag.ExecutingGatheringAction];
     }
 
     public static unsafe int GatheringIntegrityLeft()
@@ -185,6 +232,8 @@ internal static unsafe partial class Util
 
         return false;
     }
+
+    public static unsafe bool PlayerHasStatus(StatusID id) => PlayerHasStatus((int)id);
 
     public const float Cos120 = -0.5f;
     public const float Sin120 = 0.8660254f;

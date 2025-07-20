@@ -5,6 +5,7 @@ using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using Lumina.Excel.Sheets;
+using Lumina.Extensions;
 using System.Linq;
 using xgather.Tasks;
 using xgather.UI;
@@ -118,7 +119,7 @@ public sealed class Plugin : IDalamudPlugin
 
     private Item? FindItemByName(string query)
     {
-        return Svc.ExcelSheet<Item>().Where(i => i.Name.ToString().Contains(query, System.StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+        return Svc.ExcelSheet<Item>().Where(i => i.Name.ToString().Contains(query, System.StringComparison.InvariantCultureIgnoreCase)).FirstOrNull();
     }
 
     private void DoGatherItem(string args, Item it)

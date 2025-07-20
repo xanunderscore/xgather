@@ -211,7 +211,23 @@ public class OccultTreasure : AutoTask
         await WaitWhile(Util.PlayerIsBusy, "WaitBusy");
         ErrorIf(!Util.UseAction(ActionType.GeneralAction, 8), "Unable to use Occult Return");
 
-        await WaitSelectYes();
+        using (BeginScope("WaitSelectYesno"))
+        {
+            while (true)
+            {
+                if (Util.IsAddonReady("SelectYesno"))
+                {
+                    await WaitSelectYes();
+                    break;
+                }
+
+                if (Svc.Condition[ConditionFlag.BetweenAreas])
+                    break;
+
+                Log("waiting...");
+                await NextFrame(10);
+            }
+        }
 
         await WaitWhile(() => !Svc.Condition[ConditionFlag.BetweenAreas], "ReturnStart");
         await WaitWhile(Util.PlayerIsBusy, "ReturnFinish");

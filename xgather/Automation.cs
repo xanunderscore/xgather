@@ -51,7 +51,7 @@ public abstract class AutoTask
 
     private CancellationTokenSource cts = new();
     private readonly List<string> debugContext = [];
-    public string ContextString => string.Join(" > ", debugContext);
+    public string ContextString => _subTask?.ContextString ?? string.Join(" > ", debugContext);
 
     public void Cancel() => cts.Cancel();
 
@@ -73,10 +73,16 @@ public abstract class AutoTask
 
     public virtual void DrawDebug() { }
 
+    private AutoTask? _subTask;
+
     // run another AutoTask, it inherits our cancellation token and we inherit its status
     protected async Task RunSubtask(AutoTask t)
     {
+        using var _ = new OnDispose(() => _subTask = null);
+
+        _subTask = t;
         t.cts = cts;
+
         using (BeginScope($"Run {t.GetType()}"))
             await t.Execute();
     }
@@ -219,7 +225,8 @@ public abstract class AutoTask
                 await NextFrame(10);
 
                 // pathfind was canceled somehow
-                if (!PathIsRunning() && !PathInProgress())
+                // TODO: i think shouldStop here is wrong? idk what the problem is, it likes to dismount and immediately re-mount for spearfishing nodes
+                if (!PathIsRunning() && !PathInProgress() && !shouldStop())
                 {
                     navRetries++;
                     goto nav_start; // C# does not have labeled break
@@ -308,10 +315,10 @@ public abstract class AutoTask
 
     protected async Task UseCollectorsGlove()
     {
-        if (Util.PlayerHasStatus(805))
+        if (Util.PlayerHasStatus(StatusID.CollectorsGlove))
             return;
 
-        ErrorIf(!Util.UseAction(ActionType.Action, 4101), "Unable to use Collector's Glove");
+        ErrorIf(!Util.UseAction(ActionID.CollectorsGlove), "Unable to use Collector's Glove");
         await WaitForBusy("UseAction");
     }
 
