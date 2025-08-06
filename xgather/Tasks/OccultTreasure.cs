@@ -1,8 +1,8 @@
+using Dalamud.Bindings.ImGui;
 using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.ClientState.Objects.Types;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
-using ImGuiNET;
 using Lumina.Data.Files;
 using Lumina.Extensions;
 using System.Collections.Generic;
@@ -39,16 +39,14 @@ public class OccultTreasure : AutoTask
 
     public record struct Route(string Name, int StartAetheryte, List<uint> Coffers);
 
-    public unsafe OccultTreasure()
+    public OccultTreasure()
     {
         var lvb = Svc.Data.GetFile<LgbFile>("bg/ex5/03_ocn_o6/btl/o6b1/level/planmap.lgb") ?? throw new InvalidDataException("planmap is missing");
 
         var layer = lvb.Layers.FirstOrNull(l => l.Name == "Field_Treasure") ?? throw new InvalidDataException("Field_Treasure layer is missing from lvb");
 
-        allCoffers = layer.InstanceObjects.Where(obj => obj.AssetType == Lumina.Data.Parsing.Layer.LayerEntryType.Treasure).Select(obj => (obj.InstanceId, new Coffer(obj.InstanceId, Convert(obj.Transform.Translation)))).ToDictionary();
+        allCoffers = layer.InstanceObjects.Where(obj => obj.AssetType == Lumina.Data.Parsing.Layer.LayerEntryType.Treasure).Select(obj => (obj.InstanceId, new Coffer(obj.InstanceId, Util.Convert(obj.Transform.Translation)))).ToDictionary();
     }
-
-    private static Vector3 Convert(Lumina.Data.Parsing.Common.Vector3 v3) => new(v3.X, v3.Y, v3.Z);
 
     protected override async Task Execute()
     {
@@ -166,7 +164,7 @@ public class OccultTreasure : AutoTask
             var cursor = ImGui.GetCursorScreenPos();
             var dl = ImGui.GetWindowDrawList();
 
-            ImGui.Image(wrap.ImGuiHandle, new(MapX, MapZ));
+            ImGui.Image(wrap.Handle, new(MapX, MapZ));
 
             foreach (var (_, c) in allCoffers)
             {

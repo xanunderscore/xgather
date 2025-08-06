@@ -1,38 +1,34 @@
-using Dalamud.Hooking;
-using FFXIVClientStructs.FFXIV.Client.Game;
-using FFXIVClientStructs.FFXIV.Client.Game.Character;
-using FFXIVClientStructs.FFXIV.Client.Game.Event;
-using FFXIVClientStructs.FFXIV.Client.Game.Object;
 using System;
-using System.Numerics;
 
 namespace xgather;
 
 public unsafe class Debug : IDisposable
 {
-    private readonly Hook<ActionManager.Delegates.UseAction> _useActionHook;
-    private readonly Hook<ActionManager.Delegates.UseActionLocation> _useActionLocationHook;
-    private readonly Hook<ResolveTargetDelegate> _resolveTargetHook;
-    private readonly Hook<ActionManager.Delegates.GetActionInRangeOrLoS> _getLosHook;
-    private readonly Hook<CanUseAction2Delegate> _canUse2Hook;
-    private readonly Hook<CanUseGatheringActionDelegate> _canUseGatheringHook;
+    //private readonly Hook<ActionManager.Delegates.UseAction> _useActionHook;
+    //private readonly Hook<ActionManager.Delegates.UseActionLocation> _useActionLocationHook;
+    //private readonly Hook<ResolveTargetDelegate> _resolveTargetHook;
+    //private readonly Hook<ActionManager.Delegates.GetActionInRangeOrLoS> _getLosHook;
+    //private readonly Hook<CanUseAction2Delegate> _canUse2Hook;
+    //private readonly Hook<CanUseGatheringActionDelegate> _canUseGatheringHook;
 
-    private delegate GameObject* ResolveTargetDelegate(ActionManager* thisPtr, uint spellId, byte* actionRow, ulong targetId);
-    private delegate char CanUseAction2Delegate(uint spellId, byte* actionRow, GameObject* target);
-    private delegate ulong CanUseGatheringActionDelegate(BattleChara* player, uint actionId);
+    //private delegate GameObject* ResolveTargetDelegate(ActionManager* thisPtr, uint spellId, byte* actionRow, ulong targetId);
+    //private delegate char CanUseAction2Delegate(uint spellId, byte* actionRow, GameObject* target);
+    //private delegate ulong CanUseGatheringActionDelegate(BattleChara* player, uint actionId);
 
-    private delegate* unmanaged<EventFramework*, uint> _getUnknownId;
+    //private delegate* unmanaged<EventFramework*, uint> _getUnknownId;
 
     public Debug()
     {
-        _useActionHook = Svc.Hook.HookFromAddress<ActionManager.Delegates.UseAction>(ActionManager.Addresses.UseAction.Value, UseActionDetour);
-        _useActionLocationHook = Svc.Hook.HookFromAddress<ActionManager.Delegates.UseActionLocation>(ActionManager.Addresses.UseActionLocation.Value, UseActionLocationDetour);
-        _resolveTargetHook = Svc.Hook.HookFromSignature<ResolveTargetDelegate>("48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 83 EC 20 48 8B 35 ?? ?? ?? ?? 49 8B F8", ResolveTargetDetour);
-        _getLosHook = Svc.Hook.HookFromAddress<ActionManager.Delegates.GetActionInRangeOrLoS>(ActionManager.Addresses.GetActionInRangeOrLoS.Value, GetActionInRangeDetour);
-        _canUse2Hook = Svc.Hook.HookFromSignature<CanUseAction2Delegate>("E8 ?? ?? ?? ?? 84 C0 0F 84 ?? ?? ?? ?? 80 7E 34 06", CanUseAction2Detour);
-        _canUseGatheringHook = Svc.Hook.HookFromSignature<CanUseGatheringActionDelegate>("E8 ?? ?? ?? ?? 85 C0 0F 85 ?? ?? ?? ?? 4D 8B CD 44 8B C3", CanUseGatheringActionDetour);
+        //_useActionHook = Svc.Hook.HookFromAddress<ActionManager.Delegates.UseAction>(ActionManager.Addresses.UseAction.Value, UseActionDetour);
+        //_useActionLocationHook = Svc.Hook.HookFromAddress<ActionManager.Delegates.UseActionLocation>(ActionManager.Addresses.UseActionLocation.Value, UseActionLocationDetour);
+        //_resolveTargetHook = Svc.Hook.HookFromSignature<ResolveTargetDelegate>("48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 83 EC 20 48 8B 35 ?? ?? ?? ?? 49 8B F8", ResolveTargetDetour);
+        //_getLosHook = Svc.Hook.HookFromAddress<ActionManager.Delegates.GetActionInRangeOrLoS>(ActionManager.Addresses.GetActionInRangeOrLoS.Value, GetActionInRangeDetour);
+        //_canUse2Hook = Svc.Hook.HookFromSignature<CanUseAction2Delegate>("E8 ?? ?? ?? ?? 84 C0 0F 84 ?? ?? ?? ?? 80 7E 34 06", CanUseAction2Detour);
+        //_canUseGatheringHook = Svc.Hook.HookFromSignature<CanUseGatheringActionDelegate>("E8 ?? ?? ?? ?? 85 C0 0F 85 ?? ?? ?? ?? 4D 8B CD 44 8B C3", CanUseGatheringActionDetour);
 
-        _getUnknownId = (delegate* unmanaged<EventFramework*, uint>)Svc.SigScanner.ScanText("E8 ?? ?? ?? ?? 39 43 20");
+        //_getUnknownId = (delegate* unmanaged<EventFramework*, uint>)Svc.SigScanner.ScanText("E8 ?? ?? ?? ?? 39 43 20");
+
+        //_getRowHook.Enable();
 
         //_useActionHook.Enable();
         //_useActionLocationHook.Enable();
@@ -44,6 +40,20 @@ public unsafe class Debug : IDisposable
 
     public unsafe void Draw()
     {
+        //var ev = EventFramework.Instance()->GetEventHandlerById(0x3E0000);
+        //if (ev != null)
+        //{
+        //    var stat = ev->LuaStatus;
+        //    var eid = ev->GetEventId();
+        //    ImGui.TextUnformatted($"Event ID: {eid.Id} {eid.EntryId}");
+        //    ImGui.TextUnformatted($"Lua status: {stat}");
+        //}
+
+        //if (ImGuiComponents.IconButton(Dalamud.Interface.FontAwesomeIcon.Camera))
+        //{
+        //    var cam = CameraManager.Instance()->GetActiveCamera()->SceneCamera.RenderCamera;
+        //    cam->IsOrtho = !cam->IsOrtho;
+        //}
         //var id = _getUnknownId(EventFramework.Instance());
         //var gp = (GatheringPointEventHandler*)EventFramework.Instance()->GetEventHandlerById(id);
         //if (gp != null)
@@ -54,6 +64,7 @@ public unsafe class Debug : IDisposable
         //    ImGui.Text($"Scene ({id:X}): nothing");
     }
 
+    /*
     private bool UseActionDetour(ActionManager* thisPtr, ActionType actionType, uint actionId, ulong targetId, uint extraParam, ActionManager.UseActionMode mode, uint comboRouteId, bool* outOptAreaTargeted)
     {
         Svc.Log.Debug($"UseAction({actionType}, {actionId}, {targetId}, {extraParam}, {mode}, {comboRouteId}) = ...");
@@ -62,10 +73,10 @@ public unsafe class Debug : IDisposable
         return result;
     }
 
-    private bool UseActionLocationDetour(ActionManager* thisPtr, ActionType actionType, uint actionId, ulong targetId, Vector3* location, uint extraParam)
+    private bool UseActionLocationDetour(ActionManager* thisPtr, ActionType actionType, uint actionId, ulong targetId, Vector3* location, uint extraParam, byte a7)
     {
-        Svc.Log.Debug($"UseActionLocation({actionType}, {actionId}, {targetId}, {*location}, {extraParam}) = ...");
-        var result = _useActionLocationHook.Original(thisPtr, actionType, actionId, targetId, location, extraParam);
+        Svc.Log.Debug($"UseActionLocation({actionType}, {actionId}, {targetId}, {*location}, {extraParam}, {a7}) = ...");
+        var result = _useActionLocationHook.Original(thisPtr, actionType, actionId, targetId, location, extraParam, a7);
         Svc.Log.Debug($"...{result}");
         return result;
     }
@@ -103,17 +114,18 @@ public unsafe class Debug : IDisposable
             Svc.Log.Debug($"CanUseGatheringAction({(nint)player:X}, {actionId}) = {x}");
         return x;
     }
+    */
 
     public void Dispose()
     {
         GC.SuppressFinalize(this);
 
-        _useActionHook.Dispose();
-        _useActionLocationHook.Dispose();
-        _resolveTargetHook.Dispose();
-        _getLosHook.Dispose();
-        _canUse2Hook.Dispose();
-        _canUseGatheringHook.Dispose();
+        //_useActionHook.Dispose();
+        //_useActionLocationHook.Dispose();
+        //_resolveTargetHook.Dispose();
+        //_getLosHook.Dispose();
+        //_canUse2Hook.Dispose();
+        //_canUseGatheringHook.Dispose();
         // cleanup hooks...
     }
 }

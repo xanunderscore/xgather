@@ -134,9 +134,9 @@ public abstract class GatherBase : AutoTask
             return ActionID.Collect;
         }
 
-        // var qualityWanted = status.Breakpoint3 - status.QualityCur;
+        var qualityWanted = status.Breakpoint3 - status.QualityCur;
 
-        if (!Util.PlayerHasStatus(StatusID.Scrutiny) && gp >= 200)
+        if (status.MeticulousProgress < qualityWanted && !Util.PlayerHasStatus(StatusID.Scrutiny) && gp >= 200)
             return JobSpecific(ActionID.ScrutinyMIN, ActionID.ScrutinyBTN);
 
         return JobSpecific(ActionID.MeticulousMIN, ActionID.MeticulousBTN);

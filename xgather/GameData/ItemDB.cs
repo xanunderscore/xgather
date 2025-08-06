@@ -5,33 +5,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Reflection;
 using BaseId = uint;
 using DataId = uint;
 using ItemId = uint;
 
 namespace xgather.GameData;
-
-public static class Json
-{
-    public static T Deserialize<T>(string path)
-    {
-        using var fstream = File.OpenRead(path);
-        using var reader = new StreamReader(fstream);
-        using var js = new JsonTextReader(reader);
-        return new JsonSerializer().Deserialize<T>(js) ?? throw new InvalidDataException("malformed json");
-    }
-
-    public static void Serialize<T>(string path, T val)
-    {
-        using var fstream = File.OpenWrite(path);
-        using var writer = new StreamWriter(fstream);
-        using var js = new JsonTextWriter(writer);
-        JsonSerializer.Create(new JsonSerializerSettings()
-        {
-            Formatting = Formatting.Indented,
-        }).Serialize(writer, val);
-    }
-}
 
 internal class ItemDatabaseManager(IDalamudPluginInterface pluginInterface)
 {
@@ -98,7 +77,7 @@ public record class NodeLocation(
 public record class IslandGatherPoint(
     uint NameId,
     string Name,
-    ulong ObjectId,
+    uint LayoutId,
     Vector3 Position
 );
 
@@ -107,8 +86,42 @@ public class ItemDatabase
     public readonly Dictionary<BaseId, GatheringPointBase> Groups = [];
     public readonly Dictionary<ItemId, HashSet<BaseId>> ItemIdGroupLookup = [];
     public readonly Dictionary<string, NodeLocation> KnownNodes = [];
-    public readonly Dictionary<ulong, IslandGatherPoint> IslandGatherPoints = [];
-    public readonly Dictionary<uint, List<IslandGatherPoint>> IslandGatherPointsByType = [];
+
+    [JsonIgnore]
+    public readonly Dictionary<uint, List<IslandGatherPoint>> IslandNodesByNameId = [];
+
+    private static readonly (uint NameId, int[] Items)[] _islandNodeMaterials = [
+        (0x1EB7F3, [35]), // Lightly Gnawed Pumpkin -> seeds
+        (0x1EB7F4, [33]), // Partially Consumed Cabbage -> seeds
+        (0x1EB7F5, [2, 9, 67]), // Tualong Tree -> branch, log, resin
+        (0x1EB7F6, [0, 10, 68]), // Palm Tree -> palm leaf, palm log, coconut
+        (0x1EB7F7, [1, 11, 69]), // Island Apple Tree -> vine, apple, beehive chip
+        (0x1EB7F8, [9, 12, 70]), // Mahogany Tree -> sap, log, wood opal
+        (0x1EB7F9, [3, 13, 80]), // Bluish Rock -> stone, copper ore, mythril ore
+        (0x1EB7FA, [3, 14, 79]), // Smooth White Rock -> stone, limestone, marble
+        (0x1EB7FB, [3, 15]), // Crystal-banded Rock -> stone, salt
+        (0x1EB7FC, [8, 19]), // Mound of Dirt -> sand, clay
+        (0x1EB7FD, [7, 32]), // Wild Popoto -> islewort, popoto
+        (0x1EB7FE, [7, 40]), // Wild Parsnip -> islewort, parsnip
+        (0x1EB7FF, [8, 20]), // Submerged Sand -> sand, tinsand
+        (0x1EB800, [11, 16]), // Sugarcane -> vine, sugarcane
+        (0x1EB801, [7, 17]), // Cotton Plant -> islewort, cotton
+        (0x1EB802, [7, 18]), // Agave Plant -> islewort, hemp
+        (0x1EB803, [4, 24]), // Large Shell -> clam, islefish
+        (0x1EB804, [5, 25]), // Seaweed Tangle -> laver, squid
+        (0x1EB805, [6, 26]), // Coral Formation -> coral, jellyfish
+        (0x1EB806, [3, 21, 92]), // Rough Black Rock -> stone, iron ore, durium sand
+        (0x1EB807, [3, 22]), // Quartz Formation -> stone, quartz
+        (0x1EB808, [3, 23]), // Speckled Rock -> stone, leucogranite
+        (0x1EB874, [71]), // Multicolored Isleblooms
+        (0x1EB8BF, [78]), // Glowing Fungus -> glimshroom
+        (0x1EB8C0, [3, 76, 77]), // Composite Rock -> stone, coal, shale
+        (0x1EB8C1, [3, 81, 82]), // Stalagmite -> stone, water, spectrine
+        (0x1EB953, [3, 93, 94]), // Yellowish Rock -> stone, yellow copper, gold
+        (0x1EB954, [95, 96]), // Island Crystal Cluster -> hawk's eye sand, crystal formation
+    ];
+
+    public static IEnumerable<uint> GetIslandNodesForMaterial(int materialId) => _islandNodeMaterials.Where(m => m.Items.Contains(materialId)).Select(n => n.NameId);
 
     public bool CanGather(ItemId id) => GetGatherPointGroupsForItem(id).Any();
 
@@ -149,6 +162,11 @@ public class ItemDatabase
         Groups.Clear();
         ItemIdGroupLookup.Clear();
 
+        FillNodesFromGameData();
+    }
+
+    private void FillNodesFromGameData()
+    {
         var allPoints = Svc.ExcelSheet<Lumina.Excel.Sheets.GatheringPoint>();
         foreach (var group in allPoints.GroupBy(gp => gp.GatheringPointBase.RowId))
         {
@@ -208,12 +226,19 @@ public class ItemDatabase
 
     public void Initialize()
     {
-        IslandGatherPointsByType.Clear();
-
-        foreach (var (_, point) in IslandGatherPoints)
+        var resource = Assembly.GetExecutingAssembly().GetManifestResourceStream("xgather.islandObjects.json");
+        if (resource == null)
         {
-            IslandGatherPointsByType.TryAdd(point.NameId, []);
-            IslandGatherPointsByType[point.NameId].Add(point);
+            Svc.Log.Error("Unable to load islandObjects resource, island objects will not be gathered");
+            return;
+        }
+
+        var points = Json.Deserialize<Dictionary<uint, IslandGatherPoint>>(resource);
+
+        foreach (var v in points.Values)
+        {
+            IslandNodesByNameId.TryAdd(v.NameId, []);
+            IslandNodesByNameId[v.NameId].Add(v);
         }
     }
 }

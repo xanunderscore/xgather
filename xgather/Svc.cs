@@ -30,7 +30,6 @@ public class Svc
     [PluginService] public static IAddonLifecycle AddonLifecycle { get; private set; }
     [PluginService] public static IToastGui Toast { get; private set; }
     [PluginService] public static IGameInteropProvider Hook { get; private set; }
-    [PluginService] public static IGameNetwork Network { get; private set; }
 
     public static Configuration Config { get; private set; }
     private static ItemDatabaseManager ItemDBM;

@@ -22,32 +22,23 @@ internal class GatherMoon : GatherBase
     {
         var mission = MoonUtils.CurrentMission();
         ErrorIf(mission <= 0, "No active mission");
-        unsafe
+        var unit = Svc.ExcelRow<WKSMissionUnit>(mission);
+        var todo = unit.MissionToDo.First().Value;
+        var marker = Svc.ExcelRow<WKSMissionMapMarker>(todo.Unknown13);
+
+        _gatherCenter = new(marker.Unknown1 - 1024, marker.Unknown2 - 1024);
+        _gatherRadius = marker.Unknown3;
+
+        _requiredItems = [];
+
+        void requireItem(WKSItemInfo id, ushort quant)
         {
-            var wk = WKSManager.Instance();
-
-            var unit = Svc.ExcelRow<WKSMissionUnit>(mission);
-            var todo = Svc.ExcelRow<WKSMissionToDo>((uint)(unit.Unknown7 + *((byte*)wk + 0xC62)));
-            var marker = Svc.ExcelRow<WKSMissionMapMarker>(todo.Unknown13);
-
-            _gatherCenter = new(marker.Unknown1 - 1024, marker.Unknown2 - 1024);
-            _gatherRadius = marker.Unknown3;
-
-            _requiredItems = [];
-
-            void requireItem(ushort id, ushort quant)
-            {
-                if (id > 0)
-                {
-                    var realid = Svc.ExcelRow<WKSItemInfo>(id).Item;
-                    _requiredItems[realid] = quant;
-                }
-            }
-
-            requireItem(todo.Unknown3, todo.Unknown6);
-            requireItem(todo.Unknown4, todo.Unknown7);
-            requireItem(todo.Unknown5, todo.Unknown8);
+            if (id.RowId > 0)
+                _requiredItems[id.Item.RowId] = quant;
         }
+
+        foreach (var (item, quantity) in todo.RequiredItem.Zip(todo.RequiredItemQuantity))
+            requireItem(item.Value, quantity);
     }
 
     protected override async Task Execute()

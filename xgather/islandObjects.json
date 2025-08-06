@@ -1,0 +1,4842 @@
+{
+  "9406590": {
+    "NameId": 2013184,
+    "Name": "Sugarcane",
+    "Position": {
+      "X": -30.31631,
+      "Y": 60.9332,
+      "Z": -339.2002
+    },
+    "LayoutId": 9406590
+  },
+  "9405283": {
+    "NameId": 2013185,
+    "Name": "Cotton Plant",
+    "Position": {
+      "X": 55.11697,
+      "Y": 89.99551,
+      "Z": -360.2563
+    },
+    "LayoutId": 9405283
+  },
+  "9358996": {
+    "NameId": 2013181,
+    "Name": "Wild Popoto",
+    "Position": {
+      "X": -146.6027,
+      "Y": 117.1374,
+      "Z": -186.36
+    },
+    "LayoutId": 9358996
+  },
+  "9359008": {
+    "NameId": 2013182,
+    "Name": "Wild Parsnip",
+    "Position": {
+      "X": -193.8339,
+      "Y": 53.42997,
+      "Z": -442.4691
+    },
+    "LayoutId": 9359008
+  },
+  "9291411": {
+    "NameId": 2013173,
+    "Name": "Tualong Tree",
+    "Position": {
+      "X": 108.4109,
+      "Y": 102.2252,
+      "Z": -242.3119
+    },
+    "LayoutId": 9291411
+  },
+  "9406591": {
+    "NameId": 2013184,
+    "Name": "Sugarcane",
+    "Position": {
+      "X": -35.46792,
+      "Y": 64.54705,
+      "Z": -316.8642
+    },
+    "LayoutId": 9406591
+  },
+  "9291414": {
+    "NameId": 2013173,
+    "Name": "Tualong Tree",
+    "Position": {
+      "X": 125.301,
+      "Y": 105.1781,
+      "Z": -379.4116
+    },
+    "LayoutId": 9291414
+  },
+  "9291478": {
+    "NameId": 2013175,
+    "Name": "Island Apple Tree",
+    "Position": {
+      "X": 112.6696,
+      "Y": 91.12238,
+      "Z": -185.9297
+    },
+    "LayoutId": 9291478
+  },
+  "9359022": {
+    "NameId": 2013182,
+    "Name": "Wild Parsnip",
+    "Position": {
+      "X": -159.7016,
+      "Y": 113.1195,
+      "Z": -207.7247
+    },
+    "LayoutId": 9359022
+  },
+  "9300105": {
+    "NameId": 2013176,
+    "Name": "Mahogany Tree",
+    "Position": {
+      "X": 26.44407,
+      "Y": 68.45975,
+      "Z": -146.499
+    },
+    "LayoutId": 9300105
+  },
+  "9291465": {
+    "NameId": 2013175,
+    "Name": "Island Apple Tree",
+    "Position": {
+      "X": 122.8161,
+      "Y": 102.2227,
+      "Z": -215.2035
+    },
+    "LayoutId": 9291465
+  },
+  "9290630": {
+    "NameId": 2013174,
+    "Name": "Palm Tree",
+    "Position": {
+      "X": -1.496138,
+      "Y": 66.53481,
+      "Z": -107.4224
+    },
+    "LayoutId": 9290630
+  },
+  "9422994": {
+    "NameId": 2013172,
+    "Name": "Partially Consumed Cabbage",
+    "Position": {
+      "X": -23.88805,
+      "Y": 71.53055,
+      "Z": -207.9137
+    },
+    "LayoutId": 9422994
+  },
+  "9405321": {
+    "NameId": 2013183,
+    "Name": "Submerged Sand",
+    "Position": {
+      "X": 6.414594,
+      "Y": 59.95447,
+      "Z": -190.338
+    },
+    "LayoutId": 9405321
+  },
+  "9405637": {
+    "NameId": 2013183,
+    "Name": "Submerged Sand",
+    "Position": {
+      "X": -3.954211,
+      "Y": 33.2133,
+      "Z": -430.0542
+    },
+    "LayoutId": 9405637
+  },
+  "9406585": {
+    "NameId": 2013184,
+    "Name": "Sugarcane",
+    "Position": {
+      "X": 24.3865,
+      "Y": 59.81603,
+      "Z": -365.1046
+    },
+    "LayoutId": 9406585
+  },
+  "9422995": {
+    "NameId": 2013172,
+    "Name": "Partially Consumed Cabbage",
+    "Position": {
+      "X": -21.29622,
+      "Y": 71.0042,
+      "Z": -188.5596
+    },
+    "LayoutId": 9422995
+  },
+  "9359024": {
+    "NameId": 2013182,
+    "Name": "Wild Parsnip",
+    "Position": {
+      "X": 39.35961,
+      "Y": 82.82719,
+      "Z": -277.2509
+    },
+    "LayoutId": 9359024
+  },
+  "9358875": {
+    "NameId": 2013177,
+    "Name": "Bluish Rock",
+    "Position": {
+      "X": -74.13666,
+      "Y": 43.15776,
+      "Z": -446.6462
+    },
+    "LayoutId": 9358875
+  },
+  "9408604": {
+    "NameId": 2013180,
+    "Name": "Mound of Dirt",
+    "Position": {
+      "X": 5.610155,
+      "Y": 55.80985,
+      "Z": -279.4193
+    },
+    "LayoutId": 9408604
+  },
+  "9405263": {
+    "NameId": 2013185,
+    "Name": "Cotton Plant",
+    "Position": {
+      "X": -67.37904,
+      "Y": 73.38712,
+      "Z": -320.9715
+    },
+    "LayoutId": 9405263
+  },
+  "9443380": {
+    "NameId": 2013173,
+    "Name": "Tualong Tree",
+    "Position": {
+      "X": -74.07308,
+      "Y": 102.3433,
+      "Z": -134.7603
+    },
+    "LayoutId": 9443380
+  },
+  "9444579": {
+    "NameId": 2013183,
+    "Name": "Submerged Sand",
+    "Position": {
+      "X": -16.28712,
+      "Y": 47.54211,
+      "Z": -364.5092
+    },
+    "LayoutId": 9444579
+  },
+  "9406581": {
+    "NameId": 2013184,
+    "Name": "Sugarcane",
+    "Position": {
+      "X": 2.599255,
+      "Y": 60.97186,
+      "Z": -330.9512
+    },
+    "LayoutId": 9406581
+  },
+  "9405322": {
+    "NameId": 2013183,
+    "Name": "Submerged Sand",
+    "Position": {
+      "X": 3.351225,
+      "Y": 60.06285,
+      "Z": -199.8978
+    },
+    "LayoutId": 9405322
+  },
+  "9405324": {
+    "NameId": 2013183,
+    "Name": "Submerged Sand",
+    "Position": {
+      "X": 5.284333,
+      "Y": 60.39986,
+      "Z": -125.0171
+    },
+    "LayoutId": 9405324
+  },
+  "9358868": {
+    "NameId": 2013177,
+    "Name": "Bluish Rock",
+    "Position": {
+      "X": -51.31146,
+      "Y": 55.38546,
+      "Z": -387.8375
+    },
+    "LayoutId": 9358868
+  },
+  "9443377": {
+    "NameId": 2013173,
+    "Name": "Tualong Tree",
+    "Position": {
+      "X": -211.9079,
+      "Y": 96.23023,
+      "Z": -209.0432
+    },
+    "LayoutId": 9443377
+  },
+  "9408623": {
+    "NameId": 2013186,
+    "Name": "Agave Plant",
+    "Position": {
+      "X": 66.76315,
+      "Y": 75.52794,
+      "Z": -493.3104
+    },
+    "LayoutId": 9408623
+  },
+  "9358874": {
+    "NameId": 2013177,
+    "Name": "Bluish Rock",
+    "Position": {
+      "X": -24.64233,
+      "Y": 39.18182,
+      "Z": -448.7413
+    },
+    "LayoutId": 9358874
+  },
+  "9358929": {
+    "NameId": 2013178,
+    "Name": "Smooth White Rock",
+    "Position": {
+      "X": -146.7427,
+      "Y": 25.06961,
+      "Z": -480.3048
+    },
+    "LayoutId": 9358929
+  },
+  "9358869": {
+    "NameId": 2013177,
+    "Name": "Bluish Rock",
+    "Position": {
+      "X": -28.34662,
+      "Y": 46.80375,
+      "Z": -438.2854
+    },
+    "LayoutId": 9358869
+  },
+  "9358928": {
+    "NameId": 2013178,
+    "Name": "Smooth White Rock",
+    "Position": {
+      "X": -35.93988,
+      "Y": 40.56601,
+      "Z": -450.5504
+    },
+    "LayoutId": 9358928
+  },
+  "9300113": {
+    "NameId": 2013176,
+    "Name": "Mahogany Tree",
+    "Position": {
+      "X": 53.0011,
+      "Y": 75.64175,
+      "Z": -201.0925
+    },
+    "LayoutId": 9300113
+  },
+  "9444578": {
+    "NameId": 2013183,
+    "Name": "Submerged Sand",
+    "Position": {
+      "X": -8.238892,
+      "Y": 53.92966,
+      "Z": -322.2978
+    },
+    "LayoutId": 9444578
+  },
+  "9300116": {
+    "NameId": 2013176,
+    "Name": "Mahogany Tree",
+    "Position": {
+      "X": -173.6364,
+      "Y": 119.0005,
+      "Z": -173.8382
+    },
+    "LayoutId": 9300116
+  },
+  "9405319": {
+    "NameId": 2013183,
+    "Name": "Submerged Sand",
+    "Position": {
+      "X": 8.17042,
+      "Y": 59.99157,
+      "Z": -152.9022
+    },
+    "LayoutId": 9405319
+  },
+  "9324681": {
+    "NameId": 2013175,
+    "Name": "Island Apple Tree",
+    "Position": {
+      "X": 103.1883,
+      "Y": 89.11382,
+      "Z": -424.5856
+    },
+    "LayoutId": 9324681
+  },
+  "9300112": {
+    "NameId": 2013176,
+    "Name": "Mahogany Tree",
+    "Position": {
+      "X": -48.36017,
+      "Y": 77.58284,
+      "Z": -188.7813
+    },
+    "LayoutId": 9300112
+  },
+  "9444577": {
+    "NameId": 2013183,
+    "Name": "Submerged Sand",
+    "Position": {
+      "X": -21.71245,
+      "Y": 54.65145,
+      "Z": -278.7889
+    },
+    "LayoutId": 9444577
+  },
+  "9405317": {
+    "NameId": 2013183,
+    "Name": "Submerged Sand",
+    "Position": {
+      "X": 8.976999,
+      "Y": 61.33028,
+      "Z": -114.8102
+    },
+    "LayoutId": 9405317
+  },
+  "9443388": {
+    "NameId": 2013173,
+    "Name": "Tualong Tree",
+    "Position": {
+      "X": -246.5978,
+      "Y": 54.3609,
+      "Z": -347.5096
+    },
+    "LayoutId": 9443388
+  },
+  "9422991": {
+    "NameId": 2013172,
+    "Name": "Partially Consumed Cabbage",
+    "Position": {
+      "X": -25.81569,
+      "Y": 71.1064,
+      "Z": -203.2144
+    },
+    "LayoutId": 9422991
+  },
+  "9408605": {
+    "NameId": 2013180,
+    "Name": "Mound of Dirt",
+    "Position": {
+      "X": 59.46656,
+      "Y": 47.4165,
+      "Z": -469.4679
+    },
+    "LayoutId": 9408605
+  },
+  "9405267": {
+    "NameId": 2013185,
+    "Name": "Cotton Plant",
+    "Position": {
+      "X": -202.824,
+      "Y": 77.79248,
+      "Z": -335.2952
+    },
+    "LayoutId": 9405267
+  },
+  "9300107": {
+    "NameId": 2013176,
+    "Name": "Mahogany Tree",
+    "Position": {
+      "X": 57.42177,
+      "Y": 76.60131,
+      "Z": -148.3259
+    },
+    "LayoutId": 9300107
+  },
+  "9405314": {
+    "NameId": 2013185,
+    "Name": "Cotton Plant",
+    "Position": {
+      "X": -271.0086,
+      "Y": 53.09836,
+      "Z": -302.2463
+    },
+    "LayoutId": 9405314
+  },
+  "9408630": {
+    "NameId": 2013186,
+    "Name": "Agave Plant",
+    "Position": {
+      "X": -67.29279,
+      "Y": 117.6065,
+      "Z": -107.317
+    },
+    "LayoutId": 9408630
+  },
+  "9422992": {
+    "NameId": 2013172,
+    "Name": "Partially Consumed Cabbage",
+    "Position": {
+      "X": -24.37202,
+      "Y": 70.77294,
+      "Z": -200.1815
+    },
+    "LayoutId": 9422992
+  },
+  "9419069": {
+    "NameId": 2013172,
+    "Name": "Partially Consumed Cabbage",
+    "Position": {
+      "X": -114.1379,
+      "Y": 98.18502,
+      "Z": -216.8841
+    },
+    "LayoutId": 9419069
+  },
+  "9359009": {
+    "NameId": 2013182,
+    "Name": "Wild Parsnip",
+    "Position": {
+      "X": -228.4893,
+      "Y": 50.00275,
+      "Z": -434.992
+    },
+    "LayoutId": 9359009
+  },
+  "9358919": {
+    "NameId": 2013178,
+    "Name": "Smooth White Rock",
+    "Position": {
+      "X": -150.1271,
+      "Y": 39.90884,
+      "Z": -451.9889
+    },
+    "LayoutId": 9358919
+  },
+  "9406583": {
+    "NameId": 2013184,
+    "Name": "Sugarcane",
+    "Position": {
+      "X": 7.151772,
+      "Y": 60.17345,
+      "Z": -345.0403
+    },
+    "LayoutId": 9406583
+  },
+  "9405325": {
+    "NameId": 2013183,
+    "Name": "Submerged Sand",
+    "Position": {
+      "X": -1.393452,
+      "Y": 60.05875,
+      "Z": -166.5314
+    },
+    "LayoutId": 9405325
+  },
+  "9444586": {
+    "NameId": 2013183,
+    "Name": "Submerged Sand",
+    "Position": {
+      "X": -11.13609,
+      "Y": 21.77966,
+      "Z": -492.2417
+    },
+    "LayoutId": 9444586
+  },
+  "9300119": {
+    "NameId": 2013176,
+    "Name": "Mahogany Tree",
+    "Position": {
+      "X": -237.5617,
+      "Y": 46.37193,
+      "Z": -396.167
+    },
+    "LayoutId": 9300119
+  },
+  "9443386": {
+    "NameId": 2013173,
+    "Name": "Tualong Tree",
+    "Position": {
+      "X": -64.11339,
+      "Y": 62.61107,
+      "Z": -377.9269
+    },
+    "LayoutId": 9443386
+  },
+  "9291307": {
+    "NameId": 2013174,
+    "Name": "Palm Tree",
+    "Position": {
+      "X": -36.83377,
+      "Y": 29.86089,
+      "Z": -517.3472
+    },
+    "LayoutId": 9291307
+  },
+  "9422993": {
+    "NameId": 2013172,
+    "Name": "Partially Consumed Cabbage",
+    "Position": {
+      "X": -24.66267,
+      "Y": 70.48076,
+      "Z": -194.7263
+    },
+    "LayoutId": 9422993
+  },
+  "9408603": {
+    "NameId": 2013180,
+    "Name": "Mound of Dirt",
+    "Position": {
+      "X": 3.953495,
+      "Y": 55.99128,
+      "Z": -280.8139
+    },
+    "LayoutId": 9408603
+  },
+  "9406578": {
+    "NameId": 2013184,
+    "Name": "Sugarcane",
+    "Position": {
+      "X": 4.868013,
+      "Y": 63.15388,
+      "Z": -314.3357
+    },
+    "LayoutId": 9406578
+  },
+  "9406588": {
+    "NameId": 2013184,
+    "Name": "Sugarcane",
+    "Position": {
+      "X": -29.68,
+      "Y": 63.0005,
+      "Z": -321.3004
+    },
+    "LayoutId": 9406588
+  },
+  "9406584": {
+    "NameId": 2013184,
+    "Name": "Sugarcane",
+    "Position": {
+      "X": 25.82061,
+      "Y": 61.29857,
+      "Z": -359.9496
+    },
+    "LayoutId": 9406584
+  },
+  "9406582": {
+    "NameId": 2013184,
+    "Name": "Sugarcane",
+    "Position": {
+      "X": 14.38,
+      "Y": 61.81508,
+      "Z": -339.3384
+    },
+    "LayoutId": 9406582
+  },
+  "9406589": {
+    "NameId": 2013184,
+    "Name": "Sugarcane",
+    "Position": {
+      "X": -35.50437,
+      "Y": 63.53142,
+      "Z": -331.9763
+    },
+    "LayoutId": 9406589
+  },
+  "9359023": {
+    "NameId": 2013182,
+    "Name": "Wild Parsnip",
+    "Position": {
+      "X": -163.8945,
+      "Y": 82.31126,
+      "Z": -340.6337
+    },
+    "LayoutId": 9359023
+  },
+  "9406580": {
+    "NameId": 2013184,
+    "Name": "Sugarcane",
+    "Position": {
+      "X": 7.838709,
+      "Y": 63.24938,
+      "Z": -318.5449
+    },
+    "LayoutId": 9406580
+  },
+  "9408629": {
+    "NameId": 2013186,
+    "Name": "Agave Plant",
+    "Position": {
+      "X": -179.5809,
+      "Y": 57.25291,
+      "Z": -415.6193
+    },
+    "LayoutId": 9408629
+  },
+  "9358866": {
+    "NameId": 2013177,
+    "Name": "Bluish Rock",
+    "Position": {
+      "X": -19.04565,
+      "Y": 54.25575,
+      "Z": -389.0438
+    },
+    "LayoutId": 9358866
+  },
+  "9444104": {
+    "NameId": 2013186,
+    "Name": "Agave Plant",
+    "Position": {
+      "X": 89.06108,
+      "Y": 100.84,
+      "Z": -306.928
+    },
+    "LayoutId": 9444104
+  },
+  "9358920": {
+    "NameId": 2013178,
+    "Name": "Smooth White Rock",
+    "Position": {
+      "X": -165.0821,
+      "Y": 39.19007,
+      "Z": -456.3326
+    },
+    "LayoutId": 9358920
+  },
+  "9358872": {
+    "NameId": 2013177,
+    "Name": "Bluish Rock",
+    "Position": {
+      "X": -83.98901,
+      "Y": 49.33286,
+      "Z": -431.014
+    },
+    "LayoutId": 9358872
+  },
+  "9358921": {
+    "NameId": 2013178,
+    "Name": "Smooth White Rock",
+    "Position": {
+      "X": -126.5138,
+      "Y": 26.66198,
+      "Z": -476.2174
+    },
+    "LayoutId": 9358921
+  },
+  "9358873": {
+    "NameId": 2013177,
+    "Name": "Bluish Rock",
+    "Position": {
+      "X": -31.19177,
+      "Y": 48.14016,
+      "Z": -428.9116
+    },
+    "LayoutId": 9358873
+  },
+  "9300121": {
+    "NameId": 2013176,
+    "Name": "Mahogany Tree",
+    "Position": {
+      "X": -103.7653,
+      "Y": 87.76982,
+      "Z": -281.1166
+    },
+    "LayoutId": 9300121
+  },
+  "9358926": {
+    "NameId": 2013178,
+    "Name": "Smooth White Rock",
+    "Position": {
+      "X": -182.9908,
+      "Y": 21.03078,
+      "Z": -495.4268
+    },
+    "LayoutId": 9358926
+  },
+  "9443411": {
+    "NameId": 2013186,
+    "Name": "Agave Plant",
+    "Position": {
+      "X": 24.67422,
+      "Y": 34.99191,
+      "Z": -522.2916
+    },
+    "LayoutId": 9443411
+  },
+  "9359007": {
+    "NameId": 2013182,
+    "Name": "Wild Parsnip",
+    "Position": {
+      "X": -253.7087,
+      "Y": 43.86218,
+      "Z": -426.141
+    },
+    "LayoutId": 9359007
+  },
+  "9408628": {
+    "NameId": 2013186,
+    "Name": "Agave Plant",
+    "Position": {
+      "X": -105.4924,
+      "Y": 11.93013,
+      "Z": -535.362
+    },
+    "LayoutId": 9408628
+  },
+  "9408627": {
+    "NameId": 2013186,
+    "Name": "Agave Plant",
+    "Position": {
+      "X": -164.5856,
+      "Y": 13.27145,
+      "Z": -522.6455
+    },
+    "LayoutId": 9408627
+  },
+  "9291306": {
+    "NameId": 2013174,
+    "Name": "Palm Tree",
+    "Position": {
+      "X": -49.34087,
+      "Y": 24.47054,
+      "Z": -553.2661
+    },
+    "LayoutId": 9291306
+  },
+  "9359002": {
+    "NameId": 2013182,
+    "Name": "Wild Parsnip",
+    "Position": {
+      "X": -246.5098,
+      "Y": 49.24161,
+      "Z": -470.586
+    },
+    "LayoutId": 9359002
+  },
+  "9408607": {
+    "NameId": 2013180,
+    "Name": "Mound of Dirt",
+    "Position": {
+      "X": -138.7924,
+      "Y": 7.695159,
+      "Z": -540.8825
+    },
+    "LayoutId": 9408607
+  },
+  "9408606": {
+    "NameId": 2013180,
+    "Name": "Mound of Dirt",
+    "Position": {
+      "X": -153.7578,
+      "Y": 8.418629,
+      "Z": -538.4072
+    },
+    "LayoutId": 9408606
+  },
+  "9359000": {
+    "NameId": 2013182,
+    "Name": "Wild Parsnip",
+    "Position": {
+      "X": -256.071,
+      "Y": 47.99508,
+      "Z": -459.6837
+    },
+    "LayoutId": 9359000
+  },
+  "9291305": {
+    "NameId": 2013174,
+    "Name": "Palm Tree",
+    "Position": {
+      "X": -130.6167,
+      "Y": 5.59721,
+      "Z": -551.4637
+    },
+    "LayoutId": 9291305
+  },
+  "9291273": {
+    "NameId": 2013174,
+    "Name": "Palm Tree",
+    "Position": {
+      "X": -92.92679,
+      "Y": 21.32631,
+      "Z": -563.5405
+    },
+    "LayoutId": 9291273
+  },
+  "9443385": {
+    "NameId": 2013173,
+    "Name": "Tualong Tree",
+    "Position": {
+      "X": -274.4747,
+      "Y": 32.4391,
+      "Z": -418.7443
+    },
+    "LayoutId": 9443385
+  },
+  "9405288": {
+    "NameId": 2013185,
+    "Name": "Cotton Plant",
+    "Position": {
+      "X": -215.4667,
+      "Y": 35.93659,
+      "Z": -517.0681
+    },
+    "LayoutId": 9405288
+  },
+  "9358932": {
+    "NameId": 2013178,
+    "Name": "Smooth White Rock",
+    "Position": {
+      "X": -200.0591,
+      "Y": 17.91183,
+      "Z": -530.9456
+    },
+    "LayoutId": 9358932
+  },
+  "9359004": {
+    "NameId": 2013182,
+    "Name": "Wild Parsnip",
+    "Position": {
+      "X": -272.1158,
+      "Y": 30.99533,
+      "Z": -443.8003
+    },
+    "LayoutId": 9359004
+  },
+  "9291308": {
+    "NameId": 2013174,
+    "Name": "Palm Tree",
+    "Position": {
+      "X": -188.4952,
+      "Y": 12.50985,
+      "Z": -545.9876
+    },
+    "LayoutId": 9291308
+  },
+  "9359005": {
+    "NameId": 2013182,
+    "Name": "Wild Parsnip",
+    "Position": {
+      "X": -237.3282,
+      "Y": 37.32525,
+      "Z": -516.1867
+    },
+    "LayoutId": 9359005
+  },
+  "9405638": {
+    "NameId": 2013183,
+    "Name": "Submerged Sand",
+    "Position": {
+      "X": 1.02564,
+      "Y": 1.035764,
+      "Z": -551.1608
+    },
+    "LayoutId": 9405638
+  },
+  "9358979": {
+    "NameId": 2013181,
+    "Name": "Wild Popoto",
+    "Position": {
+      "X": -252.0114,
+      "Y": 34.58906,
+      "Z": -557.676
+    },
+    "LayoutId": 9358979
+  },
+  "9408626": {
+    "NameId": 2013186,
+    "Name": "Agave Plant",
+    "Position": {
+      "X": -64.94392,
+      "Y": 21.72852,
+      "Z": -608.3332
+    },
+    "LayoutId": 9408626
+  },
+  "9358980": {
+    "NameId": 2013181,
+    "Name": "Wild Popoto",
+    "Position": {
+      "X": -240.8416,
+      "Y": 33.78198,
+      "Z": -581.7841
+    },
+    "LayoutId": 9358980
+  },
+  "9324679": {
+    "NameId": 2013175,
+    "Name": "Island Apple Tree",
+    "Position": {
+      "X": 45.09055,
+      "Y": 45.09692,
+      "Z": -568.2418
+    },
+    "LayoutId": 9324679
+  },
+  "9358976": {
+    "NameId": 2013181,
+    "Name": "Wild Popoto",
+    "Position": {
+      "X": -247.2529,
+      "Y": 33.05833,
+      "Z": -593.4163
+    },
+    "LayoutId": 9358976
+  },
+  "9358981": {
+    "NameId": 2013181,
+    "Name": "Wild Popoto",
+    "Position": {
+      "X": -237.2633,
+      "Y": 32.91949,
+      "Z": -604.0078
+    },
+    "LayoutId": 9358981
+  },
+  "9358978": {
+    "NameId": 2013181,
+    "Name": "Wild Popoto",
+    "Position": {
+      "X": -264.3173,
+      "Y": 31.40552,
+      "Z": -592.4629
+    },
+    "LayoutId": 9358978
+  },
+  "9358982": {
+    "NameId": 2013181,
+    "Name": "Wild Popoto",
+    "Position": {
+      "X": -253.7987,
+      "Y": 30.3943,
+      "Z": -617.1558
+    },
+    "LayoutId": 9358982
+  },
+  "9358977": {
+    "NameId": 2013181,
+    "Name": "Wild Popoto",
+    "Position": {
+      "X": -237.6654,
+      "Y": 28.73943,
+      "Z": -636.0745
+    },
+    "LayoutId": 9358977
+  },
+  "9405272": {
+    "NameId": 2013185,
+    "Name": "Cotton Plant",
+    "Position": {
+      "X": -276.2072,
+      "Y": 80.55482,
+      "Z": -210.355
+    },
+    "LayoutId": 9405272
+  },
+  "9443412": {
+    "NameId": 2013186,
+    "Name": "Agave Plant",
+    "Position": {
+      "X": -314.298,
+      "Y": 50.01955,
+      "Z": -153.5422
+    },
+    "LayoutId": 9443412
+  },
+  "9443355": {
+    "NameId": 2013185,
+    "Name": "Cotton Plant",
+    "Position": {
+      "X": -245.3495,
+      "Y": 130.2407,
+      "Z": -121.2725
+    },
+    "LayoutId": 9443355
+  },
+  "9443357": {
+    "NameId": 2013185,
+    "Name": "Cotton Plant",
+    "Position": {
+      "X": -264.1297,
+      "Y": 128.4629,
+      "Z": -122.2859
+    },
+    "LayoutId": 9443357
+  },
+  "9358997": {
+    "NameId": 2013181,
+    "Name": "Wild Popoto",
+    "Position": {
+      "X": -366.3531,
+      "Y": 44.52273,
+      "Z": -163.1006
+    },
+    "LayoutId": 9358997
+  },
+  "9443365": {
+    "NameId": 2013185,
+    "Name": "Cotton Plant",
+    "Position": {
+      "X": -218.8376,
+      "Y": 149.5612,
+      "Z": -113.4203
+    },
+    "LayoutId": 9443365
+  },
+  "9443361": {
+    "NameId": 2013185,
+    "Name": "Cotton Plant",
+    "Position": {
+      "X": -200.8493,
+      "Y": 148.5203,
+      "Z": -110.8479
+    },
+    "LayoutId": 9443361
+  },
+  "9443354": {
+    "NameId": 2013185,
+    "Name": "Cotton Plant",
+    "Position": {
+      "X": -259.3148,
+      "Y": 128.8061,
+      "Z": -106.5336
+    },
+    "LayoutId": 9443354
+  },
+  "9443332": {
+    "NameId": 2013185,
+    "Name": "Cotton Plant",
+    "Position": {
+      "X": -252.8849,
+      "Y": 129.0128,
+      "Z": -97.70045
+    },
+    "LayoutId": 9443332
+  },
+  "9443372": {
+    "NameId": 2013173,
+    "Name": "Tualong Tree",
+    "Position": {
+      "X": -259.1989,
+      "Y": 128.7181,
+      "Z": -97.8192
+    },
+    "LayoutId": 9443372
+  },
+  "9443371": {
+    "NameId": 2013173,
+    "Name": "Tualong Tree",
+    "Position": {
+      "X": -238.4002,
+      "Y": 129.5333,
+      "Z": -87.57162
+    },
+    "LayoutId": 9443371
+  },
+  "9443363": {
+    "NameId": 2013185,
+    "Name": "Cotton Plant",
+    "Position": {
+      "X": -210.3394,
+      "Y": 150.0241,
+      "Z": -87.5666
+    },
+    "LayoutId": 9443363
+  },
+  "9443356": {
+    "NameId": 2013185,
+    "Name": "Cotton Plant",
+    "Position": {
+      "X": -231.5801,
+      "Y": 130.3696,
+      "Z": -79.47093
+    },
+    "LayoutId": 9443356
+  },
+  "9443333": {
+    "NameId": 2013185,
+    "Name": "Cotton Plant",
+    "Position": {
+      "X": -228.8008,
+      "Y": 129.1564,
+      "Z": -63.82581
+    },
+    "LayoutId": 9443333
+  },
+  "9443359": {
+    "NameId": 2013185,
+    "Name": "Cotton Plant",
+    "Position": {
+      "X": -220.1682,
+      "Y": 129.8569,
+      "Z": -62.92055
+    },
+    "LayoutId": 9443359
+  },
+  "9681778": {
+    "NameId": 2013300,
+    "Name": "Multicolored Isleblooms",
+    "Position": {
+      "X": -150.854,
+      "Y": 194.2208,
+      "Z": -86.64175
+    },
+    "LayoutId": 9681778
+  },
+  "9681777": {
+    "NameId": 2013300,
+    "Name": "Multicolored Isleblooms",
+    "Position": {
+      "X": -165.0402,
+      "Y": 194.5181,
+      "Z": -75.45348
+    },
+    "LayoutId": 9681777
+  },
+  "9405309": {
+    "NameId": 2013185,
+    "Name": "Cotton Plant",
+    "Position": {
+      "X": -57.45157,
+      "Y": 117.8822,
+      "Z": -91.29235
+    },
+    "LayoutId": 9405309
+  },
+  "9358995": {
+    "NameId": 2013181,
+    "Name": "Wild Popoto",
+    "Position": {
+      "X": -69.38636,
+      "Y": 116.8532,
+      "Z": -54.41752
+    },
+    "LayoutId": 9358995
+  },
+  "9290604": {
+    "NameId": 2013174,
+    "Name": "Palm Tree",
+    "Position": {
+      "X": -12.35019,
+      "Y": 71.67896,
+      "Z": -99.85142
+    },
+    "LayoutId": 9290604
+  },
+  "9358951": {
+    "NameId": 2013178,
+    "Name": "Smooth White Rock",
+    "Position": {
+      "X": 10.18762,
+      "Y": 63.00798,
+      "Z": -104.5143
+    },
+    "LayoutId": 9358951
+  },
+  "9290628": {
+    "NameId": 2013174,
+    "Name": "Palm Tree",
+    "Position": {
+      "X": -20.89695,
+      "Y": 75.32586,
+      "Z": -64.25787
+    },
+    "LayoutId": 9290628
+  },
+  "9408631": {
+    "NameId": 2013186,
+    "Name": "Agave Plant",
+    "Position": {
+      "X": -3.605598,
+      "Y": 70.7188,
+      "Z": -79.64677
+    },
+    "LayoutId": 9408631
+  },
+  "9358963": {
+    "NameId": 2013178,
+    "Name": "Smooth White Rock",
+    "Position": {
+      "X": 19.66358,
+      "Y": 64.15797,
+      "Z": -90.33246
+    },
+    "LayoutId": 9358963
+  },
+  "9290591": {
+    "NameId": 2013174,
+    "Name": "Palm Tree",
+    "Position": {
+      "X": 5.750496,
+      "Y": 69.5051,
+      "Z": -69.31521
+    },
+    "LayoutId": 9290591
+  },
+  "9443251": {
+    "NameId": 2013178,
+    "Name": "Smooth White Rock",
+    "Position": {
+      "X": 20.50583,
+      "Y": 64.53484,
+      "Z": -85.08566
+    },
+    "LayoutId": 9443251
+  },
+  "9358954": {
+    "NameId": 2013178,
+    "Name": "Smooth White Rock",
+    "Position": {
+      "X": 16.01834,
+      "Y": 66.62136,
+      "Z": -76.75399
+    },
+    "LayoutId": 9358954
+  },
+  "9405327": {
+    "NameId": 2013183,
+    "Name": "Submerged Sand",
+    "Position": {
+      "X": 31.78725,
+      "Y": 63.18619,
+      "Z": -91.13654
+    },
+    "LayoutId": 9405327
+  },
+  "9443250": {
+    "NameId": 2013178,
+    "Name": "Smooth White Rock",
+    "Position": {
+      "X": 20.61893,
+      "Y": 65.40166,
+      "Z": -73.912
+    },
+    "LayoutId": 9443250
+  },
+  "9443252": {
+    "NameId": 2013178,
+    "Name": "Smooth White Rock",
+    "Position": {
+      "X": 25.42861,
+      "Y": 63.8524,
+      "Z": -77.04194
+    },
+    "LayoutId": 9443252
+  },
+  "9290586": {
+    "NameId": 2013174,
+    "Name": "Palm Tree",
+    "Position": {
+      "X": -27.00772,
+      "Y": 74.3636,
+      "Z": -28.75559
+    },
+    "LayoutId": 9290586
+  },
+  "9358960": {
+    "NameId": 2013178,
+    "Name": "Smooth White Rock",
+    "Position": {
+      "X": 23.19866,
+      "Y": 65.30923,
+      "Z": -63.3903
+    },
+    "LayoutId": 9358960
+  },
+  "9300104": {
+    "NameId": 2013176,
+    "Name": "Mahogany Tree",
+    "Position": {
+      "X": 55.3483,
+      "Y": 75.85831,
+      "Z": -100.7874
+    },
+    "LayoutId": 9300104
+  },
+  "9406596": {
+    "NameId": 2013184,
+    "Name": "Sugarcane",
+    "Position": {
+      "X": 17.73135,
+      "Y": 68.09464,
+      "Z": -49.95373
+    },
+    "LayoutId": 9406596
+  },
+  "9358959": {
+    "NameId": 2013178,
+    "Name": "Smooth White Rock",
+    "Position": {
+      "X": -21.16272,
+      "Y": 71.16072,
+      "Z": -16.43007
+    },
+    "LayoutId": 9358959
+  },
+  "9358950": {
+    "NameId": 2013178,
+    "Name": "Smooth White Rock",
+    "Position": {
+      "X": -57.62276,
+      "Y": 83.67813,
+      "Z": -0.2872671
+    },
+    "LayoutId": 9358950
+  },
+  "9290601": {
+    "NameId": 2013174,
+    "Name": "Palm Tree",
+    "Position": {
+      "X": 48.65997,
+      "Y": 71.35775,
+      "Z": -72.62408
+    },
+    "LayoutId": 9290601
+  },
+  "9358957": {
+    "NameId": 2013178,
+    "Name": "Smooth White Rock",
+    "Position": {
+      "X": -31.34303,
+      "Y": 72.82183,
+      "Z": 4.321081
+    },
+    "LayoutId": 9358957
+  },
+  "9406595": {
+    "NameId": 2013184,
+    "Name": "Sugarcane",
+    "Position": {
+      "X": -18.77055,
+      "Y": 70.52728,
+      "Z": 4.585913
+    },
+    "LayoutId": 9406595
+  },
+  "9290631": {
+    "NameId": 2013174,
+    "Name": "Palm Tree",
+    "Position": {
+      "X": 55.15841,
+      "Y": 69.08459,
+      "Z": -37.49682
+    },
+    "LayoutId": 9290631
+  },
+  "9291489": {
+    "NameId": 2013176,
+    "Name": "Mahogany Tree",
+    "Position": {
+      "X": 74.42509,
+      "Y": 73.33627,
+      "Z": -34.70537
+    },
+    "LayoutId": 9291489
+  },
+  "9408622": {
+    "NameId": 2013186,
+    "Name": "Agave Plant",
+    "Position": {
+      "X": 119.077,
+      "Y": 85.94567,
+      "Z": -129.2452
+    },
+    "LayoutId": 9408622
+  },
+  "9444109": {
+    "NameId": 2013182,
+    "Name": "Wild Parsnip",
+    "Position": {
+      "X": 109.1427,
+      "Y": 77.50099,
+      "Z": -47.30221
+    },
+    "LayoutId": 9444109
+  },
+  "9291424": {
+    "NameId": 2013175,
+    "Name": "Island Apple Tree",
+    "Position": {
+      "X": 81.92361,
+      "Y": 68.79892,
+      "Z": 18.11295
+    },
+    "LayoutId": 9291424
+  },
+  "9290590": {
+    "NameId": 2013174,
+    "Name": "Palm Tree",
+    "Position": {
+      "X": 18.02489,
+      "Y": 67.78538,
+      "Z": 70.46908
+    },
+    "LayoutId": 9290590
+  },
+  "9291487": {
+    "NameId": 2013176,
+    "Name": "Mahogany Tree",
+    "Position": {
+      "X": 127.4982,
+      "Y": 70.3128,
+      "Z": 16.04388
+    },
+    "LayoutId": 9291487
+  },
+  "9291459": {
+    "NameId": 2013175,
+    "Name": "Island Apple Tree",
+    "Position": {
+      "X": 116.0069,
+      "Y": 66.06025,
+      "Z": 35.48691
+    },
+    "LayoutId": 9291459
+  },
+  "9290629": {
+    "NameId": 2013174,
+    "Name": "Palm Tree",
+    "Position": {
+      "X": 75.6954,
+      "Y": 66.12619,
+      "Z": 71.20983
+    },
+    "LayoutId": 9290629
+  },
+  "9290627": {
+    "NameId": 2013174,
+    "Name": "Palm Tree",
+    "Position": {
+      "X": 9.129295,
+      "Y": 71.4309,
+      "Z": 102.2294
+    },
+    "LayoutId": 9290627
+  },
+  "9330805": {
+    "NameId": 2013171,
+    "Name": "Lightly Gnawed Pumpkin",
+    "Position": {
+      "X": 27.06747,
+      "Y": 72.2938,
+      "Z": 105.5007
+    },
+    "LayoutId": 9330805
+  },
+  "9291406": {
+    "NameId": 2013173,
+    "Name": "Tualong Tree",
+    "Position": {
+      "X": 91.52532,
+      "Y": 65.23124,
+      "Z": 75.89076
+    },
+    "LayoutId": 9291406
+  },
+  "9330803": {
+    "NameId": 2013171,
+    "Name": "Lightly Gnawed Pumpkin",
+    "Position": {
+      "X": 35.96728,
+      "Y": 72.57812,
+      "Z": 106.3655
+    },
+    "LayoutId": 9330803
+  },
+  "9330804": {
+    "NameId": 2013171,
+    "Name": "Lightly Gnawed Pumpkin",
+    "Position": {
+      "X": 31.12832,
+      "Y": 72.80013,
+      "Z": 107.8705
+    },
+    "LayoutId": 9330804
+  },
+  "9330806": {
+    "NameId": 2013171,
+    "Name": "Lightly Gnawed Pumpkin",
+    "Position": {
+      "X": 40.16435,
+      "Y": 72.50272,
+      "Z": 105.3326
+    },
+    "LayoutId": 9330806
+  },
+  "9330802": {
+    "NameId": 2013171,
+    "Name": "Lightly Gnawed Pumpkin",
+    "Position": {
+      "X": 36.70633,
+      "Y": 73.00578,
+      "Z": 109.0732
+    },
+    "LayoutId": 9330802
+  },
+  "9330810": {
+    "NameId": 2013171,
+    "Name": "Lightly Gnawed Pumpkin",
+    "Position": {
+      "X": 85.27633,
+      "Y": 68.91148,
+      "Z": 93.33662
+    },
+    "LayoutId": 9330810
+  },
+  "9330809": {
+    "NameId": 2013171,
+    "Name": "Lightly Gnawed Pumpkin",
+    "Position": {
+      "X": 72.9323,
+      "Y": 71.21127,
+      "Z": 103.2162
+    },
+    "LayoutId": 9330809
+  },
+  "9330811": {
+    "NameId": 2013171,
+    "Name": "Lightly Gnawed Pumpkin",
+    "Position": {
+      "X": 76.44466,
+      "Y": 70.80212,
+      "Z": 101.7564
+    },
+    "LayoutId": 9330811
+  },
+  "9291426": {
+    "NameId": 2013175,
+    "Name": "Island Apple Tree",
+    "Position": {
+      "X": 4.12714,
+      "Y": 76.13533,
+      "Z": 126.5731
+    },
+    "LayoutId": 9291426
+  },
+  "9330807": {
+    "NameId": 2013171,
+    "Name": "Lightly Gnawed Pumpkin",
+    "Position": {
+      "X": 90.28628,
+      "Y": 69.67867,
+      "Z": 99.10065
+    },
+    "LayoutId": 9330807
+  },
+  "9291453": {
+    "NameId": 2013175,
+    "Name": "Island Apple Tree",
+    "Position": {
+      "X": 139.989,
+      "Y": 62.94702,
+      "Z": 54.21465
+    },
+    "LayoutId": 9291453
+  },
+  "9444110": {
+    "NameId": 2013182,
+    "Name": "Wild Parsnip",
+    "Position": {
+      "X": 186.7613,
+      "Y": 86.07959,
+      "Z": -42.24125
+    },
+    "LayoutId": 9444110
+  },
+  "9443402": {
+    "NameId": 2013184,
+    "Name": "Sugarcane",
+    "Position": {
+      "X": 119.8492,
+      "Y": 62.3671,
+      "Z": 77.94358
+    },
+    "LayoutId": 9443402
+  },
+  "9330808": {
+    "NameId": 2013171,
+    "Name": "Lightly Gnawed Pumpkin",
+    "Position": {
+      "X": 102.8304,
+      "Y": 67.37497,
+      "Z": 94.13676
+    },
+    "LayoutId": 9330808
+  },
+  "9291484": {
+    "NameId": 2013176,
+    "Name": "Mahogany Tree",
+    "Position": {
+      "X": 161.8215,
+      "Y": 70.04926,
+      "Z": 28.67406
+    },
+    "LayoutId": 9291484
+  },
+  "9358999": {
+    "NameId": 2013181,
+    "Name": "Wild Popoto",
+    "Position": {
+      "X": 190.8528,
+      "Y": 90.2685,
+      "Z": -67.49742
+    },
+    "LayoutId": 9358999
+  },
+  "9291399": {
+    "NameId": 2013173,
+    "Name": "Tualong Tree",
+    "Position": {
+      "X": 131.1692,
+      "Y": 64.02085,
+      "Z": 85.11119
+    },
+    "LayoutId": 9291399
+  },
+  "9291454": {
+    "NameId": 2013175,
+    "Name": "Island Apple Tree",
+    "Position": {
+      "X": 75.65653,
+      "Y": 77.31664,
+      "Z": 127.421
+    },
+    "LayoutId": 9291454
+  },
+  "9291405": {
+    "NameId": 2013173,
+    "Name": "Tualong Tree",
+    "Position": {
+      "X": 52.1427,
+      "Y": 80.77206,
+      "Z": 141.5677
+    },
+    "LayoutId": 9291405
+  },
+  "9291394": {
+    "NameId": 2013173,
+    "Name": "Tualong Tree",
+    "Position": {
+      "X": 165.9321,
+      "Y": 67.092,
+      "Z": 48.07481
+    },
+    "LayoutId": 9291394
+  },
+  "9291456": {
+    "NameId": 2013175,
+    "Name": "Island Apple Tree",
+    "Position": {
+      "X": 174.3449,
+      "Y": 63.85441,
+      "Z": 57.51624
+    },
+    "LayoutId": 9291456
+  },
+  "9291445": {
+    "NameId": 2013175,
+    "Name": "Island Apple Tree",
+    "Position": {
+      "X": 116.0908,
+      "Y": 76.62638,
+      "Z": 132.7985
+    },
+    "LayoutId": 9291445
+  },
+  "9443400": {
+    "NameId": 2013184,
+    "Name": "Sugarcane",
+    "Position": {
+      "X": 164.7799,
+      "Y": 61.01879,
+      "Z": 85.42371
+    },
+    "LayoutId": 9443400
+  },
+  "9291488": {
+    "NameId": 2013176,
+    "Name": "Mahogany Tree",
+    "Position": {
+      "X": 201.7245,
+      "Y": 76.97015,
+      "Z": 6.224274
+    },
+    "LayoutId": 9291488
+  },
+  "9291407": {
+    "NameId": 2013173,
+    "Name": "Tualong Tree",
+    "Position": {
+      "X": 195.9248,
+      "Y": 64.11677,
+      "Z": 60.33029
+    },
+    "LayoutId": 9291407
+  },
+  "9405328": {
+    "NameId": 2013183,
+    "Name": "Submerged Sand",
+    "Position": {
+      "X": 187.4403,
+      "Y": 56.59152,
+      "Z": 79.67698
+    },
+    "LayoutId": 9405328
+  },
+  "9291486": {
+    "NameId": 2013176,
+    "Name": "Mahogany Tree",
+    "Position": {
+      "X": 222.4488,
+      "Y": 72.2254,
+      "Z": 39.63013
+    },
+    "LayoutId": 9291486
+  },
+  "9291396": {
+    "NameId": 2013173,
+    "Name": "Tualong Tree",
+    "Position": {
+      "X": 171.0041,
+      "Y": 71.71716,
+      "Z": 133.9308
+    },
+    "LayoutId": 9291396
+  },
+  "9291393": {
+    "NameId": 2013173,
+    "Name": "Tualong Tree",
+    "Position": {
+      "X": 198.1234,
+      "Y": 66.86137,
+      "Z": 116.2023
+    },
+    "LayoutId": 9291393
+  },
+  "9443256": {
+    "NameId": 2013178,
+    "Name": "Smooth White Rock",
+    "Position": {
+      "X": 220.3152,
+      "Y": 57.3303,
+      "Z": 84.54701
+    },
+    "LayoutId": 9443256
+  },
+  "9408596": {
+    "NameId": 2013180,
+    "Name": "Mound of Dirt",
+    "Position": {
+      "X": 222.7989,
+      "Y": 58.17744,
+      "Z": 87.06004
+    },
+    "LayoutId": 9408596
+  },
+  "9359019": {
+    "NameId": 2013182,
+    "Name": "Wild Parsnip",
+    "Position": {
+      "X": 246.6809,
+      "Y": 83.36399,
+      "Z": -30.19926
+    },
+    "LayoutId": 9359019
+  },
+  "9291403": {
+    "NameId": 2013173,
+    "Name": "Tualong Tree",
+    "Position": {
+      "X": 244.0425,
+      "Y": 61.85011,
+      "Z": 55.55525
+    },
+    "LayoutId": 9291403
+  },
+  "9408595": {
+    "NameId": 2013180,
+    "Name": "Mound of Dirt",
+    "Position": {
+      "X": 231.8808,
+      "Y": 57.7093,
+      "Z": 88.48471
+    },
+    "LayoutId": 9408595
+  },
+  "9300123": {
+    "NameId": 2013176,
+    "Name": "Mahogany Tree",
+    "Position": {
+      "X": 231.8916,
+      "Y": 95.65927,
+      "Z": -88.00343
+    },
+    "LayoutId": 9300123
+  },
+  "9444575": {
+    "NameId": 2013180,
+    "Name": "Mound of Dirt",
+    "Position": {
+      "X": 235.9207,
+      "Y": 57.9437,
+      "Z": 89.32864
+    },
+    "LayoutId": 9444575
+  },
+  "9408597": {
+    "NameId": 2013180,
+    "Name": "Mound of Dirt",
+    "Position": {
+      "X": 239.221,
+      "Y": 57.04767,
+      "Z": 86.81854
+    },
+    "LayoutId": 9408597
+  },
+  "9358998": {
+    "NameId": 2013181,
+    "Name": "Wild Popoto",
+    "Position": {
+      "X": 260.1522,
+      "Y": 80.92599,
+      "Z": -16.59379
+    },
+    "LayoutId": 9358998
+  },
+  "9408598": {
+    "NameId": 2013180,
+    "Name": "Mound of Dirt",
+    "Position": {
+      "X": 240.556,
+      "Y": 58.07778,
+      "Z": 91.61203
+    },
+    "LayoutId": 9408598
+  },
+  "9444574": {
+    "NameId": 2013180,
+    "Name": "Mound of Dirt",
+    "Position": {
+      "X": 244.1913,
+      "Y": 57.72537,
+      "Z": 91.93792
+    },
+    "LayoutId": 9444574
+  },
+  "9408594": {
+    "NameId": 2013180,
+    "Name": "Mound of Dirt",
+    "Position": {
+      "X": 246.6924,
+      "Y": 56.71018,
+      "Z": 90.21992
+    },
+    "LayoutId": 9408594
+  },
+  "9406597": {
+    "NameId": 2013184,
+    "Name": "Sugarcane",
+    "Position": {
+      "X": 261.8618,
+      "Y": 58.88929,
+      "Z": 71.90205
+    },
+    "LayoutId": 9406597
+  },
+  "9291451": {
+    "NameId": 2013175,
+    "Name": "Island Apple Tree",
+    "Position": {
+      "X": 274.5423,
+      "Y": 76.92192,
+      "Z": 16.9392
+    },
+    "LayoutId": 9291451
+  },
+  "9405329": {
+    "NameId": 2013183,
+    "Name": "Submerged Sand",
+    "Position": {
+      "X": 263.8858,
+      "Y": 54.62102,
+      "Z": 85.33164
+    },
+    "LayoutId": 9405329
+  },
+  "9291395": {
+    "NameId": 2013173,
+    "Name": "Tualong Tree",
+    "Position": {
+      "X": 254.8366,
+      "Y": 62.84673,
+      "Z": 113.2443
+    },
+    "LayoutId": 9291395
+  },
+  "9359020": {
+    "NameId": 2013182,
+    "Name": "Wild Parsnip",
+    "Position": {
+      "X": 229.1339,
+      "Y": 107.6004,
+      "Z": -112.0706
+    },
+    "LayoutId": 9359020
+  },
+  "9291458": {
+    "NameId": 2013175,
+    "Name": "Island Apple Tree",
+    "Position": {
+      "X": 288.0627,
+      "Y": 65.27488,
+      "Z": 59.73593
+    },
+    "LayoutId": 9291458
+  },
+  "9291400": {
+    "NameId": 2013173,
+    "Name": "Tualong Tree",
+    "Position": {
+      "X": 294.5428,
+      "Y": 68.02338,
+      "Z": 48.31687
+    },
+    "LayoutId": 9291400
+  },
+  "10187842": {
+    "NameId": 2013524,
+    "Name": "Island Crystal Cluster",
+    "Position": {
+      "X": 256.9078,
+      "Y": 52.99207,
+      "Z": -112.6788
+    },
+    "LayoutId": 10187842
+  },
+  "10187839": {
+    "NameId": 2013523,
+    "Name": "Yellowish Rock",
+    "Position": {
+      "X": 244.4501,
+      "Y": 52.98687,
+      "Z": -130.5405
+    },
+    "LayoutId": 10187839
+  },
+  "9405313": {
+    "NameId": 2013185,
+    "Name": "Cotton Plant",
+    "Position": {
+      "X": 300.6687,
+      "Y": 60.60033,
+      "Z": 93.94751
+    },
+    "LayoutId": 9405313
+  },
+  "9291442": {
+    "NameId": 2013175,
+    "Name": "Island Apple Tree",
+    "Position": {
+      "X": 276.0109,
+      "Y": 69.62703,
+      "Z": 136.8417
+    },
+    "LayoutId": 9291442
+  },
+  "9358986": {
+    "NameId": 2013181,
+    "Name": "Wild Popoto",
+    "Position": {
+      "X": 319.486,
+      "Y": 60.01957,
+      "Z": 101.1809
+    },
+    "LayoutId": 9358986
+  },
+  "9358985": {
+    "NameId": 2013181,
+    "Name": "Wild Popoto",
+    "Position": {
+      "X": 330.3573,
+      "Y": 66.20985,
+      "Z": 81.38951
+    },
+    "LayoutId": 9358985
+  },
+  "10187840": {
+    "NameId": 2013523,
+    "Name": "Yellowish Rock",
+    "Position": {
+      "X": 271.2572,
+      "Y": 52.97828,
+      "Z": -121.3925
+    },
+    "LayoutId": 10187840
+  },
+  "9443390": {
+    "NameId": 2013173,
+    "Name": "Tualong Tree",
+    "Position": {
+      "X": 329.4017,
+      "Y": 85.6561,
+      "Z": -58.69024
+    },
+    "LayoutId": 9443390
+  },
+  "10187841": {
+    "NameId": 2013523,
+    "Name": "Yellowish Rock",
+    "Position": {
+      "X": 266.5627,
+      "Y": 52.95905,
+      "Z": -129.8931
+    },
+    "LayoutId": 10187841
+  },
+  "9408601": {
+    "NameId": 2013180,
+    "Name": "Mound of Dirt",
+    "Position": {
+      "X": 333.4868,
+      "Y": 54.86498,
+      "Z": 104.6269
+    },
+    "LayoutId": 9408601
+  },
+  "10187837": {
+    "NameId": 2013523,
+    "Name": "Yellowish Rock",
+    "Position": {
+      "X": 250.4352,
+      "Y": 52.98743,
+      "Z": -141.5751
+    },
+    "LayoutId": 10187837
+  },
+  "10187843": {
+    "NameId": 2013524,
+    "Name": "Island Crystal Cluster",
+    "Position": {
+      "X": 280.6038,
+      "Y": 52.9947,
+      "Z": -126.049
+    },
+    "LayoutId": 10187843
+  },
+  "9358984": {
+    "NameId": 2013181,
+    "Name": "Wild Popoto",
+    "Position": {
+      "X": 347.6945,
+      "Y": 56.19616,
+      "Z": 98.86113
+    },
+    "LayoutId": 9358984
+  },
+  "9291463": {
+    "NameId": 2013175,
+    "Name": "Island Apple Tree",
+    "Position": {
+      "X": 274.5332,
+      "Y": 109.2792,
+      "Z": -133.2093
+    },
+    "LayoutId": 9291463
+  },
+  "10187845": {
+    "NameId": 2013524,
+    "Name": "Island Crystal Cluster",
+    "Position": {
+      "X": 294.8877,
+      "Y": 53.0,
+      "Z": -122.6879
+    },
+    "LayoutId": 10187845
+  },
+  "9358987": {
+    "NameId": 2013181,
+    "Name": "Wild Popoto",
+    "Position": {
+      "X": 348.5376,
+      "Y": 56.79827,
+      "Z": 134.7057
+    },
+    "LayoutId": 9358987
+  },
+  "9358994": {
+    "NameId": 2013181,
+    "Name": "Wild Popoto",
+    "Position": {
+      "X": 381.4956,
+      "Y": 62.7275,
+      "Z": 20.55754
+    },
+    "LayoutId": 9358994
+  },
+  "9358991": {
+    "NameId": 2013181,
+    "Name": "Wild Popoto",
+    "Position": {
+      "X": 380.3241,
+      "Y": 59.17909,
+      "Z": 49.72868
+    },
+    "LayoutId": 9358991
+  },
+  "9358993": {
+    "NameId": 2013181,
+    "Name": "Wild Popoto",
+    "Position": {
+      "X": 396.2899,
+      "Y": 55.31078,
+      "Z": 52.04057
+    },
+    "LayoutId": 9358993
+  },
+  "9358992": {
+    "NameId": 2013181,
+    "Name": "Wild Popoto",
+    "Position": {
+      "X": 392.7377,
+      "Y": 50.08255,
+      "Z": 88.8159
+    },
+    "LayoutId": 9358992
+  },
+  "10187838": {
+    "NameId": 2013523,
+    "Name": "Yellowish Rock",
+    "Position": {
+      "X": 284.983,
+      "Y": 52.99493,
+      "Z": -139.6358
+    },
+    "LayoutId": 10187838
+  },
+  "9405636": {
+    "NameId": 2013183,
+    "Name": "Submerged Sand",
+    "Position": {
+      "X": 391.8789,
+      "Y": 41.27588,
+      "Z": 122.5797
+    },
+    "LayoutId": 9405636
+  },
+  "9443403": {
+    "NameId": 2013184,
+    "Name": "Sugarcane",
+    "Position": {
+      "X": 391.4175,
+      "Y": 45.80393,
+      "Z": 135.259
+    },
+    "LayoutId": 9443403
+  },
+  "10187844": {
+    "NameId": 2013524,
+    "Name": "Island Crystal Cluster",
+    "Position": {
+      "X": 299.0002,
+      "Y": 53.0,
+      "Z": -136.7983
+    },
+    "LayoutId": 10187844
+  },
+  "9359016": {
+    "NameId": 2013182,
+    "Name": "Wild Parsnip",
+    "Position": {
+      "X": 419.7204,
+      "Y": 56.33828,
+      "Z": 7.296076
+    },
+    "LayoutId": 9359016
+  },
+  "9681770": {
+    "NameId": 2013300,
+    "Name": "Multicolored Isleblooms",
+    "Position": {
+      "X": 174.8062,
+      "Y": 94.82201,
+      "Z": 238.1653
+    },
+    "LayoutId": 9681770
+  },
+  "9681769": {
+    "NameId": 2013300,
+    "Name": "Multicolored Isleblooms",
+    "Position": {
+      "X": 209.4239,
+      "Y": 95.47581,
+      "Z": 250.1532
+    },
+    "LayoutId": 9681769
+  },
+  "9681767": {
+    "NameId": 2013300,
+    "Name": "Multicolored Isleblooms",
+    "Position": {
+      "X": 197.6202,
+      "Y": 94.24057,
+      "Z": 258.0838
+    },
+    "LayoutId": 9681767
+  },
+  "9300160": {
+    "NameId": 2013176,
+    "Name": "Mahogany Tree",
+    "Position": {
+      "X": 403.6752,
+      "Y": 53.37167,
+      "Z": 167.1214
+    },
+    "LayoutId": 9300160
+  },
+  "9408620": {
+    "NameId": 2013186,
+    "Name": "Agave Plant",
+    "Position": {
+      "X": 368.0246,
+      "Y": 56.86658,
+      "Z": 256.8884
+    },
+    "LayoutId": 9408620
+  },
+  "9359018": {
+    "NameId": 2013182,
+    "Name": "Wild Parsnip",
+    "Position": {
+      "X": 421.8176,
+      "Y": 56.81732,
+      "Z": -31.70682
+    },
+    "LayoutId": 9359018
+  },
+  "9405639": {
+    "NameId": 2013183,
+    "Name": "Submerged Sand",
+    "Position": {
+      "X": 467.1743,
+      "Y": 33.4439,
+      "Z": 123.7154
+    },
+    "LayoutId": 9405639
+  },
+  "9359012": {
+    "NameId": 2013182,
+    "Name": "Wild Parsnip",
+    "Position": {
+      "X": 449.5129,
+      "Y": 37.90731,
+      "Z": 9.478894
+    },
+    "LayoutId": 9359012
+  },
+  "9291464": {
+    "NameId": 2013175,
+    "Name": "Island Apple Tree",
+    "Position": {
+      "X": 402.4326,
+      "Y": 75.62643,
+      "Z": -63.94274
+    },
+    "LayoutId": 9291464
+  },
+  "9359015": {
+    "NameId": 2013182,
+    "Name": "Wild Parsnip",
+    "Position": {
+      "X": 439.3579,
+      "Y": 36.21948,
+      "Z": -28.27675
+    },
+    "LayoutId": 9359015
+  },
+  "9405228": {
+    "NameId": 2013185,
+    "Name": "Cotton Plant",
+    "Position": {
+      "X": 463.6004,
+      "Y": 59.543,
+      "Z": 242.4637
+    },
+    "LayoutId": 9405228
+  },
+  "9444111": {
+    "NameId": 2013182,
+    "Name": "Wild Parsnip",
+    "Position": {
+      "X": 411.2865,
+      "Y": 44.2811,
+      "Z": 295.8804
+    },
+    "LayoutId": 9444111
+  },
+  "9300130": {
+    "NameId": 2013176,
+    "Name": "Mahogany Tree",
+    "Position": {
+      "X": 489.2151,
+      "Y": 50.37166,
+      "Z": 192.2426
+    },
+    "LayoutId": 9300130
+  },
+  "9443383": {
+    "NameId": 2013173,
+    "Name": "Tualong Tree",
+    "Position": {
+      "X": 385.5089,
+      "Y": 39.7403,
+      "Z": 316.2915
+    },
+    "LayoutId": 9443383
+  },
+  "9405221": {
+    "NameId": 2013185,
+    "Name": "Cotton Plant",
+    "Position": {
+      "X": 472.2391,
+      "Y": 58.99854,
+      "Z": 242.9449
+    },
+    "LayoutId": 9405221
+  },
+  "9405210": {
+    "NameId": 2013185,
+    "Name": "Cotton Plant",
+    "Position": {
+      "X": 470.0854,
+      "Y": 59.73454,
+      "Z": 247.6711
+    },
+    "LayoutId": 9405210
+  },
+  "9405205": {
+    "NameId": 2013185,
+    "Name": "Cotton Plant",
+    "Position": {
+      "X": 475.9789,
+      "Y": 59.0162,
+      "Z": 247.1519
+    },
+    "LayoutId": 9405205
+  },
+  "9443384": {
+    "NameId": 2013173,
+    "Name": "Tualong Tree",
+    "Position": {
+      "X": 500.1328,
+      "Y": 52.05733,
+      "Z": 202.7137
+    },
+    "LayoutId": 9443384
+  },
+  "9405208": {
+    "NameId": 2013185,
+    "Name": "Cotton Plant",
+    "Position": {
+      "X": 479.9926,
+      "Y": 58.82418,
+      "Z": 250.2071
+    },
+    "LayoutId": 9405208
+  },
+  "9405222": {
+    "NameId": 2013185,
+    "Name": "Cotton Plant",
+    "Position": {
+      "X": 484.7717,
+      "Y": 57.52946,
+      "Z": 246.7413
+    },
+    "LayoutId": 9405222
+  },
+  "9291313": {
+    "NameId": 2013174,
+    "Name": "Palm Tree",
+    "Position": {
+      "X": 496.6801,
+      "Y": 20.88902,
+      "Z": 48.6704
+    },
+    "LayoutId": 9291313
+  },
+  "9405230": {
+    "NameId": 2013185,
+    "Name": "Cotton Plant",
+    "Position": {
+      "X": 487.7055,
+      "Y": 57.05914,
+      "Z": 251.686
+    },
+    "LayoutId": 9405230
+  },
+  "9359021": {
+    "NameId": 2013182,
+    "Name": "Wild Parsnip",
+    "Position": {
+      "X": 421.1952,
+      "Y": 38.88491,
+      "Z": 323.7259
+    },
+    "LayoutId": 9359021
+  },
+  "9444101": {
+    "NameId": 2013186,
+    "Name": "Agave Plant",
+    "Position": {
+      "X": 482.2077,
+      "Y": 49.01351,
+      "Z": 288.9727
+    },
+    "LayoutId": 9444101
+  },
+  "9408602": {
+    "NameId": 2013180,
+    "Name": "Mound of Dirt",
+    "Position": {
+      "X": 537.6158,
+      "Y": 19.84733,
+      "Z": 162.8679
+    },
+    "LayoutId": 9408602
+  },
+  "9408616": {
+    "NameId": 2013186,
+    "Name": "Agave Plant",
+    "Position": {
+      "X": 538.6234,
+      "Y": 18.20532,
+      "Z": 109.2834
+    },
+    "LayoutId": 9408616
+  },
+  "9408613": {
+    "NameId": 2013186,
+    "Name": "Agave Plant",
+    "Position": {
+      "X": 532.5104,
+      "Y": 10.47343,
+      "Z": 61.1096
+    },
+    "LayoutId": 9408613
+  },
+  "9408612": {
+    "NameId": 2013186,
+    "Name": "Agave Plant",
+    "Position": {
+      "X": 520.1461,
+      "Y": 10.09948,
+      "Z": 26.9515
+    },
+    "LayoutId": 9408612
+  },
+  "9444132": {
+    "NameId": 2013174,
+    "Name": "Palm Tree",
+    "Position": {
+      "X": 481.0665,
+      "Y": 22.54302,
+      "Z": 315.433
+    },
+    "LayoutId": 9444132
+  },
+  "9291309": {
+    "NameId": 2013174,
+    "Name": "Palm Tree",
+    "Position": {
+      "X": 555.6973,
+      "Y": 17.14369,
+      "Z": 104.8459
+    },
+    "LayoutId": 9291309
+  },
+  "9358897": {
+    "NameId": 2013177,
+    "Name": "Bluish Rock",
+    "Position": {
+      "X": 560.9484,
+      "Y": 20.79283,
+      "Z": 173.0636
+    },
+    "LayoutId": 9358897
+  },
+  "9291310": {
+    "NameId": 2013174,
+    "Name": "Palm Tree",
+    "Position": {
+      "X": 541.0338,
+      "Y": 8.355098,
+      "Z": 59.53416
+    },
+    "LayoutId": 9291310
+  },
+  "9444112": {
+    "NameId": 2013182,
+    "Name": "Wild Parsnip",
+    "Position": {
+      "X": 555.718,
+      "Y": 48.15909,
+      "Z": 226.4335
+    },
+    "LayoutId": 9444112
+  },
+  "9444100": {
+    "NameId": 2013186,
+    "Name": "Agave Plant",
+    "Position": {
+      "X": 509.9933,
+      "Y": 17.56881,
+      "Z": 293.5699
+    },
+    "LayoutId": 9444100
+  },
+  "9408621": {
+    "NameId": 2013186,
+    "Name": "Agave Plant",
+    "Position": {
+      "X": 562.1724,
+      "Y": 26.06746,
+      "Z": 274.6272
+    },
+    "LayoutId": 9408621
+  },
+  "9408618": {
+    "NameId": 2013186,
+    "Name": "Agave Plant",
+    "Position": {
+      "X": 519.9129,
+      "Y": 11.18074,
+      "Z": -0.6661663
+    },
+    "LayoutId": 9408618
+  },
+  "9444131": {
+    "NameId": 2013174,
+    "Name": "Palm Tree",
+    "Position": {
+      "X": 595.6237,
+      "Y": 12.56431,
+      "Z": 172.282
+    },
+    "LayoutId": 9444131
+  },
+  "9408610": {
+    "NameId": 2013180,
+    "Name": "Mound of Dirt",
+    "Position": {
+      "X": 569.3339,
+      "Y": 4.415601,
+      "Z": 60.69194
+    },
+    "LayoutId": 9408610
+  },
+  "9408619": {
+    "NameId": 2013186,
+    "Name": "Agave Plant",
+    "Position": {
+      "X": 592.0596,
+      "Y": 13.07888,
+      "Z": 112.9694
+    },
+    "LayoutId": 9408619
+  },
+  "9358893": {
+    "NameId": 2013177,
+    "Name": "Bluish Rock",
+    "Position": {
+      "X": 600.6575,
+      "Y": 37.51842,
+      "Z": 222.6777
+    },
+    "LayoutId": 9358893
+  },
+  "9359011": {
+    "NameId": 2013182,
+    "Name": "Wild Parsnip",
+    "Position": {
+      "X": 476.4398,
+      "Y": 34.33954,
+      "Z": -40.79825
+    },
+    "LayoutId": 9359011
+  },
+  "9408611": {
+    "NameId": 2013186,
+    "Name": "Agave Plant",
+    "Position": {
+      "X": 533.4496,
+      "Y": 9.363823,
+      "Z": 1.989947
+    },
+    "LayoutId": 9408611
+  },
+  "9444113": {
+    "NameId": 2013182,
+    "Name": "Wild Parsnip",
+    "Position": {
+      "X": 616.14,
+      "Y": 35.32568,
+      "Z": 218.2366
+    },
+    "LayoutId": 9444113
+  },
+  "9444099": {
+    "NameId": 2013186,
+    "Name": "Agave Plant",
+    "Position": {
+      "X": 580.6673,
+      "Y": 10.17752,
+      "Z": 294.9113
+    },
+    "LayoutId": 9444099
+  },
+  "9358877": {
+    "NameId": 2013177,
+    "Name": "Bluish Rock",
+    "Position": {
+      "X": 625.0063,
+      "Y": 11.17028,
+      "Z": 259.3951
+    },
+    "LayoutId": 9358877
+  },
+  "9358886": {
+    "NameId": 2013177,
+    "Name": "Bluish Rock",
+    "Position": {
+      "X": 641.156,
+      "Y": 24.28121,
+      "Z": 221.0411
+    },
+    "LayoutId": 9358886
+  },
+  "9359017": {
+    "NameId": 2013182,
+    "Name": "Wild Parsnip",
+    "Position": {
+      "X": 489.6107,
+      "Y": 33.42527,
+      "Z": -44.15811
+    },
+    "LayoutId": 9359017
+  },
+  "9291311": {
+    "NameId": 2013174,
+    "Name": "Palm Tree",
+    "Position": {
+      "X": 542.6296,
+      "Y": 9.397952,
+      "Z": -22.5317
+    },
+    "LayoutId": 9291311
+  },
+  "9408617": {
+    "NameId": 2013186,
+    "Name": "Agave Plant",
+    "Position": {
+      "X": 542.4311,
+      "Y": 10.27811,
+      "Z": -36.32098
+    },
+    "LayoutId": 9408617
+  },
+  "9358938": {
+    "NameId": 2013178,
+    "Name": "Smooth White Rock",
+    "Position": {
+      "X": 485.7206,
+      "Y": 57.43402,
+      "Z": -68.49453
+    },
+    "LayoutId": 9358938
+  },
+  "9359014": {
+    "NameId": 2013182,
+    "Name": "Wild Parsnip",
+    "Position": {
+      "X": 503.5542,
+      "Y": 28.35172,
+      "Z": -62.15836
+    },
+    "LayoutId": 9359014
+  },
+  "9408609": {
+    "NameId": 2013180,
+    "Name": "Mound of Dirt",
+    "Position": {
+      "X": 571.9205,
+      "Y": 4.529056,
+      "Z": -19.29987
+    },
+    "LayoutId": 9408609
+  },
+  "9443387": {
+    "NameId": 2013173,
+    "Name": "Tualong Tree",
+    "Position": {
+      "X": 475.0222,
+      "Y": 63.05241,
+      "Z": -92.31783
+    },
+    "LayoutId": 9443387
+  },
+  "9358946": {
+    "NameId": 2013178,
+    "Name": "Smooth White Rock",
+    "Position": {
+      "X": 537.9753,
+      "Y": 35.83648,
+      "Z": -81.11307
+    },
+    "LayoutId": 9358946
+  },
+  "9408615": {
+    "NameId": 2013186,
+    "Name": "Agave Plant",
+    "Position": {
+      "X": 570.702,
+      "Y": 7.786444,
+      "Z": -57.79893
+    },
+    "LayoutId": 9408615
+  },
+  "9358940": {
+    "NameId": 2013178,
+    "Name": "Smooth White Rock",
+    "Position": {
+      "X": 554.7258,
+      "Y": 50.50602,
+      "Z": -114.9991
+    },
+    "LayoutId": 9358940
+  },
+  "9291312": {
+    "NameId": 2013174,
+    "Name": "Palm Tree",
+    "Position": {
+      "X": 578.4718,
+      "Y": 13.42319,
+      "Z": -102.6064
+    },
+    "LayoutId": 9291312
+  },
+  "9408614": {
+    "NameId": 2013186,
+    "Name": "Agave Plant",
+    "Position": {
+      "X": 589.035,
+      "Y": 8.842169,
+      "Z": -94.73299
+    },
+    "LayoutId": 9408614
+  },
+  "9358945": {
+    "NameId": 2013178,
+    "Name": "Smooth White Rock",
+    "Position": {
+      "X": 541.7671,
+      "Y": 59.42962,
+      "Z": -139.2
+    },
+    "LayoutId": 9358945
+  },
+  "9408608": {
+    "NameId": 2013180,
+    "Name": "Mound of Dirt",
+    "Position": {
+      "X": 599.9928,
+      "Y": 8.548173,
+      "Z": -102.1043
+    },
+    "LayoutId": 9408608
+  },
+  "9405312": {
+    "NameId": 2013185,
+    "Name": "Cotton Plant",
+    "Position": {
+      "X": 443.9767,
+      "Y": 114.9496,
+      "Z": -151.338
+    },
+    "LayoutId": 9405312
+  },
+  "9358944": {
+    "NameId": 2013178,
+    "Name": "Smooth White Rock",
+    "Position": {
+      "X": 540.8616,
+      "Y": 63.05877,
+      "Z": -148.8992
+    },
+    "LayoutId": 9358944
+  },
+  "9444105": {
+    "NameId": 2013186,
+    "Name": "Agave Plant",
+    "Position": {
+      "X": 396.4482,
+      "Y": 117.4363,
+      "Z": -154.1757
+    },
+    "LayoutId": 9444105
+  },
+  "9300122": {
+    "NameId": 2013176,
+    "Name": "Mahogany Tree",
+    "Position": {
+      "X": 530.5956,
+      "Y": 69.75504,
+      "Z": -162.6902
+    },
+    "LayoutId": 9300122
+  },
+  "10187836": {
+    "NameId": 2013523,
+    "Name": "Yellowish Rock",
+    "Position": {
+      "X": 314.7838,
+      "Y": 52.99999,
+      "Z": -134.7108
+    },
+    "LayoutId": 10187836
+  },
+  "10335303": {
+    "NameId": 2013523,
+    "Name": "Yellowish Rock",
+    "Position": {
+      "X": 306.9742,
+      "Y": 52.94808,
+      "Z": -142.0078
+    },
+    "LayoutId": 10335303
+  },
+  "9291423": {
+    "NameId": 2013173,
+    "Name": "Tualong Tree",
+    "Position": {
+      "X": 326.5661,
+      "Y": 119.1508,
+      "Z": -172.1865
+    },
+    "LayoutId": 9291423
+  },
+  "9929554": {
+    "NameId": 2013375,
+    "Name": "Glowing Fungus",
+    "Position": {
+      "X": 414.2191,
+      "Y": 97.1378,
+      "Z": -211.8011
+    },
+    "LayoutId": 9929554
+  },
+  "9406680": {
+    "NameId": 2013192,
+    "Name": "Speckled Rock",
+    "Position": {
+      "X": 445.1203,
+      "Y": 145.554,
+      "Z": -210.1617
+    },
+    "LayoutId": 9406680
+  },
+  "9406666": {
+    "NameId": 2013190,
+    "Name": "Rough Black Rock",
+    "Position": {
+      "X": 433.9998,
+      "Y": 145.5576,
+      "Z": -210.6754
+    },
+    "LayoutId": 9406666
+  },
+  "9929565": {
+    "NameId": 2013376,
+    "Name": "Composite Rock",
+    "Position": {
+      "X": 399.2888,
+      "Y": 97.0,
+      "Z": -222.2034
+    },
+    "LayoutId": 9929565
+  },
+  "10048679": {
+    "NameId": 2013376,
+    "Name": "Composite Rock",
+    "Position": {
+      "X": 396.983,
+      "Y": 97.0,
+      "Z": -227.0822
+    },
+    "LayoutId": 10048679
+  },
+  "9358948": {
+    "NameId": 2013178,
+    "Name": "Smooth White Rock",
+    "Position": {
+      "X": 554.7781,
+      "Y": 73.11687,
+      "Z": -196.5961
+    },
+    "LayoutId": 9358948
+  },
+  "9406665": {
+    "NameId": 2013190,
+    "Name": "Rough Black Rock",
+    "Position": {
+      "X": 472.0354,
+      "Y": 145.7703,
+      "Z": -228.265
+    },
+    "LayoutId": 9406665
+  },
+  "9443293": {
+    "NameId": 2013190,
+    "Name": "Rough Black Rock",
+    "Position": {
+      "X": 400.3239,
+      "Y": 164.5317,
+      "Z": -225.7801
+    },
+    "LayoutId": 9443293
+  },
+  "9443292": {
+    "NameId": 2013190,
+    "Name": "Rough Black Rock",
+    "Position": {
+      "X": 402.4033,
+      "Y": 164.3566,
+      "Z": -227.2448
+    },
+    "LayoutId": 9443292
+  },
+  "9443291": {
+    "NameId": 2013190,
+    "Name": "Rough Black Rock",
+    "Position": {
+      "X": 399.4955,
+      "Y": 164.6461,
+      "Z": -229.3117
+    },
+    "LayoutId": 9443291
+  },
+  "9928477": {
+    "NameId": 2013375,
+    "Name": "Glowing Fungus",
+    "Position": {
+      "X": 433.3478,
+      "Y": 99.31342,
+      "Z": -247.8137
+    },
+    "LayoutId": 9928477
+  },
+  "9406672": {
+    "NameId": 2013192,
+    "Name": "Speckled Rock",
+    "Position": {
+      "X": 478.4281,
+      "Y": 145.7603,
+      "Z": -233.8759
+    },
+    "LayoutId": 9406672
+  },
+  "9929566": {
+    "NameId": 2013376,
+    "Name": "Composite Rock",
+    "Position": {
+      "X": 386.8711,
+      "Y": 97.0,
+      "Z": -246.1661
+    },
+    "LayoutId": 9929566
+  },
+  "10048677": {
+    "NameId": 2013376,
+    "Name": "Composite Rock",
+    "Position": {
+      "X": 422.084,
+      "Y": 98.95228,
+      "Z": -253.6519
+    },
+    "LayoutId": 10048677
+  },
+  "9928478": {
+    "NameId": 2013375,
+    "Name": "Glowing Fungus",
+    "Position": {
+      "X": 429.425,
+      "Y": 99.94021,
+      "Z": -259.0255
+    },
+    "LayoutId": 9928478
+  },
+  "10048678": {
+    "NameId": 2013376,
+    "Name": "Composite Rock",
+    "Position": {
+      "X": 423.0692,
+      "Y": 99.30228,
+      "Z": -260.6623
+    },
+    "LayoutId": 10048678
+  },
+  "9929587": {
+    "NameId": 2013375,
+    "Name": "Glowing Fungus",
+    "Position": {
+      "X": 332.2542,
+      "Y": 92.10235,
+      "Z": -239.8113
+    },
+    "LayoutId": 9929587
+  },
+  "9406661": {
+    "NameId": 2013190,
+    "Name": "Rough Black Rock",
+    "Position": {
+      "X": 422.1337,
+      "Y": 180.554,
+      "Z": -245.0709
+    },
+    "LayoutId": 9406661
+  },
+  "9406624": {
+    "NameId": 2013191,
+    "Name": "Quartz Formation",
+    "Position": {
+      "X": 466.7317,
+      "Y": 181.2699,
+      "Z": -243.3847
+    },
+    "LayoutId": 9406624
+  },
+  "9406663": {
+    "NameId": 2013190,
+    "Name": "Rough Black Rock",
+    "Position": {
+      "X": 459.8427,
+      "Y": 181.1584,
+      "Z": -247.0854
+    },
+    "LayoutId": 9406663
+  },
+  "10048680": {
+    "NameId": 2013376,
+    "Name": "Composite Rock",
+    "Position": {
+      "X": 420.2914,
+      "Y": 98.44369,
+      "Z": -273.3182
+    },
+    "LayoutId": 10048680
+  },
+  "9406668": {
+    "NameId": 2013190,
+    "Name": "Rough Black Rock",
+    "Position": {
+      "X": 544.3884,
+      "Y": 124.1641,
+      "Z": -232.1562
+    },
+    "LayoutId": 9406668
+  },
+  "9406667": {
+    "NameId": 2013190,
+    "Name": "Rough Black Rock",
+    "Position": {
+      "X": 324.0318,
+      "Y": 159.4902,
+      "Z": -234.4858
+    },
+    "LayoutId": 9406667
+  },
+  "9406622": {
+    "NameId": 2013191,
+    "Name": "Quartz Formation",
+    "Position": {
+      "X": 435.2769,
+      "Y": 181.3014,
+      "Z": -256.4258
+    },
+    "LayoutId": 9406622
+  },
+  "9929567": {
+    "NameId": 2013376,
+    "Name": "Composite Rock",
+    "Position": {
+      "X": 388.7112,
+      "Y": 97.98849,
+      "Z": -273.9465
+    },
+    "LayoutId": 9929567
+  },
+  "9406681": {
+    "NameId": 2013192,
+    "Name": "Speckled Rock",
+    "Position": {
+      "X": 543.992,
+      "Y": 124.4247,
+      "Z": -236.3157
+    },
+    "LayoutId": 9406681
+  },
+  "9406673": {
+    "NameId": 2013192,
+    "Name": "Speckled Rock",
+    "Position": {
+      "X": 313.3424,
+      "Y": 157.5902,
+      "Z": -230.379
+    },
+    "LayoutId": 9406673
+  },
+  "9406662": {
+    "NameId": 2013190,
+    "Name": "Rough Black Rock",
+    "Position": {
+      "X": 451.5381,
+      "Y": 181.1604,
+      "Z": -258.6256
+    },
+    "LayoutId": 9406662
+  },
+  "9929555": {
+    "NameId": 2013375,
+    "Name": "Glowing Fungus",
+    "Position": {
+      "X": 390.1989,
+      "Y": 98.50071,
+      "Z": -284.0264
+    },
+    "LayoutId": 9929555
+  },
+  "9406674": {
+    "NameId": 2013192,
+    "Name": "Speckled Rock",
+    "Position": {
+      "X": 290.7722,
+      "Y": 150.1557,
+      "Z": -223.2051
+    },
+    "LayoutId": 9406674
+  },
+  "9929583": {
+    "NameId": 2013376,
+    "Name": "Composite Rock",
+    "Position": {
+      "X": 330.5089,
+      "Y": 75.5,
+      "Z": -267.8586
+    },
+    "LayoutId": 9929583
+  },
+  "9929581": {
+    "NameId": 2013377,
+    "Name": "Stalagmite",
+    "Position": {
+      "X": 315.0934,
+      "Y": 75.19258,
+      "Z": -258.7194
+    },
+    "LayoutId": 9929581
+  },
+  "9929584": {
+    "NameId": 2013376,
+    "Name": "Composite Rock",
+    "Position": {
+      "X": 305.4765,
+      "Y": 75.5,
+      "Z": -254.3823
+    },
+    "LayoutId": 9929584
+  },
+  "9929580": {
+    "NameId": 2013377,
+    "Name": "Stalagmite",
+    "Position": {
+      "X": 296.5219,
+      "Y": 75.29891,
+      "Z": -248.4767
+    },
+    "LayoutId": 9929580
+  },
+  "9929585": {
+    "NameId": 2013375,
+    "Name": "Glowing Fungus",
+    "Position": {
+      "X": 290.9633,
+      "Y": 75.5,
+      "Z": -246.3108
+    },
+    "LayoutId": 9929585
+  },
+  "9929568": {
+    "NameId": 2013376,
+    "Name": "Composite Rock",
+    "Position": {
+      "X": 405.4617,
+      "Y": 98.41064,
+      "Z": -299.242
+    },
+    "LayoutId": 9929568
+  },
+  "9929577": {
+    "NameId": 2013377,
+    "Name": "Stalagmite",
+    "Position": {
+      "X": 337.2296,
+      "Y": 75.52926,
+      "Z": -279.3623
+    },
+    "LayoutId": 9929577
+  },
+  "9929557": {
+    "NameId": 2013375,
+    "Name": "Glowing Fungus",
+    "Position": {
+      "X": 433.1704,
+      "Y": 98.20456,
+      "Z": -299.6846
+    },
+    "LayoutId": 9929557
+  },
+  "9929576": {
+    "NameId": 2013377,
+    "Name": "Stalagmite",
+    "Position": {
+      "X": 327.4994,
+      "Y": 75.5,
+      "Z": -285.0753
+    },
+    "LayoutId": 9929576
+  },
+  "9929582": {
+    "NameId": 2013376,
+    "Name": "Composite Rock",
+    "Position": {
+      "X": 321.3454,
+      "Y": 75.5,
+      "Z": -289.1611
+    },
+    "LayoutId": 9929582
+  },
+  "9929579": {
+    "NameId": 2013377,
+    "Name": "Stalagmite",
+    "Position": {
+      "X": 313.2696,
+      "Y": 75.28107,
+      "Z": -289.3529
+    },
+    "LayoutId": 9929579
+  },
+  "9929578": {
+    "NameId": 2013377,
+    "Name": "Stalagmite",
+    "Position": {
+      "X": 317.7913,
+      "Y": 75.74373,
+      "Z": -298.1601
+    },
+    "LayoutId": 9929578
+  },
+  "9406679": {
+    "NameId": 2013192,
+    "Name": "Speckled Rock",
+    "Position": {
+      "X": 545.2216,
+      "Y": 127.8144,
+      "Z": -268.1722
+    },
+    "LayoutId": 9406679
+  },
+  "9929575": {
+    "NameId": 2013377,
+    "Name": "Stalagmite",
+    "Position": {
+      "X": 288.8843,
+      "Y": 75.5,
+      "Z": -284.2144
+    },
+    "LayoutId": 9929575
+  },
+  "9929586": {
+    "NameId": 2013375,
+    "Name": "Glowing Fungus",
+    "Position": {
+      "X": 293.553,
+      "Y": 75.80899,
+      "Z": -294.8854
+    },
+    "LayoutId": 9929586
+  },
+  "9406660": {
+    "NameId": 2013190,
+    "Name": "Rough Black Rock",
+    "Position": {
+      "X": 557.6779,
+      "Y": 128.0081,
+      "Z": -275.9122
+    },
+    "LayoutId": 9406660
+  },
+  "9406664": {
+    "NameId": 2013190,
+    "Name": "Rough Black Rock",
+    "Position": {
+      "X": 572.8371,
+      "Y": 128.2395,
+      "Z": -269.4717
+    },
+    "LayoutId": 9406664
+  },
+  "9406623": {
+    "NameId": 2013191,
+    "Name": "Quartz Formation",
+    "Position": {
+      "X": 564.5646,
+      "Y": 128.8909,
+      "Z": -286.2712
+    },
+    "LayoutId": 9406623
+  },
+  "9406678": {
+    "NameId": 2013192,
+    "Name": "Speckled Rock",
+    "Position": {
+      "X": 582.1755,
+      "Y": 129.5549,
+      "Z": -280.1939
+    },
+    "LayoutId": 9406678
+  },
+  "9291422": {
+    "NameId": 2013173,
+    "Name": "Tualong Tree",
+    "Position": {
+      "X": 602.0652,
+      "Y": 78.77135,
+      "Z": -255.334
+    },
+    "LayoutId": 9291422
+  },
+  "9929563": {
+    "NameId": 2013375,
+    "Name": "Glowing Fungus",
+    "Position": {
+      "X": 434.2631,
+      "Y": 96.36307,
+      "Z": -358.1465
+    },
+    "LayoutId": 9929563
+  },
+  "9929570": {
+    "NameId": 2013376,
+    "Name": "Composite Rock",
+    "Position": {
+      "X": 470.8292,
+      "Y": 95.82612,
+      "Z": -358.7716
+    },
+    "LayoutId": 9929570
+  },
+  "9929569": {
+    "NameId": 2013376,
+    "Name": "Composite Rock",
+    "Position": {
+      "X": 437.6459,
+      "Y": 94.87003,
+      "Z": -367.1077
+    },
+    "LayoutId": 9929569
+  },
+  "9929588": {
+    "NameId": 2013375,
+    "Name": "Glowing Fungus",
+    "Position": {
+      "X": 479.4742,
+      "Y": 95.08973,
+      "Z": -366.811
+    },
+    "LayoutId": 9929588
+  },
+  "9929558": {
+    "NameId": 2013375,
+    "Name": "Glowing Fungus",
+    "Position": {
+      "X": 482.6322,
+      "Y": 94.95461,
+      "Z": -374.5907
+    },
+    "LayoutId": 9929558
+  },
+  "9929572": {
+    "NameId": 2013377,
+    "Name": "Stalagmite",
+    "Position": {
+      "X": 311.5432,
+      "Y": 75.71659,
+      "Z": -315.5357
+    },
+    "LayoutId": 9929572
+  },
+  "9903532": {
+    "NameId": 2013375,
+    "Name": "Glowing Fungus",
+    "Position": {
+      "X": 435.1248,
+      "Y": 94.9181,
+      "Z": -380.229
+    },
+    "LayoutId": 9903532
+  },
+  "9929574": {
+    "NameId": 2013377,
+    "Name": "Stalagmite",
+    "Position": {
+      "X": 309.3991,
+      "Y": 75.19953,
+      "Z": -317.5689
+    },
+    "LayoutId": 9929574
+  },
+  "9929571": {
+    "NameId": 2013376,
+    "Name": "Composite Rock",
+    "Position": {
+      "X": 473.0288,
+      "Y": 95.00307,
+      "Z": -386.4233
+    },
+    "LayoutId": 9929571
+  },
+  "9929573": {
+    "NameId": 2013377,
+    "Name": "Stalagmite",
+    "Position": {
+      "X": 295.0146,
+      "Y": 75.59475,
+      "Z": -319.647
+    },
+    "LayoutId": 9929573
+  },
+  "9929562": {
+    "NameId": 2013375,
+    "Name": "Glowing Fungus",
+    "Position": {
+      "X": 412.1915,
+      "Y": 93.33754,
+      "Z": -398.1341
+    },
+    "LayoutId": 9929562
+  },
+  "9929561": {
+    "NameId": 2013375,
+    "Name": "Glowing Fungus",
+    "Position": {
+      "X": 404.7555,
+      "Y": 93.3385,
+      "Z": -404.405
+    },
+    "LayoutId": 9929561
+  },
+  "9929591": {
+    "NameId": 2013376,
+    "Name": "Composite Rock",
+    "Position": {
+      "X": 425.4829,
+      "Y": 93.37054,
+      "Z": -409.0502
+    },
+    "LayoutId": 9929591
+  },
+  "9929559": {
+    "NameId": 2013375,
+    "Name": "Glowing Fungus",
+    "Position": {
+      "X": 451.391,
+      "Y": 95.60752,
+      "Z": -432.9341
+    },
+    "LayoutId": 9929559
+  },
+  "9929593": {
+    "NameId": 2013376,
+    "Name": "Composite Rock",
+    "Position": {
+      "X": 526.8798,
+      "Y": 93.7,
+      "Z": -402.3475
+    },
+    "LayoutId": 9929593
+  },
+  "9929592": {
+    "NameId": 2013376,
+    "Name": "Composite Rock",
+    "Position": {
+      "X": 466.6426,
+      "Y": 95.96638,
+      "Z": -432.2686
+    },
+    "LayoutId": 9929592
+  },
+  "9929560": {
+    "NameId": 2013375,
+    "Name": "Glowing Fungus",
+    "Position": {
+      "X": 459.164,
+      "Y": 96.04823,
+      "Z": -435.4057
+    },
+    "LayoutId": 9929560
+  },
+  "9291474": {
+    "NameId": 2013175,
+    "Name": "Island Apple Tree",
+    "Position": {
+      "X": 199.6332,
+      "Y": 107.5825,
+      "Z": -162.4224
+    },
+    "LayoutId": 9291474
+  },
+  "9291408": {
+    "NameId": 2013173,
+    "Name": "Tualong Tree",
+    "Position": {
+      "X": 167.0379,
+      "Y": 114.8723,
+      "Z": -256.4348
+    },
+    "LayoutId": 9291408
+  },
+  "9681774": {
+    "NameId": 2013300,
+    "Name": "Multicolored Isleblooms",
+    "Position": {
+      "X": 200.1963,
+      "Y": 191.0748,
+      "Z": -364.8472
+    },
+    "LayoutId": 9681774
+  },
+  "9681773": {
+    "NameId": 2013300,
+    "Name": "Multicolored Isleblooms",
+    "Position": {
+      "X": 192.8828,
+      "Y": 191.128,
+      "Z": -374.8849
+    },
+    "LayoutId": 9681773
+  },
+  "9406631": {
+    "NameId": 2013191,
+    "Name": "Quartz Formation",
+    "Position": {
+      "X": 214.2369,
+      "Y": 190.5591,
+      "Z": -385.7395
+    },
+    "LayoutId": 9406631
+  },
+  "9406634": {
+    "NameId": 2013191,
+    "Name": "Quartz Formation",
+    "Position": {
+      "X": 216.194,
+      "Y": 192.6515,
+      "Z": -387.2139
+    },
+    "LayoutId": 9406634
+  },
+  "9406633": {
+    "NameId": 2013191,
+    "Name": "Quartz Formation",
+    "Position": {
+      "X": 215.0686,
+      "Y": 192.1641,
+      "Z": -392.9188
+    },
+    "LayoutId": 9406633
+  },
+  "9406632": {
+    "NameId": 2013191,
+    "Name": "Quartz Formation",
+    "Position": {
+      "X": 212.757,
+      "Y": 190.5588,
+      "Z": -393.3118
+    },
+    "LayoutId": 9406632
+  },
+  "9681772": {
+    "NameId": 2013300,
+    "Name": "Multicolored Isleblooms",
+    "Position": {
+      "X": 198.987,
+      "Y": 191.4483,
+      "Z": -411.6077
+    },
+    "LayoutId": 9681772
+  },
+  "9681776": {
+    "NameId": 2013300,
+    "Name": "Multicolored Isleblooms",
+    "Position": {
+      "X": 199.7101,
+      "Y": 191.2002,
+      "Z": -419.3283
+    },
+    "LayoutId": 9681776
+  },
+  "9406641": {
+    "NameId": 2013190,
+    "Name": "Rough Black Rock",
+    "Position": {
+      "X": 347.8252,
+      "Y": 394.1293,
+      "Z": -396.9263
+    },
+    "LayoutId": 9406641
+  },
+  "9406638": {
+    "NameId": 2013192,
+    "Name": "Speckled Rock",
+    "Position": {
+      "X": 346.7707,
+      "Y": 394.2167,
+      "Z": -400.4396
+    },
+    "LayoutId": 9406638
+  },
+  "9406628": {
+    "NameId": 2013191,
+    "Name": "Quartz Formation",
+    "Position": {
+      "X": 355.3075,
+      "Y": 394.2644,
+      "Z": -395.97
+    },
+    "LayoutId": 9406628
+  },
+  "9406639": {
+    "NameId": 2013192,
+    "Name": "Speckled Rock",
+    "Position": {
+      "X": 358.0981,
+      "Y": 393.8769,
+      "Z": -397.8603
+    },
+    "LayoutId": 9406639
+  },
+  "9406627": {
+    "NameId": 2013191,
+    "Name": "Quartz Formation",
+    "Position": {
+      "X": 354.3974,
+      "Y": 394.7891,
+      "Z": -399.8453
+    },
+    "LayoutId": 9406627
+  },
+  "9406625": {
+    "NameId": 2013191,
+    "Name": "Quartz Formation",
+    "Position": {
+      "X": 342.8027,
+      "Y": 393.9081,
+      "Z": -407.2379
+    },
+    "LayoutId": 9406625
+  },
+  "9406642": {
+    "NameId": 2013190,
+    "Name": "Rough Black Rock",
+    "Position": {
+      "X": 361.1064,
+      "Y": 393.7897,
+      "Z": -399.5034
+    },
+    "LayoutId": 9406642
+  },
+  "9406629": {
+    "NameId": 2013191,
+    "Name": "Quartz Formation",
+    "Position": {
+      "X": 349.838,
+      "Y": 394.5522,
+      "Z": -405.1258
+    },
+    "LayoutId": 9406629
+  },
+  "9406640": {
+    "NameId": 2013190,
+    "Name": "Rough Black Rock",
+    "Position": {
+      "X": 352.278,
+      "Y": 394.0947,
+      "Z": -408.8361
+    },
+    "LayoutId": 9406640
+  },
+  "9406636": {
+    "NameId": 2013191,
+    "Name": "Quartz Formation",
+    "Position": {
+      "X": 359.2012,
+      "Y": 394.8669,
+      "Z": -404.7719
+    },
+    "LayoutId": 9406636
+  },
+  "9406626": {
+    "NameId": 2013191,
+    "Name": "Quartz Formation",
+    "Position": {
+      "X": 356.5359,
+      "Y": 394.9327,
+      "Z": -408.935
+    },
+    "LayoutId": 9406626
+  },
+  "9291413": {
+    "NameId": 2013173,
+    "Name": "Tualong Tree",
+    "Position": {
+      "X": 123.906,
+      "Y": 91.55146,
+      "Z": -517.9054
+    },
+    "LayoutId": 9291413
+  },
+  "9324677": {
+    "NameId": 2013175,
+    "Name": "Island Apple Tree",
+    "Position": {
+      "X": 285.0604,
+      "Y": 88.77605,
+      "Z": -578.3244
+    },
+    "LayoutId": 9324677
+  },
+  "9444103": {
+    "NameId": 2013186,
+    "Name": "Agave Plant",
+    "Position": {
+      "X": 116.5542,
+      "Y": 85.20006,
+      "Z": -594.0021
+    },
+    "LayoutId": 9444103
+  },
+  "9444142": {
+    "NameId": 2013190,
+    "Name": "Rough Black Rock",
+    "Position": {
+      "X": 313.3011,
+      "Y": 86.28093,
+      "Z": -589.7059
+    },
+    "LayoutId": 9444142
+  },
+  "9291415": {
+    "NameId": 2013173,
+    "Name": "Tualong Tree",
+    "Position": {
+      "X": 200.5714,
+      "Y": 54.00046,
+      "Z": -606.8161
+    },
+    "LayoutId": 9291415
+  },
+  "9324678": {
+    "NameId": 2013175,
+    "Name": "Island Apple Tree",
+    "Position": {
+      "X": 110.7835,
+      "Y": 71.878,
+      "Z": -618.9659
+    },
+    "LayoutId": 9324678
+  },
+  "9444133": {
+    "NameId": 2013176,
+    "Name": "Mahogany Tree",
+    "Position": {
+      "X": 310.23,
+      "Y": 76.78358,
+      "Z": -626.282
+    },
+    "LayoutId": 9444133
+  },
+  "9444136": {
+    "NameId": 2013178,
+    "Name": "Smooth White Rock",
+    "Position": {
+      "X": 200.5538,
+      "Y": 32.81615,
+      "Z": -644.66
+    },
+    "LayoutId": 9444136
+  },
+  "9444137": {
+    "NameId": 2013178,
+    "Name": "Smooth White Rock",
+    "Position": {
+      "X": 181.9121,
+      "Y": 35.67847,
+      "Z": -649.4802
+    },
+    "LayoutId": 9444137
+  },
+  "9443410": {
+    "NameId": 2013186,
+    "Name": "Agave Plant",
+    "Position": {
+      "X": 109.9834,
+      "Y": 37.01969,
+      "Z": -651.6237
+    },
+    "LayoutId": 9443410
+  },
+  "9358964": {
+    "NameId": 2013179,
+    "Name": "Crystal-banded Rock",
+    "Position": {
+      "X": 65.6628,
+      "Y": 3.293477,
+      "Z": -599.267
+    },
+    "LayoutId": 9358964
+  },
+  "9358966": {
+    "NameId": 2013179,
+    "Name": "Crystal-banded Rock",
+    "Position": {
+      "X": 68.58848,
+      "Y": 3.231318,
+      "Z": -603.957
+    },
+    "LayoutId": 9358966
+  },
+  "9358967": {
+    "NameId": 2013179,
+    "Name": "Crystal-banded Rock",
+    "Position": {
+      "X": 61.43911,
+      "Y": 3.305254,
+      "Z": -600.6295
+    },
+    "LayoutId": 9358967
+  },
+  "9358965": {
+    "NameId": 2013179,
+    "Name": "Crystal-banded Rock",
+    "Position": {
+      "X": 67.21169,
+      "Y": 3.056875,
+      "Z": -608.5402
+    },
+    "LayoutId": 9358965
+  },
+  "9443409": {
+    "NameId": 2013186,
+    "Name": "Agave Plant",
+    "Position": {
+      "X": 102.1959,
+      "Y": 35.23706,
+      "Z": -655.2186
+    },
+    "LayoutId": 9443409
+  },
+  "9405276": {
+    "NameId": 2013185,
+    "Name": "Cotton Plant",
+    "Position": {
+      "X": 135.721,
+      "Y": 34.33975,
+      "Z": -701.0955
+    },
+    "LayoutId": 9405276
+  },
+  "9444138": {
+    "NameId": 2013178,
+    "Name": "Smooth White Rock",
+    "Position": {
+      "X": 314.8135,
+      "Y": 30.83517,
+      "Z": -652.1978
+    },
+    "LayoutId": 9444138
+  },
+  "9443376": {
+    "NameId": 2013173,
+    "Name": "Tualong Tree",
+    "Position": {
+      "X": 275.371,
+      "Y": 20.94009,
+      "Z": -678.7853
+    },
+    "LayoutId": 9443376
+  },
+  "9443373": {
+    "NameId": 2013173,
+    "Name": "Tualong Tree",
+    "Position": {
+      "X": 358.2553,
+      "Y": 69.50919,
+      "Z": -646.6854
+    },
+    "LayoutId": 9443373
+  },
+  "9406613": {
+    "NameId": 2013188,
+    "Name": "Seaweed Tangle",
+    "Position": {
+      "X": 46.34099,
+      "Y": -41.70422,
+      "Z": -678.9753
+    },
+    "LayoutId": 9406613
+  },
+  "9406616": {
+    "NameId": 2013187,
+    "Name": "Large Shell",
+    "Position": {
+      "X": 19.98969,
+      "Y": -43.50363,
+      "Z": -664.4941
+    },
+    "LayoutId": 9406616
+  },
+  "9406644": {
+    "NameId": 2013187,
+    "Name": "Large Shell",
+    "Position": {
+      "X": 46.75396,
+      "Y": -42.04148,
+      "Z": -685.9906
+    },
+    "LayoutId": 9406644
+  },
+  "9358910": {
+    "NameId": 2013177,
+    "Name": "Bluish Rock",
+    "Position": {
+      "X": 313.8527,
+      "Y": 19.23982,
+      "Z": -706.8663
+    },
+    "LayoutId": 9358910
+  },
+  "9406612": {
+    "NameId": 2013188,
+    "Name": "Seaweed Tangle",
+    "Position": {
+      "X": 53.08315,
+      "Y": -44.6821,
+      "Z": -709.8694
+    },
+    "LayoutId": 9406612
+  },
+  "9406649": {
+    "NameId": 2013187,
+    "Name": "Large Shell",
+    "Position": {
+      "X": 40.13118,
+      "Y": -45.24316,
+      "Z": -705.5032
+    },
+    "LayoutId": 9406649
+  },
+  "9406650": {
+    "NameId": 2013187,
+    "Name": "Large Shell",
+    "Position": {
+      "X": -2.271894,
+      "Y": -44.17945,
+      "Z": -681.0914
+    },
+    "LayoutId": 9406650
+  },
+  "9406615": {
+    "NameId": 2013187,
+    "Name": "Large Shell",
+    "Position": {
+      "X": 22.6371,
+      "Y": -47.41587,
+      "Z": -717.3612
+    },
+    "LayoutId": 9406615
+  },
+  "9406645": {
+    "NameId": 2013187,
+    "Name": "Large Shell",
+    "Position": {
+      "X": -12.81713,
+      "Y": -44.01208,
+      "Z": -694.0837
+    },
+    "LayoutId": 9406645
+  },
+  "9406614": {
+    "NameId": 2013188,
+    "Name": "Seaweed Tangle",
+    "Position": {
+      "X": -24.33695,
+      "Y": -42.07666,
+      "Z": -699.7791
+    },
+    "LayoutId": 9406614
+  },
+  "9406611": {
+    "NameId": 2013188,
+    "Name": "Seaweed Tangle",
+    "Position": {
+      "X": -7.975654,
+      "Y": -45.33865,
+      "Z": -717.036
+    },
+    "LayoutId": 9406611
+  },
+  "9406609": {
+    "NameId": 2013188,
+    "Name": "Seaweed Tangle",
+    "Position": {
+      "X": -146.9093,
+      "Y": -45.22771,
+      "Z": -682.5675
+    },
+    "LayoutId": 9406609
+  },
+  "9406648": {
+    "NameId": 2013187,
+    "Name": "Large Shell",
+    "Position": {
+      "X": -136.5975,
+      "Y": -46.93561,
+      "Z": -708.7415
+    },
+    "LayoutId": 9406648
+  },
+  "9406617": {
+    "NameId": 2013187,
+    "Name": "Large Shell",
+    "Position": {
+      "X": -127.9127,
+      "Y": -46.50569,
+      "Z": -724.6244
+    },
+    "LayoutId": 9406617
+  },
+  "9406610": {
+    "NameId": 2013188,
+    "Name": "Seaweed Tangle",
+    "Position": {
+      "X": -131.5563,
+      "Y": -47.39521,
+      "Z": -720.4705
+    },
+    "LayoutId": 9406610
+  },
+  "9406608": {
+    "NameId": 2013188,
+    "Name": "Seaweed Tangle",
+    "Position": {
+      "X": -207.1879,
+      "Y": -40.72607,
+      "Z": -699.6324
+    },
+    "LayoutId": 9406608
+  },
+  "9444139": {
+    "NameId": 2013178,
+    "Name": "Smooth White Rock",
+    "Position": {
+      "X": 415.8563,
+      "Y": 30.17191,
+      "Z": -666.0175
+    },
+    "LayoutId": 9444139
+  },
+  "9443288": {
+    "NameId": 2013192,
+    "Name": "Speckled Rock",
+    "Position": {
+      "X": 417.5477,
+      "Y": 11.0472,
+      "Z": -703.7905
+    },
+    "LayoutId": 9443288
+  },
+  "9291416": {
+    "NameId": 2013173,
+    "Name": "Tualong Tree",
+    "Position": {
+      "X": 434.6371,
+      "Y": 89.74181,
+      "Z": -613.0897
+    },
+    "LayoutId": 9291416
+  },
+  "9405310": {
+    "NameId": 2013185,
+    "Name": "Cotton Plant",
+    "Position": {
+      "X": 448.0598,
+      "Y": 104.7167,
+      "Z": -571.8745
+    },
+    "LayoutId": 9405310
+  },
+  "9444135": {
+    "NameId": 2013178,
+    "Name": "Smooth White Rock",
+    "Position": {
+      "X": 460.3357,
+      "Y": 44.42827,
+      "Z": -649.7026
+    },
+    "LayoutId": 9444135
+  },
+  "9443287": {
+    "NameId": 2013192,
+    "Name": "Speckled Rock",
+    "Position": {
+      "X": 473.1916,
+      "Y": 6.453723,
+      "Z": -708.6727
+    },
+    "LayoutId": 9443287
+  },
+  "9406635": {
+    "NameId": 2013191,
+    "Name": "Quartz Formation",
+    "Position": {
+      "X": 498.8765,
+      "Y": 8.198573,
+      "Z": -695.3712
+    },
+    "LayoutId": 9406635
+  },
+  "9300152": {
+    "NameId": 2013176,
+    "Name": "Mahogany Tree",
+    "Position": {
+      "X": 498.2741,
+      "Y": 101.5431,
+      "Z": -569.2687
+    },
+    "LayoutId": 9300152
+  },
+  "9358907": {
+    "NameId": 2013177,
+    "Name": "Bluish Rock",
+    "Position": {
+      "X": 519.8174,
+      "Y": 6.585131,
+      "Z": -710.2941
+    },
+    "LayoutId": 9358907
+  },
+  "9444102": {
+    "NameId": 2013186,
+    "Name": "Agave Plant",
+    "Position": {
+      "X": 538.4525,
+      "Y": 72.94929,
+      "Z": -641.9628
+    },
+    "LayoutId": 9444102
+  },
+  "9324676": {
+    "NameId": 2013175,
+    "Name": "Island Apple Tree",
+    "Position": {
+      "X": 530.0945,
+      "Y": 98.24673,
+      "Z": -545.7086
+    },
+    "LayoutId": 9324676
+  },
+  "9358914": {
+    "NameId": 2013177,
+    "Name": "Bluish Rock",
+    "Position": {
+      "X": 549.5399,
+      "Y": 8.485096,
+      "Z": -695.1111
+    },
+    "LayoutId": 9358914
+  },
+  "9406669": {
+    "NameId": 2013190,
+    "Name": "Rough Black Rock",
+    "Position": {
+      "X": 547.1902,
+      "Y": 5.761505,
+      "Z": -713.2792
+    },
+    "LayoutId": 9406669
+  },
+  "9443374": {
+    "NameId": 2013173,
+    "Name": "Tualong Tree",
+    "Position": {
+      "X": 564.9631,
+      "Y": 42.74235,
+      "Z": -655.9265
+    },
+    "LayoutId": 9443374
+  },
+  "9443286": {
+    "NameId": 2013192,
+    "Name": "Speckled Rock",
+    "Position": {
+      "X": 559.1421,
+      "Y": 5.326473,
+      "Z": -730.7171
+    },
+    "LayoutId": 9443286
+  },
+  "9444143": {
+    "NameId": 2013190,
+    "Name": "Rough Black Rock",
+    "Position": {
+      "X": 555.0585,
+      "Y": 91.50318,
+      "Z": -530.6049
+    },
+    "LayoutId": 9444143
+  },
+  "9444128": {
+    "NameId": 2013174,
+    "Name": "Palm Tree",
+    "Position": {
+      "X": 565.0427,
+      "Y": 92.37103,
+      "Z": -561.9814
+    },
+    "LayoutId": 9444128
+  },
+  "9443285": {
+    "NameId": 2013192,
+    "Name": "Speckled Rock",
+    "Position": {
+      "X": 571.863,
+      "Y": 6.926647,
+      "Z": -689.2128
+    },
+    "LayoutId": 9443285
+  },
+  "9406670": {
+    "NameId": 2013190,
+    "Name": "Rough Black Rock",
+    "Position": {
+      "X": 583.4285,
+      "Y": 9.573228,
+      "Z": -663.4274
+    },
+    "LayoutId": 9406670
+  },
+  "9443283": {
+    "NameId": 2013192,
+    "Name": "Speckled Rock",
+    "Position": {
+      "X": 596.1042,
+      "Y": 9.230711,
+      "Z": -667.6177
+    },
+    "LayoutId": 9443283
+  },
+  "9408625": {
+    "NameId": 2013186,
+    "Name": "Agave Plant",
+    "Position": {
+      "X": 592.774,
+      "Y": 75.10609,
+      "Z": -543.8223
+    },
+    "LayoutId": 9408625
+  },
+  "9358911": {
+    "NameId": 2013177,
+    "Name": "Bluish Rock",
+    "Position": {
+      "X": 612.2334,
+      "Y": 10.86715,
+      "Z": -642.7661
+    },
+    "LayoutId": 9358911
+  },
+  "9443281": {
+    "NameId": 2013192,
+    "Name": "Speckled Rock",
+    "Position": {
+      "X": 624.6159,
+      "Y": 10.50414,
+      "Z": -645.5608
+    },
+    "LayoutId": 9443281
+  },
+  "9300114": {
+    "NameId": 2013176,
+    "Name": "Mahogany Tree",
+    "Position": {
+      "X": 636.7902,
+      "Y": 38.58759,
+      "Z": -563.3114
+    },
+    "LayoutId": 9300114
+  },
+  "9443275": {
+    "NameId": 2013192,
+    "Name": "Speckled Rock",
+    "Position": {
+      "X": 655.2968,
+      "Y": 9.215376,
+      "Z": -614.9987
+    },
+    "LayoutId": 9443275
+  },
+  "9358913": {
+    "NameId": 2013177,
+    "Name": "Bluish Rock",
+    "Position": {
+      "X": 662.8199,
+      "Y": 10.52561,
+      "Z": -604.4098
+    },
+    "LayoutId": 9358913
+  },
+  "9291419": {
+    "NameId": 2013173,
+    "Name": "Tualong Tree",
+    "Position": {
+      "X": 614.3321,
+      "Y": 72.5054,
+      "Z": -473.0219
+    },
+    "LayoutId": 9291419
+  },
+  "9406676": {
+    "NameId": 2013192,
+    "Name": "Speckled Rock",
+    "Position": {
+      "X": 670.7327,
+      "Y": 5.1788,
+      "Z": -654.9285
+    },
+    "LayoutId": 9406676
+  },
+  "9406677": {
+    "NameId": 2013192,
+    "Name": "Speckled Rock",
+    "Position": {
+      "X": 693.7619,
+      "Y": 5.0,
+      "Z": -646.7829
+    },
+    "LayoutId": 9406677
+  },
+  "9406675": {
+    "NameId": 2013192,
+    "Name": "Speckled Rock",
+    "Position": {
+      "X": 708.9575,
+      "Y": 5.0023,
+      "Z": -579.8928
+    },
+    "LayoutId": 9406675
+  },
+  "9443375": {
+    "NameId": 2013173,
+    "Name": "Tualong Tree",
+    "Position": {
+      "X": 670.5377,
+      "Y": 51.0182,
+      "Z": -454.1817
+    },
+    "LayoutId": 9443375
+  },
+  "9300125": {
+    "NameId": 2013176,
+    "Name": "Mahogany Tree",
+    "Position": {
+      "X": 728.1896,
+      "Y": 25.59394,
+      "Z": -424.1334
+    },
+    "LayoutId": 9300125
+  },
+  "9443408": {
+    "NameId": 2013186,
+    "Name": "Agave Plant",
+    "Position": {
+      "X": 766.8024,
+      "Y": 15.92392,
+      "Z": -371.5411
+    },
+    "LayoutId": 9443408
+  },
+  "9291420": {
+    "NameId": 2013173,
+    "Name": "Tualong Tree",
+    "Position": {
+      "X": 719.2771,
+      "Y": 33.44315,
+      "Z": -301.9702
+    },
+    "LayoutId": 9291420
+  },
+  "9443404": {
+    "NameId": 2013186,
+    "Name": "Agave Plant",
+    "Position": {
+      "X": 672.384,
+      "Y": 60.17916,
+      "Z": -242.5475
+    },
+    "LayoutId": 9443404
+  },
+  "9444129": {
+    "NameId": 2013174,
+    "Name": "Palm Tree",
+    "Position": {
+      "X": 781.0698,
+      "Y": 19.45043,
+      "Z": -283.1854
+    },
+    "LayoutId": 9444129
+  },
+  "9443407": {
+    "NameId": 2013186,
+    "Name": "Agave Plant",
+    "Position": {
+      "X": 722.0488,
+      "Y": 22.0178,
+      "Z": -222.2491
+    },
+    "LayoutId": 9443407
+  },
+  "9405280": {
+    "NameId": 2013185,
+    "Name": "Cotton Plant",
+    "Position": {
+      "X": 788.2361,
+      "Y": 17.48872,
+      "Z": -267.7646
+    },
+    "LayoutId": 9405280
+  },
+  "9444130": {
+    "NameId": 2013174,
+    "Name": "Palm Tree",
+    "Position": {
+      "X": 686.6851,
+      "Y": 26.54971,
+      "Z": -195.0919
+    },
+    "LayoutId": 9444130
+  },
+  "9358970": {
+    "NameId": 2013179,
+    "Name": "Crystal-banded Rock",
+    "Position": {
+      "X": 683.1757,
+      "Y": 1.341488,
+      "Z": -164.6072
+    },
+    "LayoutId": 9358970
+  },
+  "9358974": {
+    "NameId": 2013179,
+    "Name": "Crystal-banded Rock",
+    "Position": {
+      "X": 683.6179,
+      "Y": 0.9524856,
+      "Z": -162.0769
+    },
+    "LayoutId": 9358974
+  },
+  "9358972": {
+    "NameId": 2013179,
+    "Name": "Crystal-banded Rock",
+    "Position": {
+      "X": 681.2363,
+      "Y": 0.8378372,
+      "Z": -160.7885
+    },
+    "LayoutId": 9358972
+  },
+  "9358969": {
+    "NameId": 2013179,
+    "Name": "Crystal-banded Rock",
+    "Position": {
+      "X": 677.8,
+      "Y": 0.5697827,
+      "Z": -158.6887
+    },
+    "LayoutId": 9358969
+  },
+  "9358971": {
+    "NameId": 2013179,
+    "Name": "Crystal-banded Rock",
+    "Position": {
+      "X": 680.4704,
+      "Y": 0.5956106,
+      "Z": -156.1497
+    },
+    "LayoutId": 9358971
+  },
+  "9358968": {
+    "NameId": 2013179,
+    "Name": "Crystal-banded Rock",
+    "Position": {
+      "X": 683.9239,
+      "Y": 0.454041,
+      "Z": -155.1587
+    },
+    "LayoutId": 9358968
+  },
+  "9405311": {
+    "NameId": 2013185,
+    "Name": "Cotton Plant",
+    "Position": {
+      "X": 649.424,
+      "Y": 35.05902,
+      "Z": -141.5275
+    },
+    "LayoutId": 9405311
+  },
+  "9406605": {
+    "NameId": 2013188,
+    "Name": "Seaweed Tangle",
+    "Position": {
+      "X": 748.8962,
+      "Y": -53.84299,
+      "Z": -37.28318
+    },
+    "LayoutId": 9406605
+  },
+  "9406606": {
+    "NameId": 2013188,
+    "Name": "Seaweed Tangle",
+    "Position": {
+      "X": 707.2563,
+      "Y": -46.96397,
+      "Z": -26.94988
+    },
+    "LayoutId": 9406606
+  },
+  "9406657": {
+    "NameId": 2013189,
+    "Name": "Coral Formation",
+    "Position": {
+      "X": 724.6389,
+      "Y": -45.8835,
+      "Z": -24.94785
+    },
+    "LayoutId": 9406657
+  },
+  "9406603": {
+    "NameId": 2013188,
+    "Name": "Seaweed Tangle",
+    "Position": {
+      "X": 711.5082,
+      "Y": -46.9691,
+      "Z": -3.746082
+    },
+    "LayoutId": 9406603
+  },
+  "9406602": {
+    "NameId": 2013188,
+    "Name": "Seaweed Tangle",
+    "Position": {
+      "X": 758.725,
+      "Y": -53.82194,
+      "Z": -0.1441865
+    },
+    "LayoutId": 9406602
+  },
+  "9406656": {
+    "NameId": 2013189,
+    "Name": "Coral Formation",
+    "Position": {
+      "X": 745.6878,
+      "Y": -50.86259,
+      "Z": 13.06558
+    },
+    "LayoutId": 9406656
+  },
+  "9406653": {
+    "NameId": 2013189,
+    "Name": "Coral Formation",
+    "Position": {
+      "X": 704.4284,
+      "Y": -31.73385,
+      "Z": 42.45619
+    },
+    "LayoutId": 9406653
+  },
+  "9406654": {
+    "NameId": 2013189,
+    "Name": "Coral Formation",
+    "Position": {
+      "X": 711.8641,
+      "Y": -32.63275,
+      "Z": 43.63317
+    },
+    "LayoutId": 9406654
+  },
+  "9406655": {
+    "NameId": 2013189,
+    "Name": "Coral Formation",
+    "Position": {
+      "X": 726.9846,
+      "Y": -48.20302,
+      "Z": 39.02945
+    },
+    "LayoutId": 9406655
+  },
+  "9406604": {
+    "NameId": 2013188,
+    "Name": "Seaweed Tangle",
+    "Position": {
+      "X": 732.8196,
+      "Y": -50.51878,
+      "Z": 60.37308
+    },
+    "LayoutId": 9406604
+  },
+  "9406601": {
+    "NameId": 2013188,
+    "Name": "Seaweed Tangle",
+    "Position": {
+      "X": 733.1931,
+      "Y": -50.34861,
+      "Z": 75.95065
+    },
+    "LayoutId": 9406601
+  },
+  "9406659": {
+    "NameId": 2013189,
+    "Name": "Coral Formation",
+    "Position": {
+      "X": 700.3761,
+      "Y": -43.03494,
+      "Z": 84.11095
+    },
+    "LayoutId": 9406659
+  },
+  "9406652": {
+    "NameId": 2013189,
+    "Name": "Coral Formation",
+    "Position": {
+      "X": 715.2169,
+      "Y": -44.96214,
+      "Z": 103.9036
+    },
+    "LayoutId": 9406652
+  },
+  "9406658": {
+    "NameId": 2013189,
+    "Name": "Coral Formation",
+    "Position": {
+      "X": 726.7731,
+      "Y": -44.98251,
+      "Z": 112.5299
+    },
+    "LayoutId": 9406658
+  },
+  "9406599": {
+    "NameId": 2013188,
+    "Name": "Seaweed Tangle",
+    "Position": {
+      "X": 741.183,
+      "Y": -44.15569,
+      "Z": 124.6711
+    },
+    "LayoutId": 9406599
+  },
+  "9406600": {
+    "NameId": 2013188,
+    "Name": "Seaweed Tangle",
+    "Position": {
+      "X": 718.8102,
+      "Y": -42.77617,
+      "Z": 134.3677
+    },
+    "LayoutId": 9406600
+  },
+  "9358884": {
+    "NameId": 2013177,
+    "Name": "Bluish Rock",
+    "Position": {
+      "X": 678.0068,
+      "Y": 9.963017,
+      "Z": 182.0015
+    },
+    "LayoutId": 9358884
+  },
+  "9358889": {
+    "NameId": 2013177,
+    "Name": "Bluish Rock",
+    "Position": {
+      "X": 671.8672,
+      "Y": 10.62969,
+      "Z": 203.0203
+    },
+    "LayoutId": 9358889
+  },
+  "9358883": {
+    "NameId": 2013177,
+    "Name": "Bluish Rock",
+    "Position": {
+      "X": 689.2758,
+      "Y": 10.39976,
+      "Z": 209.9887
+    },
+    "LayoutId": 9358883
+  },
+  "9358879": {
+    "NameId": 2013177,
+    "Name": "Bluish Rock",
+    "Position": {
+      "X": 663.6569,
+      "Y": 10.03732,
+      "Z": 254.2879
+    },
+    "LayoutId": 9358879
+  },
+  "9681766": {
+    "NameId": 2013300,
+    "Name": "Multicolored Isleblooms",
+    "Position": {
+      "X": 14.26892,
+      "Y": 68.96028,
+      "Z": 325.2513
+    },
+    "LayoutId": 9681766
+  },
+  "9681765": {
+    "NameId": 2013300,
+    "Name": "Multicolored Isleblooms",
+    "Position": {
+      "X": -7.249333,
+      "Y": 72.10901,
+      "Z": 303.2829
+    },
+    "LayoutId": 9681765
+  }
+}

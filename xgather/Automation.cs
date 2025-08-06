@@ -224,8 +224,7 @@ public abstract class AutoTask
 
                 await NextFrame(10);
 
-                // pathfind was canceled somehow
-                // TODO: i think shouldStop here is wrong? idk what the problem is, it likes to dismount and immediately re-mount for spearfishing nodes
+                // pathfind was canceled (check shouldStop again since it may have toggled over the past 10 frames)
                 if (!PathIsRunning() && !PathInProgress() && !shouldStop())
                 {
                     navRetries++;

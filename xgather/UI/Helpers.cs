@@ -1,4 +1,4 @@
-using ImGuiNET;
+using Dalamud.Bindings.ImGui;
 using Lumina.Excel.Sheets;
 
 namespace xgather.UI;
@@ -10,7 +10,7 @@ internal class Helpers
         var ic = Svc.TextureProvider.GetFromGameIcon(iconId)?.GetWrapOrEmpty();
         if (ic != null)
         {
-            ImGui.Image(ic.ImGuiHandle, new(iconSize, iconSize));
+            ImGui.Image(ic.Handle, new(iconSize, iconSize));
             ImGui.SameLine();
         }
         ImGui.Text(itemName);

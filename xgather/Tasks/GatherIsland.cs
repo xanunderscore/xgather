@@ -5,20 +5,79 @@ using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using FFXIVClientStructs.Interop;
 using FFXIVClientStructs.STD;
+using Lumina.Data.Files;
+using Lumina.Excel.Sheets;
 using System;
+using System.Collections.Generic;
+using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using xgather.GameData;
 using ValueType = FFXIVClientStructs.FFXIV.Component.GUI.ValueType;
 
 namespace xgather.Tasks;
 
 public class GatherIsland : AutoTask
 {
+    private readonly Dictionary<uint, Vector3> _itemsLeft = [];
+    private readonly Dictionary<uint, IslandGatherPoint> _itemsFound = [];
+
+    // most (or all) of the cotton bushes have two identical entries in the lgb instead of 1, who knows why
+    private static readonly HashSet<uint> _badObjects = [
+        0x9017F0,
+        0x9017F1,
+        0x9017F2,
+        0x9017F3,
+        0x9017F4,
+        0x9017F5,
+        0x9017F6,
+        0x9017F7,
+        0x9017F8,
+        0x9017F9,
+        0x9017FA,
+        0x9017FB,
+        0x9017FC,
+        0x9017FD,
+        0x9017FE,
+        0x9017FF,
+        0x901800,
+        0x901801,
+        0x901802,
+        0x901803,
+        0x901CE0,
+    ];
+
+    public GatherIsland()
+    {
+        var layout = Svc.Data.GetFile<LgbFile>("bg/ffxiv/hou_xx/hou/h1m2/level/planlive.lgb");
+        if (layout == null)
+        {
+            Error("Unable to load Island Sanctuary level data, island nodes will be unavailable");
+            return;
+        }
+
+        foreach (var layer in layout.Layers)
+        {
+            if (!layer.Name.EndsWith("_GATHERING"))
+                continue;
+
+            foreach (var obj in layer.InstanceObjects)
+            {
+                if (obj.Object is Lumina.Data.Parsing.Layer.LayerCommon.SharedGroupInstanceObject)
+                {
+                    if (_badObjects.Contains(obj.InstanceId))
+                        continue;
+
+                    _itemsLeft.Add(obj.InstanceId, Util.Convert(obj.Transform.Translation));
+                }
+            }
+        }
+    }
+
     protected override async Task Execute()
     {
         ErrorIf(!IsleUtils.OnIsland(), "Not on Island Sanctuary");
 
-        /*
         if (!IsleUtils.IsScheduleOpen())
         {
             IsleUtils.ToggleCraftSchedule();
@@ -36,6 +95,13 @@ public class GatherIsland : AutoTask
                 needed[slot] = used[slot] - total[slot];
         }
 
+        if (Svc.IsDev)
+        {
+            needed.Add(0, 20); // 20 palm leaves
+            needed.Add(5, 20); // 20 island laver
+            needed.Add(21, 20); // 20 iron ore
+        }
+
         if (needed.Count == 0)
         {
             Log("Nothing to do");
@@ -47,15 +113,8 @@ public class GatherIsland : AutoTask
             var name = Svc.ExcelRow<MJIItemPouch>((uint)k).Item.Value.Name;
             Log($"Gathering {v}x {name}");
         }
-        */
 
         await SetGatherMode();
-
-        //foreach (var (pointType, _) in Svc.ItemDB.IslandGatherPointsByType)
-        //{
-        //    Status = $"Next: {pointType.Name}";
-        //    await MoveTo(pointType.Position, 3, mount: true, dismount: true);
-        //}
     }
 
     private async Task SetGatherMode()
@@ -91,11 +150,55 @@ public class GatherIsland : AutoTask
 
         await WaitWhile(IsleUtils.IsContextMenuOpen, "MenuClose");
     }
+
+    /*
+    public override unsafe void DrawDebug()
+    {
+        if (Svc.Player == null)
+            return;
+
+        if (ImGui.Button("Copy items to clipboard"))
+        {
+            var js = Newtonsoft.Json.JsonConvert.SerializeObject(_itemsFound);
+            ImGui.SetClipboardText(js);
+        }
+
+        foreach (var obj in Svc.ObjectTable)
+        {
+            if (obj.ObjectKind == Dalamud.Game.ClientState.Objects.Enums.ObjectKind.CardStand)
+            {
+                var go = (GameObject*)obj.Address;
+                var layoutId = go->LayoutId;
+                if (_itemsLeft.Remove(layoutId))
+                {
+                    Svc.Log.Debug($"found gathering point {obj}, removing");
+                    _itemsFound.Add(layoutId, new(go->GetNameId(), obj.Name.ToString(), obj.DataId, obj.Position));
+                }
+            }
+        }
+
+        var unfoundItems = _itemsLeft.OrderBy(v => (v.Value - Svc.Player!.Position).LengthSquared()).Take(5);
+
+        var dl = ImGui.GetBackgroundDrawList();
+
+        foreach (var (instanceId, pt) in unfoundItems)
+        {
+            var pointA = Svc.Player.Position;
+            var pointB = pt;
+
+            Svc.GameGui.WorldToScreen(pointA, out var screenA);
+            Svc.GameGui.WorldToScreen(pointB, out var screenB);
+            dl.AddLine(screenA, screenB, 0xFF00FF00, 2);
+
+            dl.AddText(screenB, 0xFF00FF00, instanceId.ToString("X6"));
+        }
+    }
+    */
 }
 
 public static class IsleUtils
 {
-    public static unsafe bool OnIsland() => MJIManager.Instance()->IsPlayerInSanctuary == 1;
+    public static unsafe bool OnIsland() => MJIManager.Instance()->IsPlayerInSanctuary;
 
     public static unsafe void ToggleCraftSchedule() => RaptureAtkUnitManager.Instance()->GetAddonByName("MJIHud")->FireCallbackInt(20);
 

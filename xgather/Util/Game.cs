@@ -57,16 +57,14 @@ internal static unsafe partial class Util
 
     internal static string ShowV3(Vector3 vec) => $"[{vec.X:F2}, {vec.Y:F2}, {vec.Z:F2}]";
 
+    internal static Vector3 Convert(Lumina.Data.Parsing.Common.Vector3 v3) => new(v3.X, v3.Y, v3.Z);
+
     public static uint GetMinCollectability(uint itemId)
     {
         foreach (var group in Svc.SubrowExcelSheet<Lumina.Excel.Sheets.CollectablesShopItem>())
-        {
             foreach (var item in group)
-            {
                 if (item.Item.RowId == itemId)
                     return item.CollectablesShopRefine.Value.LowCollectability;
-            }
-        }
 
         return 0;
     }

@@ -1,6 +1,6 @@
 using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Interface.Windowing;
-using ImGuiNET;
+using Dalamud.Bindings.ImGui;
 
 namespace xgather.UI.Windows;
 
