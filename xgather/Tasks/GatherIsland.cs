@@ -1,3 +1,6 @@
+using Dalamud.Bindings.ImGui;
+using Dalamud.Game.ClientState.Conditions;
+using Dalamud.Game.ClientState.Objects.Types;
 using FFXIVClientStructs.FFXIV.Client.Game.MJI;
 using FFXIVClientStructs.FFXIV.Client.System.String;
 using FFXIVClientStructs.FFXIV.Client.UI;
@@ -6,9 +9,9 @@ using FFXIVClientStructs.FFXIV.Component.GUI;
 using FFXIVClientStructs.Interop;
 using FFXIVClientStructs.STD;
 using Lumina.Data.Files;
-using Lumina.Excel.Sheets;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
@@ -74,6 +77,11 @@ public class GatherIsland : AutoTask
         }
     }
 
+    private readonly Dictionary<int, int> itemsNeeded = [];
+    private readonly Queue<uint> unloadedObjects = [];
+
+    private ushort[] _usedMaterials = [];
+
     protected override async Task Execute()
     {
         ErrorIf(!IsleUtils.OnIsland(), "Not on Island Sanctuary");
@@ -83,38 +91,109 @@ public class GatherIsland : AutoTask
             IsleUtils.ToggleCraftSchedule();
             await WaitWhile(() => !IsleUtils.IsScheduleOpen(), "WaitSchedule");
         }
-        var used = IsleUtils.GetUsedMaterials();
+        _usedMaterials = IsleUtils.GetUsedMaterials();
         IsleUtils.ToggleCraftSchedule();
+        await SetGatherMode();
+
+        while (true)
+        {
+            CalculateNeeded();
+            if (itemsNeeded.Count == 0)
+                return;
+
+            await GatherNextMaterial();
+        }
+    }
+
+    private void CalculateNeeded()
+    {
+        itemsNeeded.Clear();
 
         var total = IsleUtils.GetIsleventory();
-        var needed = new Dictionary<int, int>();
-        for (var slot = 0; slot < used.Length; slot++)
-        {
+        for (var slot = 0; slot < _usedMaterials.Length; slot++)
             // items with quantity -1 are produce/leavings
-            if (total[slot] >= 0 && total[slot] < used[slot])
-                needed[slot] = used[slot] - total[slot];
-        }
+            if (total[slot] >= 0 && total[slot] < _usedMaterials[slot])
+                itemsNeeded[slot] = _usedMaterials[slot] - total[slot];
+    }
 
-        if (Svc.IsDev)
-        {
-            needed.Add(0, 20); // 20 palm leaves
-            needed.Add(5, 20); // 20 island laver
-            needed.Add(21, 20); // 20 iron ore
-        }
+    private void SkipNode(uint layoutId)
+    {
+        unloadedObjects.Enqueue(layoutId);
+        while (unloadedObjects.Count > 10)
+            unloadedObjects.TryDequeue(out var _);
+    }
 
-        if (needed.Count == 0)
+    private async Task GatherRandomNode()
+    {
+        var closest = Svc.ObjectTable.Where(obj => obj.ObjectKind == Dalamud.Game.ClientState.Objects.Enums.ObjectKind.CardStand && obj.IsTargetable).MinBy(obj => obj.Position.DistanceFromPlayer());
+        ErrorIf(closest == null, "No nodes found at all");
+
+        var shouldMount = closest.Position.DistanceFromPlayerXZ() > 20;
+        var fly = shouldMount || Svc.Condition[ConditionFlag.InFlight];
+
+        await MoveTo(closest.Position, 4, mount: shouldMount, fly: fly, dismount: true);
+
+        await GatherObj(closest);
+
+        SkipNode(Util.GetLayoutId(closest));
+    }
+
+    private async Task GatherNextMaterial()
+    {
+        var availableMaterials = itemsNeeded.Keys;
+        var eligibleNodeTypes = availableMaterials.SelectMany(ItemDatabase.GetIslandNodesForMaterial);
+        var eligibleNodes = eligibleNodeTypes.SelectMany(t => Svc.ItemDB.IslandNodesByNameId[t]);
+
+        var closest = eligibleNodes.Where(n => !unloadedObjects.Contains(n.LayoutId)).MinBy(n => n.Position.DistanceFromPlayer());
+
+        if (closest == null)
         {
-            Log("Nothing to do");
+            Log($"No eligible nodes found for any needed material, gathering random nodes to trigger respawn");
+            await GatherRandomNode();
             return;
         }
 
-        foreach (var (k, v) in needed)
+        using var _ = BeginScope($"Gathering {closest.Name}");
+
+        var nodeIsUnloaded = false;
+
+        bool checkUnloaded()
         {
-            var name = Svc.ExcelRow<MJIItemPouch>((uint)k).Item.Value.Name;
-            Log($"Gathering {v}x {name}");
+            var obj = Svc.ObjectTable.FirstOrDefault(t => Util.GetLayoutId(t) == closest.LayoutId);
+            // objects at the very edge of load range start as untargetable even if they aren't despawned
+            if (obj?.IsTargetable == false && obj.Position.DistanceFromPlayerXZ() < 80)
+            {
+                Svc.Log.Debug($"object {obj} is not targetable");
+                nodeIsUnloaded = true;
+                return true;
+            }
+
+            return false;
         }
 
-        await SetGatherMode();
+        var shouldMount = closest.Position.DistanceFromPlayerXZ() > 20;
+        var fly = shouldMount || Svc.Condition[ConditionFlag.InFlight];
+
+        await MoveTo(closest.Position, 4, mount: shouldMount, fly: fly, dismount: true, interrupt: checkUnloaded);
+
+        if (nodeIsUnloaded)
+        {
+            Log($"{closest.Name} @ {closest.Position} is untargetable, moving to next candidate");
+            SkipNode(closest.LayoutId);
+            return;
+        }
+
+        await GatherObj(Svc.ObjectTable.First(t => Util.GetLayoutId(t) == closest.LayoutId));
+
+        unloadedObjects.Clear();
+    }
+
+    private async Task GatherObj(IGameObject obj)
+    {
+        Util.InteractWithObject(obj);
+
+        await WaitWhile(() => !Svc.Condition[ConditionFlag.OccupiedInQuestEvent], "GatherStart");
+        await WaitWhile(() => Svc.Condition[ConditionFlag.OccupiedInQuestEvent], "GatherFinish");
     }
 
     private async Task SetGatherMode()
@@ -149,6 +228,21 @@ public class GatherIsland : AutoTask
         }
 
         await WaitWhile(IsleUtils.IsContextMenuOpen, "MenuClose");
+    }
+
+    public override void DrawDebug()
+    {
+        foreach (var obj in unloadedObjects)
+        {
+            var pt = Svc.ItemDB.IslandNodesByLayoutId[obj];
+            var dl = ImGui.GetBackgroundDrawList();
+            var pointA = Svc.Player!.Position;
+            var pointB = pt.Position;
+            Svc.GameGui.WorldToScreen(pointA, out var screenA);
+            Svc.GameGui.WorldToScreen(pointB, out var screenB);
+            dl.AddLine(screenA, screenB, 0xFF0000FF, 2);
+            dl.AddText(screenB, 0xFF00FF00, pt.LayoutId.ToString("X6"));
+        }
     }
 
     /*

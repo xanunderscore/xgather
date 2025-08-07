@@ -60,7 +60,7 @@ public class GatherItem : GatherBase
 
         var point = await FindPoint(gpBase);
 
-        var flying = Svc.Condition[ConditionFlag.InFlight] || Svc.Condition[ConditionFlag.Diving];
+        var flying = Svc.Condition.Any(ConditionFlag.InFlight, ConditionFlag.Diving);
 
         Vector3 groundPoint;
         var tolerance = 3.5f;

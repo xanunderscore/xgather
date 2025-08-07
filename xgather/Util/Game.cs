@@ -127,9 +127,7 @@ internal static unsafe partial class Util
 
     public static (DateTime Start, DateTime End) GetNextAvailable(GatheringPointBase b) => GetNextAvailable(b.Nodes[0]);
     public static unsafe bool PlayerIsBusy()
-        => Svc.Condition[ConditionFlag.BetweenAreas]
-        || Svc.Condition[ConditionFlag.Casting]
-        || Svc.Condition[ConditionFlag.InCombat]
+        => Svc.Condition.Any(ConditionFlag.BetweenAreas, ConditionFlag.Casting, ConditionFlag.InCombat)
         || ActionManager.Instance()->AnimationLock > 0
         || (Player() is var p && p != null && !p->GetIsTargetable());
 

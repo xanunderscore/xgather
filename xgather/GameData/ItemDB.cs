@@ -89,6 +89,16 @@ public class ItemDatabase
 
     [JsonIgnore]
     public readonly Dictionary<uint, List<IslandGatherPoint>> IslandNodesByNameId = [];
+    [JsonIgnore]
+    public readonly Dictionary<uint, IslandGatherPoint> IslandNodesByLayoutId = [];
+
+    // there are two clusters of rock salt nodes about 300y apart, we don't want to waste time flying across the whole map to gather from both of them, so we ignore the smaller cluster entirely
+    private static readonly uint[] _unwantedIslandNodes = [
+        0x8ECE74,
+        0x8ECE75,
+        0x8ECE76,
+        0x8ECE77,
+    ];
 
     private static readonly (uint NameId, int[] Items)[] _islandNodeMaterials = [
         (0x1EB7F3, [35]), // Lightly Gnawed Pumpkin -> seeds
@@ -235,8 +245,15 @@ public class ItemDatabase
 
         var points = Json.Deserialize<Dictionary<uint, IslandGatherPoint>>(resource);
 
-        foreach (var v in points.Values)
+        foreach (var (k, v) in points)
         {
+            if (_unwantedIslandNodes.Contains(v.LayoutId))
+            {
+                Svc.Log.Debug($"skipping {v.LayoutId:X} {v.Name} because it has been blacklisted");
+                continue;
+            }
+
+            IslandNodesByLayoutId[k] = v;
             IslandNodesByNameId.TryAdd(v.NameId, []);
             IslandNodesByNameId[v.NameId].Add(v);
         }

@@ -191,17 +191,34 @@ public abstract class AutoTask
         }
     }
 
+    public enum InterruptReason
+    {
+        None,
+        InRange,
+        Custom
+    }
+
     protected async Task MoveTo(Vector3 destination, float tolerance, bool mount = false, bool fly = false, bool dismount = false, Func<bool>? interrupt = null)
     {
-        if (Util.PlayerInRange(destination, tolerance))
+        InterruptReason shouldStop()
+        {
+            if (interrupt?.Invoke() == true)
+                return InterruptReason.Custom;
+
+            if (Util.PlayerInRange(destination, tolerance))
+                return InterruptReason.InRange;
+
+            return InterruptReason.None;
+        }
+
+        if (shouldStop() != InterruptReason.None)
             return;
 
         using var scope = BeginScope("MoveTo");
         await WaitNavmesh();
 
         var navRetries = 0;
-
-        bool shouldStop() => (interrupt?.Invoke() ?? false) || Util.PlayerInRange(destination, tolerance);
+        var stopReason = InterruptReason.None;
 
         using (new OnDispose(NavStop))
         {
@@ -213,7 +230,7 @@ public abstract class AutoTask
             if (mount || fly)
                 await Mount();
 
-            while (!shouldStop())
+            while ((stopReason = shouldStop()) == InterruptReason.None)
             {
                 // if grounded, we can dismount before reaching the target to save some time waiting for the dismount animation
                 if (dismount && Svc.Condition[ConditionFlag.Mounted] && !Svc.Condition[ConditionFlag.InFlight] && Util.PlayerInRange(destination, tolerance + 9))
@@ -225,7 +242,7 @@ public abstract class AutoTask
                 await NextFrame(10);
 
                 // pathfind was canceled (check shouldStop again since it may have toggled over the past 10 frames)
-                if (!PathIsRunning() && !PathInProgress() && !shouldStop())
+                if (!PathIsRunning() && !PathInProgress() && (stopReason = shouldStop()) == InterruptReason.None)
                 {
                     navRetries++;
                     goto nav_start; // C# does not have labeled break
@@ -233,7 +250,7 @@ public abstract class AutoTask
             }
         }
 
-        if (dismount)
+        if (stopReason == InterruptReason.InRange && dismount)
             await Dismount();
     }
 
