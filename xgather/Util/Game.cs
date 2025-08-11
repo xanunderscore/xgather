@@ -15,26 +15,55 @@ using xgather.GameData;
 
 namespace xgather;
 
-public enum ActionID : uint
+public enum GatheringAction
 {
-    None = 0,
-    ArborCall = 211,
-    AgelessWords = 215,
-    LayOfTheLand = 228,
-    SolidReason = 232,
-    Collect = 240,
-    CollectorsGlove = 4101,
-    SharkEye = 7904,
-    ScourMIN = 22182,
-    BrazenMIN = 22183,
-    MeticulousMIN = 22184,
-    ScrutinyMIN = 22185,
-    ScourBTN = 22186,
-    BrazenBTN = 22187,
-    MeticulousBTN = 22188,
-    ScrutinyBTN = 22189,
-    WttWMIN = 26521,
-    WttWBTN = 26522
+    None,
+    Gather,
+    Collect,
+    Scour,
+    Brazen,
+    Meticulous,
+    Scrutiny,
+    BountifulYield,
+    Boon1,
+    Boon2,
+    BoonYield,
+    Yield1,
+    Yield2,
+    Restore,
+    RestoreCombo,
+}
+
+public static class ActionExtensions
+{
+    public static int GetActionID(this GatheringAction act, uint rowId)
+    {
+        if (rowId is not (16 or 17 or 18))
+            throw new InvalidOperationException($"Called GetActionID({act}) with invalid class ID {rowId}");
+
+        var isMiner = rowId == 16;
+
+        return act switch
+        {
+            GatheringAction.Collect => isMiner ? 240 : 815,
+            GatheringAction.Scour => isMiner ? 22182 : 22186,
+            GatheringAction.Brazen => isMiner ? 22183 : 22187,
+            GatheringAction.Meticulous => isMiner ? 22184 : 22188,
+            GatheringAction.Scrutiny => isMiner ? 22185 : 22189,
+            GatheringAction.BountifulYield => isMiner ? 272 : 273,
+            GatheringAction.Boon1 => isMiner ? 21177 : 21178,
+            GatheringAction.Boon2 => isMiner ? 25589 : 25590,
+            GatheringAction.BoonYield => isMiner ? 21203 : 21204,
+            GatheringAction.Yield1 => isMiner ? 239 : 222,
+            GatheringAction.Yield2 => isMiner ? 241 : 224,
+            GatheringAction.Restore => isMiner ? 232 : 215,
+            GatheringAction.RestoreCombo => isMiner ? 26521 : 26522,
+            GatheringAction.Gather => -1,
+            _ => 0
+        };
+    }
+
+    public static int GetActionID(this GatheringAction act) => GetActionID(act, Svc.ClientState.LocalPlayer?.ClassJob.RowId ?? 0);
 }
 
 public enum StatusID : uint
@@ -73,11 +102,8 @@ internal static unsafe partial class Util
 
     public static (DateTime Start, DateTime End) GetNextAvailable(uint itemId)
     {
-        var gpt2 = Svc.ExcelRowMaybe<Lumina.Excel.Sheets.GatheringPointTransient>(itemId);
-        if (gpt2 == null)
+        if (Svc.ExcelRowMaybe<Lumina.Excel.Sheets.GatheringPointTransient>(itemId) is not { } gpt)
             return (DateTime.MinValue, DateTime.MaxValue);
-
-        var gpt = gpt2.Value;
 
         if (gpt.EphemeralStartTime != 65535 && gpt.EphemeralEndTime != 65535)
             return CalcAvailability(gpt.EphemeralStartTime, gpt.EphemeralEndTime);
@@ -146,7 +172,9 @@ internal static unsafe partial class Util
 
     public static unsafe bool UseAction(ActionType actionType, uint actionId, ulong targetId = 0xE0000000) => ActionManager.Instance()->UseAction(actionType, actionId, targetId);
 
-    public static unsafe bool UseAction(ActionID id, ulong targetId = 0xE0000000) => UseAction(ActionType.Action, (uint)id, targetId);
+    public static unsafe bool UseAction(uint id, ulong targetId = 0xE0000000) => UseAction(ActionType.Action, id, targetId);
+
+    public static unsafe bool CanUseAction(uint id) => ActionManager.Instance()->GetActionStatus(ActionType.Action, id) == 0;
 
     public static unsafe uint GetActionStatus(ActionType actionType, uint actionId) => ActionManager.Instance()->GetActionStatus(actionType, actionId);
 

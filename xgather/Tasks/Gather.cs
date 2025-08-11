@@ -14,14 +14,14 @@ public abstract class GatherBase : AutoTask
         using var _ = BeginScope("Survey");
         var (actionId, statusId) = Svc.Player?.ClassJob.RowId switch
         {
-            16 => (ActionID.LayOfTheLand, StatusID.LayOfTheLand),
-            17 => (ActionID.ArborCall, StatusID.ArborCall),
-            18 => (ActionID.SharkEye, StatusID.SharkEye),
-            _ => (ActionID.None, StatusID.None)
+            16 => (228, 234),
+            17 => (211, 233),
+            18 => (7904, 1167),
+            _ => (0, 0)
         };
 
-        ErrorIf(actionId == ActionID.None, "Current job has no survey action");
-        ErrorIf(!Util.UseAction(actionId), "Unable to use survey action");
+        ErrorIf(actionId == 0, "Current job has no survey action");
+        ErrorIf(!Util.UseAction((uint)actionId), "Unable to use survey action");
 
         await WaitWhile(() => !Util.PlayerHasStatus(statusId), "Survey");
 
@@ -103,19 +103,20 @@ public abstract class GatherBase : AutoTask
                 if (act == default)
                     break;
 
-                await UseGatheringAction(act);
+                var aid = act.GetActionID();
+                ErrorIf(aid < 0, "Solver returned regular Gather action, but we can't use that here");
+
+                await UseGatheringAction((uint)aid);
             }
         }
     }
 
-    public record struct ActionTarget(ActionID ID, ulong Target = 0xE0000000);
-
-    private ActionID GetNextAction()
+    private GatheringAction GetNextAction()
     {
         var status = GetCollectableStatus();
 
         if (status.IntegrityCur == 0)
-            return default;
+            return GatheringAction.None;
 
         var gp = Svc.ClientState.LocalPlayer?.CurrentGp ?? 0;
 
@@ -125,24 +126,24 @@ public abstract class GatherBase : AutoTask
             if (status.IntegrityCur < status.IntegrityMax)
             {
                 if (Util.PlayerHasStatus(StatusID.EurekaMoment))
-                    return JobSpecific(ActionID.WttWMIN, ActionID.WttWBTN);
+                    return GatheringAction.RestoreCombo;
 
                 if (gp >= 300)
-                    return JobSpecific(ActionID.SolidReason, ActionID.AgelessWords);
+                    return GatheringAction.Restore;
             }
 
-            return ActionID.Collect;
+            return GatheringAction.Collect;
         }
 
         var qualityWanted = status.Breakpoint3 - status.QualityCur;
 
         if (status.MeticulousProgress < qualityWanted && !Util.PlayerHasStatus(StatusID.Scrutiny) && gp >= 200)
-            return JobSpecific(ActionID.ScrutinyMIN, ActionID.ScrutinyBTN);
+            return GatheringAction.Scrutiny;
 
-        return JobSpecific(ActionID.MeticulousMIN, ActionID.MeticulousBTN);
+        return GatheringAction.Meticulous;
     }
 
-    private async Task UseGatheringAction(ActionID id)
+    private async Task UseGatheringAction(uint id)
     {
         Util.UseAction(id, Svc.Player?.TargetObjectId ?? 0xE0000000);
         await WaitWhile(() => !Svc.Condition[ConditionFlag.ExecutingGatheringAction], "ActionStart");
@@ -185,11 +186,4 @@ public abstract class GatherBase : AutoTask
             );
         }
     }
-
-    private static T JobSpecific<T>(T valMiner, T valBtn) where T : struct => Svc.ClientState.LocalPlayer?.ClassJob.RowId switch
-    {
-        16 => valMiner,
-        17 => valBtn,
-        _ => default
-    };
 }

@@ -2,11 +2,21 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "type": "msbuild",
-            "problemMatcher": ["$msCompile"],
-            "group": "build",
-            "label": "Build: solution",
-            "detail": "Build the SamplePlugin.sln solution using dotnet build"
+            "label": "build",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/xgather.sln",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary;ForceNoAlign",
+                "/property:Platforms=x64"
+            ],
+            "problemMatcher": "$msCompile",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
         }
     ]
 }

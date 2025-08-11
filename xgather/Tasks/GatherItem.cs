@@ -55,6 +55,10 @@ public class GatherItem : GatherBase
         await TeleportToZone(gpBase.Zone, pos);
         await ChangeClass(gpBase.Class);
 
+        var (nextStart, _) = Util.GetNextAvailable(gpBase);
+        if (nextStart > DateTime.Now.AddSeconds(5))
+            await WaitWhile(() => nextStart > DateTime.Now.AddSeconds(5), "WaitSpawn", 100);
+
         if (IsCollectable && IsFishing)
             await UseCollectorsGlove();
 

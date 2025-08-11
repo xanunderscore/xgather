@@ -334,7 +334,7 @@ public abstract class AutoTask
         if (Util.PlayerHasStatus(StatusID.CollectorsGlove))
             return;
 
-        ErrorIf(!Util.UseAction(ActionID.CollectorsGlove), "Unable to use Collector's Glove");
+        ErrorIf(!Util.UseAction(4101), "Unable to use Collector's Glove");
         await WaitForBusy("UseAction");
     }
 
