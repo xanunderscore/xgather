@@ -4,13 +4,13 @@ using System.Linq;
 using System.Threading.Tasks;
 
 
-namespace xgather.Tasks;
+namespace xgather.Tasks.Gather;
 
-public class GatherMulti : GatherBase
+public class ManyItem : GatherBase
 {
     public readonly Dictionary<uint, uint> Items = [];
 
-    public GatherMulti(Dictionary<uint, uint> items, bool preFilterItems = true)
+    public ManyItem(Dictionary<uint, uint> items, bool preFilterItems = true)
     {
         if (preFilterItems)
         {
@@ -26,6 +26,6 @@ public class GatherMulti : GatherBase
     protected override async Task Execute()
     {
         foreach (var (itemId, quantity) in Items)
-            await RunSubtask(new GatherItem(itemId, quantity));
+            await RunSubtask(new OneItem(itemId, quantity));
     }
 }

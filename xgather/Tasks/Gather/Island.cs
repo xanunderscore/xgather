@@ -16,11 +16,12 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using xgather.GameData;
+using xgather.Utils;
 using ValueType = FFXIVClientStructs.FFXIV.Component.GUI.ValueType;
 
-namespace xgather.Tasks;
+namespace xgather.Tasks.Gather;
 
-public class GatherIsland : AutoTask
+public class Island : AutoTask
 {
     private readonly Dictionary<uint, Vector3> _itemsLeft = [];
     private readonly Dictionary<uint, IslandGatherPoint> _itemsFound = [];
@@ -50,7 +51,7 @@ public class GatherIsland : AutoTask
         0x901CE0,
     ];
 
-    public GatherIsland()
+    public Island()
     {
         var layout = Svc.Data.GetFile<LgbFile>("bg/ffxiv/hou_xx/hou/h1m2/level/planlive.lgb");
         if (layout == null)

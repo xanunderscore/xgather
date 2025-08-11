@@ -4,8 +4,9 @@ using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using System;
 using System.Numerics;
 using System.Threading.Tasks;
+using xgather.Utils;
 
-namespace xgather.Tasks;
+namespace xgather.Tasks.Gather;
 
 public abstract class GatherBase : AutoTask
 {

@@ -1,11 +1,11 @@
+using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
 using Dalamud.Interface.Components;
 using Dalamud.Interface.Utility.Raii;
 using Dalamud.Interface.Windowing;
-using Dalamud.Bindings.ImGui;
 using xgather.Tasks;
 using xgather.Tasks.Debug;
-
+using xgather.Tasks.Gather;
 
 namespace xgather.UI.Windows;
 
@@ -59,7 +59,7 @@ public class Overlay : Window
         using (ImRaii.Disabled(_auto.Running))
         {
             if (ImGuiComponents.IconButton(FontAwesomeIcon.Moon))
-                _auto.Start(new GatherMoon());
+                _auto.Start(new Moon());
             if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
                 ImGui.SetTooltip("Run current Cosmic Exploration mission");
 
@@ -67,14 +67,14 @@ public class Overlay : Window
             if (ImGuiComponents.IconButton(FontAwesomeIcon.ListUl))
             {
                 var missing = Reflection.GetMissingMaterialsList();
-                _auto.Start(new GatherMulti(missing));
+                _auto.Start(new ManyItem(missing));
             }
             if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
                 ImGui.SetTooltip("Collect all missing items from active Inventory Tools crafting list");
 
             ImGui.SameLine();
             if (ImGuiComponents.IconButton(FontAwesomeIcon.Leaf))
-                _auto.Start(new GatherIsland());
+                _auto.Start(new Island());
             if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
                 ImGui.SetTooltip("Collect missing items for current and next cycle on Island Sanctuary (currently does nothing)");
 

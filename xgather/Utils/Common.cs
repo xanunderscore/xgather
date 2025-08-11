@@ -13,7 +13,7 @@ using System.Linq;
 using System.Numerics;
 using xgather.GameData;
 
-namespace xgather;
+namespace xgather.Utils;
 
 public enum GatheringAction
 {

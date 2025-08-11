@@ -8,6 +8,7 @@ using Lumina.Excel.Sheets;
 using Lumina.Extensions;
 using System.Linq;
 using xgather.Tasks;
+using xgather.Tasks.Gather;
 using xgather.UI;
 using xgather.UI.Windows;
 
@@ -135,7 +136,7 @@ public sealed class Plugin : IDalamudPlugin
                 .Append(new UIForegroundPayload(0))
                 .Append($" for \"{args}\"");
             Alerts.Info(msg);
-            _auto.Start(new GatherItem(it.RowId, 999));
+            _auto.Start(new OneItem(it.RowId, 999));
             Overlay.IsOpen = true;
             return;
         }

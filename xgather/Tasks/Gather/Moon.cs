@@ -8,17 +8,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
+using xgather.Utils;
 
 
-namespace xgather.Tasks;
+namespace xgather.Tasks.Gather;
 
-internal class GatherMoon : GatherBase
+internal class Moon : GatherBase
 {
     private readonly Dictionary<uint, int> _requiredItems;
     private readonly Vector2 _gatherCenter;
     private readonly float _gatherRadius;
 
-    internal GatherMoon()
+    internal Moon()
     {
         var mission = MoonUtils.CurrentMission();
         ErrorIf(mission <= 0, "No active mission");

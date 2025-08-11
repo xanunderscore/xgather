@@ -1,10 +1,10 @@
+using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Components;
 using Dalamud.Interface.Utility.Raii;
-using Dalamud.Bindings.ImGui;
 using Lumina.Excel.Sheets;
 using System.Collections.Generic;
 using System.Linq;
-using xgather.Tasks;
+using xgather.Tasks.Gather;
 
 namespace xgather.UI.Windows;
 
@@ -64,7 +64,7 @@ internal class ItemSearch(Automation auto, string initialSearchText)
         using (ImRaii.Disabled(routes.Count == 0))
         {
             if (ImGuiComponents.IconButton((int)rowId, Dalamud.Interface.FontAwesomeIcon.Play))
-                _auto.Start(new GatherItem(rowId, 999));
+                _auto.Start(new OneItem(rowId, 999));
         }
         if (routes.Count == 0 && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
             ImGui.SetTooltip("This item has no valid zone associated with it.");

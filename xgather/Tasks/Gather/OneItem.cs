@@ -6,11 +6,11 @@ using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
 using xgather.GameData;
+using xgather.Utils;
 
+namespace xgather.Tasks.Gather;
 
-namespace xgather.Tasks;
-
-public class GatherItem : GatherBase
+public class OneItem : GatherBase
 {
     private Vector3? _lastPoint;
     private readonly uint itemId;
@@ -18,9 +18,8 @@ public class GatherItem : GatherBase
 
     private readonly bool IsCollectable;
     private readonly bool IsFishing;
-    private bool IsNormalCollectable => IsCollectable && !IsFishing;
 
-    public GatherItem(uint itemId, uint quantity)
+    public OneItem(uint itemId, uint quantity)
     {
         this.itemId = itemId;
         this.quantity = quantity + (uint)Util.GetQuantityOwned(itemId);

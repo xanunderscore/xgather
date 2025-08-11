@@ -10,6 +10,7 @@ using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
 using xgather.GameData;
+using xgather.Utils;
 
 // copied from vsatisfy
 namespace xgather;
