@@ -54,8 +54,7 @@ public class OneItem : GatherBase
         await TeleportToZone(gpBase.Zone, pos);
         await ChangeClass(gpBase.Class);
 
-        var (nextStart, _) = Util.GetNextAvailable(gpBase);
-        if (nextStart > DateTime.Now.AddSeconds(5))
+        if (Util.GetNextAvailable(gpBase) is (var nextStart, _))
             await WaitWhile(() => nextStart > DateTime.Now.AddSeconds(5), "WaitSpawn", 100);
 
         if (IsCollectable && IsFishing)

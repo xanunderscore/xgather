@@ -100,10 +100,11 @@ internal static unsafe partial class Util
 
     public static bool PlayerIsFalling => ((Character*)Player())->IsJumping();
 
-    public static (DateTime Start, DateTime End) GetNextAvailable(uint itemId)
+    public static (DateTime Start, DateTime End)? GetNextAvailable(GatheringPointBase b) => GetNextAvailable(b.Nodes[0]);
+    public static (DateTime Start, DateTime End)? GetNextAvailable(uint gatheringNodeId)
     {
-        if (Svc.ExcelRowMaybe<Lumina.Excel.Sheets.GatheringPointTransient>(itemId) is not { } gpt)
-            return (DateTime.MinValue, DateTime.MaxValue);
+        if (Svc.ExcelRowMaybe<Lumina.Excel.Sheets.GatheringPointTransient>(gatheringNodeId) is not { } gpt)
+            return null;
 
         if (gpt.EphemeralStartTime != 65535 && gpt.EphemeralEndTime != 65535)
             return CalcAvailability(gpt.EphemeralStartTime, gpt.EphemeralEndTime);
@@ -111,7 +112,7 @@ internal static unsafe partial class Util
         if (gpt.GatheringRarePopTimeTable.Value is Lumina.Excel.Sheets.GatheringRarePopTimeTable gptt && gptt.RowId > 0)
             return CalcAvailability(gptt).MinBy(x => x.Start);
 
-        return (DateTime.MinValue, DateTime.MaxValue);
+        return null;
     }
 
     public static IEnumerable<(DateTime Start, DateTime End)> CalcAvailability(Lumina.Excel.Sheets.GatheringRarePopTimeTable obj)
@@ -151,7 +152,6 @@ internal static unsafe partial class Util
         return (ts.AsDateTime, tsend.AsDateTime);
     }
 
-    public static (DateTime Start, DateTime End) GetNextAvailable(GatheringPointBase b) => GetNextAvailable(b.Nodes[0]);
     public static unsafe bool PlayerIsBusy()
         => Svc.Condition.Any(ConditionFlag.BetweenAreas, ConditionFlag.Casting, ConditionFlag.InCombat)
         || ActionManager.Instance()->AnimationLock > 0
