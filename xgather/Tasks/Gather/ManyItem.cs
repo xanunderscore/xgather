@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-
 namespace xgather.Tasks.Gather;
 
 public class ManyItem : GatherBase
@@ -18,9 +17,7 @@ public class ManyItem : GatherBase
             Svc.Log.Debug(JsonConvert.SerializeObject(Items));
         }
         else
-        {
             Items = items;
-        }
     }
 
     protected override async Task Execute()

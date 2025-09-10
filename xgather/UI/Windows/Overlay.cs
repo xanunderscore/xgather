@@ -4,7 +4,6 @@ using Dalamud.Interface.Components;
 using Dalamud.Interface.Utility.Raii;
 using Dalamud.Interface.Windowing;
 using xgather.Tasks;
-using xgather.Tasks.Debug;
 using xgather.Tasks.Gather;
 
 namespace xgather.UI.Windows;
@@ -20,7 +19,7 @@ public class Overlay : Window
         _debugHelper = debugHelper;
         SizeConstraints = new()
         {
-            MinimumSize = new(200, 100)
+            MinimumSize = new(50, 10)
         };
         TitleBarButtons.Add(new TitleBarButton()
         {
@@ -80,9 +79,6 @@ public class Overlay : Window
 
             if (Svc.IsDev)
             {
-                if (ImGuiComponents.IconButton(FontAwesomeIcon.Bug))
-                    _auto.Start(new TeleportMount());
-
                 if (Svc.ClientState.TerritoryType == 1252)
                 {
                     ImGui.SameLine();

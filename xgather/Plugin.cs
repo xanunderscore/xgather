@@ -6,7 +6,9 @@ using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using Lumina.Excel.Sheets;
 using Lumina.Extensions;
+using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 using xgather.Tasks;
 using xgather.Tasks.Gather;
 using xgather.UI;
@@ -75,7 +77,7 @@ public sealed class Plugin : IDalamudPlugin
 
         var gfish = Svc.ExcelSheet<SpearfishingItem>()
             ?.FirstOrDefault(
-                it => it.Item.Value.Name.ToString().Contains(args, System.StringComparison.InvariantCultureIgnoreCase)
+                it => it.Item.Value.Name.ToString().Contains(args, StringComparison.InvariantCultureIgnoreCase)
             );
         if (gfish == null)
         {
@@ -83,7 +85,7 @@ public sealed class Plugin : IDalamudPlugin
             return;
         }
 
-        DoGatherItem(args, gfish.Value.Item.Value!);
+        DoGatherItem(args, gfish.Value.Item.Value!, 999);
     }
 
     private void OnCommand(string command, string args)
@@ -106,6 +108,17 @@ public sealed class Plugin : IDalamudPlugin
             return;
         }
 
+        var itemQuantity = 999u;
+        var quantPattern = @"\s+x(\d+)\s*$";
+        var match = Regex.Match(args, quantPattern);
+        if (match.Success)
+        {
+            var ix = match.Index;
+            if (!uint.TryParse(match.Groups[1].Value, out itemQuantity))
+                throw new ArgumentException("can't parse int");
+            args = args[..ix];
+        }
+
         var it = FindItemByName(args);
         if (it == null)
         {
@@ -115,15 +128,12 @@ public sealed class Plugin : IDalamudPlugin
 
         Svc.Log.Debug($"Identified {it.Value.RowId} for {args}");
 
-        DoGatherItem(args, it.Value);
+        DoGatherItem(args, it.Value, itemQuantity);
     }
 
-    private Item? FindItemByName(string query)
-    {
-        return Svc.ExcelSheet<Item>().Where(i => i.Name.ToString().Contains(query, System.StringComparison.InvariantCultureIgnoreCase)).FirstOrNull();
-    }
+    public static Item? FindItemByName(string query) => Svc.ExcelSheet<Item>().Where(i => i.Name.ToString().Contains(query, StringComparison.InvariantCultureIgnoreCase)).FirstOrNull();
 
-    private void DoGatherItem(string args, Item it)
+    private void DoGatherItem(string args, Item it, uint quantity)
     {
         foreach (var rte in Svc.ItemDB.GetGatherPointGroupsForItem(it.RowId))
         {
@@ -136,7 +146,7 @@ public sealed class Plugin : IDalamudPlugin
                 .Append(new UIForegroundPayload(0))
                 .Append($" for \"{args}\"");
             Alerts.Info(msg);
-            _auto.Start(new OneItem(it.RowId, 999));
+            _auto.Start(new OneItem(it.RowId, quantity));
             Overlay.IsOpen = true;
             return;
         }
