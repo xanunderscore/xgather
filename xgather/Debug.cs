@@ -1,6 +1,23 @@
+using Dalamud.Bindings.ImGui;
+using FFXIVClientStructs.FFXIV.Client.Game.WKS;
+using FFXIVClientStructs.FFXIV.Client.UI.Agent;
+using Lumina.Excel.Sheets;
 using System;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 namespace xgather;
+
+[StructLayout(LayoutKind.Explicit, Size = 0x20)]
+struct OurMissionEntry
+{
+    [FieldOffset(0)] public uint MissionUnitId;
+    [FieldOffset(4)] public uint IconId;
+    [FieldOffset(8)] public nint Unk8;
+    [FieldOffset(16)] public uint Unk16;
+    [FieldOffset(20)] public AgentWKSMission.MissionFlags Flags;
+    [FieldOffset(24)] public byte MissionGroup;
+}
 
 public unsafe class Debug : IDisposable
 {
@@ -38,6 +55,14 @@ public unsafe class Debug : IDisposable
         //_canUseGatheringHook.Enable();
     }
 
+    public struct MissionData
+    {
+        public uint Id;
+        public string Name;
+        public bool Completed;
+        public bool Gold;
+    }
+
     public unsafe void Draw()
     {
         //var ev = EventFramework.Instance()->GetEventHandlerById(0x3E0000);
@@ -62,6 +87,59 @@ public unsafe class Debug : IDisposable
         //}
         //else
         //    ImGui.Text($"Scene ({id:X}): nothing");
+    }
+
+    private List<MissionData> _allMissions = [];
+    private bool _init;
+
+    private void DrawWKS()
+    {
+        var wks = WKSManager.Instance();
+
+        if (_allMissions.Count == 0)
+        {
+            foreach (var unit in Svc.ExcelSheet<WKSMissionUnit>())
+            {
+                var unitId = unit.RowId;
+                var v17 = (byte)(unitId >> 3);
+                var v18 = 1 << ((int)unitId & 7);
+
+                var completed = v18 & *(byte*)((nint)wks + 0xC50 + v17 + 5);
+                var gold = v18 & *(byte*)((nint)wks + 0xCD8 + v17 + 5);
+
+                _allMissions.Add(new MissionData()
+                {
+                    Id = unitId,
+                    Name = unit.Name.ToString(),
+                    Completed = completed > 0,
+                    Gold = gold > 0
+                });
+            }
+        }
+
+        ImGui.TextUnformatted($"{_allMissions.Count} missions");
+
+        ImGui.BeginTable("missions", 4, ImGuiTableFlags.BordersInnerV);
+        ImGui.TableSetupColumn("ID", ImGuiTableColumnFlags.WidthFixed, 100);
+        ImGui.TableSetupColumn("Name");
+        ImGui.TableSetupColumn("Completed");
+        ImGui.TableSetupColumn("Golded");
+        ImGui.TableHeadersRow();
+
+        foreach (var m in _allMissions)
+        {
+            ImGui.TableNextRow();
+            ImGui.TableNextColumn();
+            ImGui.TextUnformatted(m.Id.ToString());
+            ImGui.TableNextColumn();
+            ImGui.TextUnformatted(m.Name.ToString());
+            ImGui.TableNextColumn();
+            ImGui.TextUnformatted(m.Completed.ToString());
+            ImGui.TableNextColumn();
+            ImGui.TextUnformatted(m.Gold.ToString());
+        }
+
+        ImGui.EndTable();
     }
 
     /*

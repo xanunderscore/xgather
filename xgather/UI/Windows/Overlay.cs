@@ -77,14 +77,18 @@ public class Overlay : Window
             if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
                 ImGui.SetTooltip("Collect missing items for current and next cycle on Island Sanctuary (currently does nothing)");
 
-            if (Svc.IsDev)
+            if (Svc.ClientState.TerritoryType == 1252)
             {
-                if (Svc.ClientState.TerritoryType == 1252)
-                {
-                    ImGui.SameLine();
-                    if (ImGuiComponents.IconButton(FontAwesomeIcon.BoxOpen))
-                        _auto.Start(new OccultTreasure());
-                }
+                ImGui.SameLine();
+                if (ImGuiComponents.IconButton(FontAwesomeIcon.BoxOpen))
+                    _auto.Start(new OccultTreasure());
+            }
+
+            if (Svc.ClientState.TerritoryType == 1237)
+            {
+                ImGui.SameLine();
+                if (ImGuiComponents.IconButton(FontAwesomeIcon.Snowflake))
+                    _auto.Start(new MoonGel());
             }
         }
 

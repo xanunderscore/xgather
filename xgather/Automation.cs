@@ -3,6 +3,7 @@ using Dalamud.Plugin.Ipc;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Misc;
+using Lumina.Excel.Sheets;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -140,11 +141,13 @@ public abstract class AutoTask
     protected bool PathInProgress() => _navPathfindInProgress.InvokeFunc();
     protected bool PathIsRunning() => _navPathIsRunning.InvokeFunc();
 
-    protected async Task WaitForBusy(string tag)
+    protected async Task WaitCondition(Func<bool> cond, string tag, int checkFrequency = 10)
     {
-        await WaitWhile(() => !Util.PlayerIsBusy(), $"{tag}Start");
-        await WaitWhile(Util.PlayerIsBusy, $"{tag}Finish");
+        await WaitWhile(() => !cond(), $"{tag}Start", checkFrequency);
+        await WaitWhile(cond, $"{tag}Finish", checkFrequency);
     }
+
+    protected async Task WaitForBusy(string tag) => await WaitCondition(Util.PlayerIsBusy, tag);
 
     protected async Task TeleportToZone(uint territoryId, Vector3 destination, bool force = false)
     {
@@ -166,8 +169,7 @@ public abstract class AutoTask
             success = UIState.Instance()->Telepo.Teleport(closest.GameAetheryte.RowId, 0);
         }
         ErrorIf(!success, $"Failed to teleport to {closest.GameAetheryte.RowId}");
-        await WaitWhile(() => !Svc.Condition[ConditionFlag.BetweenAreas], "TeleportStart");
-        await WaitWhile(() => Svc.Condition[ConditionFlag.BetweenAreas], "TeleportFinish");
+        await WaitCondition(() => Svc.Condition[ConditionFlag.BetweenAreas], "Teleport");
     }
 
     protected async Task WaitNavmesh()
@@ -298,10 +300,15 @@ public abstract class AutoTask
 
     protected async Task ChangeClass(GatherClass cls)
     {
-        using var scope = BeginScope("Gearset");
-
         if (cls.GetClassJob() is not { } desired)
             return;
+
+        await ChangeClass(desired);
+    }
+
+    protected async Task ChangeClass(ClassJob desired)
+    {
+        using var scope = BeginScope("Gearset");
 
         if (Svc.Player?.ClassJob is not { } current)
             return;
@@ -325,7 +332,7 @@ public abstract class AutoTask
                 }
             }
         }
-        ErrorIf(!equipped, $"No gearset found for {cls}");
+        ErrorIf(!equipped, $"No gearset found for {desired.Name}");
 
         await WaitWhile(() => Svc.Player?.ClassJob.RowId != desired.RowId, "WaitEquip");
     }

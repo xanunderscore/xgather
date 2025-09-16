@@ -193,8 +193,7 @@ public class Island : AutoTask
     {
         Util.InteractWithObject(obj);
 
-        await WaitWhile(() => !Svc.Condition[ConditionFlag.OccupiedInQuestEvent], "GatherStart");
-        await WaitWhile(() => Svc.Condition[ConditionFlag.OccupiedInQuestEvent], "GatherFinish");
+        await WaitCondition(() => Svc.Condition[ConditionFlag.OccupiedInQuestEvent], "Gather");
     }
 
     private async Task SetGatherMode()
