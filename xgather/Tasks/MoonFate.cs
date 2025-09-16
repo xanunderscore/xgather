@@ -19,7 +19,7 @@ public class MoonFate : AutoTask
 
             await MoveTo(obj.Position, 3.5f, false, false, false);
             Util.InteractWithObject(obj);
-            await WaitCondition(() => Svc.Condition[ConditionFlag.OccupiedInEvent], "Interact");
+            await WaitFlipflop(() => Svc.Condition[ConditionFlag.OccupiedInEvent], "Interact");
         }
     }
 }

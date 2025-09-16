@@ -1,5 +1,6 @@
 using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Plugin.Ipc;
+using FFXIVClientStructs.FFXIV.Client.Game;
 using Lumina.Excel.Sheets;
 using System.Threading.Tasks;
 using xgather.Utils;
@@ -28,18 +29,46 @@ internal class MoonGel : AutoTask
             await WaitWhile(() => _iceState.InvokeFunc() != "ManualMode" || _iceMission.InvokeFunc() != 509, "WaitManualMode");
 
             await ChangeClass(GatherClass.FSH);
+            await FaceTheWater();
 
             Util.UseAction(289);
 
-            await WaitCondition(() => Svc.Condition[ConditionFlag.Gathering], "WaitFishing");
+            await WaitFlipflop(() => Svc.Condition[ConditionFlag.Gathering], "Fishing");
 
             await ChangeClass(Svc.ExcelRow<ClassJob>(14));
 
             _artisanCraft.InvokeAction(36682, 2);
 
-            await WaitCondition(_artisanBusy.InvokeFunc, "WaitCraft");
+            await WaitFlipflop(_artisanBusy.InvokeFunc, "Crafting");
 
-            Error("Unimplemented: stop crafting");
+            if (!Util.IsAddonReady("WKSMissionInfomation"))
+            {
+                unsafe
+                {
+                    Util.GetAddonByName("WKSHud")->FireCallbackInt(11);
+                }
+                await WaitAddon("WKSMissionInfomation", 10);
+            }
+
+            unsafe
+            {
+                Util.GetAddonByName("WKSMissionInfomation")->FireCallbackInt(11);
+            }
+
+            await WaitWhile(() => _iceState.InvokeFunc() == "ManualMode", "Turnin");
         }
+    }
+
+    private static async Task FaceTheWater()
+    {
+        await Svc.Framework.RunOnFrameworkThread(() =>
+        {
+            var pos = Svc.Player!.Position;
+            pos.X += 5;
+            unsafe
+            {
+                ActionManager.Instance()->AutoFaceTargetPosition(&pos);
+            }
+        });
     }
 }

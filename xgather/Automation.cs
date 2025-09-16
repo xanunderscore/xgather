@@ -141,13 +141,16 @@ public abstract class AutoTask
     protected bool PathInProgress() => _navPathfindInProgress.InvokeFunc();
     protected bool PathIsRunning() => _navPathIsRunning.InvokeFunc();
 
-    protected async Task WaitCondition(Func<bool> cond, string tag, int checkFrequency = 10)
+    /**
+     * <summary>Wait for some condition to become true, then false.</summary>
+     */
+    protected async Task WaitFlipflop(Func<bool> cond, string tag, int checkFrequency = 10)
     {
         await WaitWhile(() => !cond(), $"{tag}Start", checkFrequency);
         await WaitWhile(cond, $"{tag}Finish", checkFrequency);
     }
 
-    protected async Task WaitForBusy(string tag) => await WaitCondition(Util.PlayerIsBusy, tag);
+    protected async Task WaitForBusy(string tag) => await WaitFlipflop(Util.PlayerIsBusy, tag);
 
     protected async Task TeleportToZone(uint territoryId, Vector3 destination, bool force = false)
     {
@@ -169,7 +172,7 @@ public abstract class AutoTask
             success = UIState.Instance()->Telepo.Teleport(closest.GameAetheryte.RowId, 0);
         }
         ErrorIf(!success, $"Failed to teleport to {closest.GameAetheryte.RowId}");
-        await WaitCondition(() => Svc.Condition[ConditionFlag.BetweenAreas], "Teleport");
+        await WaitFlipflop(() => Svc.Condition[ConditionFlag.BetweenAreas], "Teleport");
     }
 
     protected async Task WaitNavmesh()
