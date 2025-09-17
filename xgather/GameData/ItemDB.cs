@@ -237,7 +237,7 @@ public class ItemDatabase
 
     public void Initialize()
     {
-        var resource = Assembly.GetExecutingAssembly().GetManifestResourceStream("xgather.islandObjects.json");
+        var resource = Assembly.GetExecutingAssembly().GetManifestResourceStream("xgather.resources.islandObjects.json");
         if (resource == null)
         {
             Svc.Log.Error("Unable to load islandObjects resource, island objects will not be gathered");
