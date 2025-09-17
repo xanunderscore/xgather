@@ -19,14 +19,14 @@ internal class MoonGel : AutoTask
 
     protected override async Task Execute()
     {
-        await MoveTo(new(-299.574f, 24.338f, -101.603f), 1);
+        await MoveTo(new(-299.574f, 24.338f, -101.603f), 1, mount: true, dismount: true);
 
         if (!_iceIsRunning.InvokeFunc())
             _iceEnable.InvokeAction();
 
         while (true)
         {
-            await WaitWhile(() => _iceState.InvokeFunc() != "ManualMode" || _iceMission.InvokeFunc() != 509, "WaitManualMode");
+            await WaitWhile(() => _iceState.InvokeFunc() != "ManualMode" || _iceMission.InvokeFunc() != 509, "WaitMission");
 
             await ChangeClass(GatherClass.FSH);
             await FaceTheWater();
