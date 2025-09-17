@@ -22,6 +22,7 @@ internal class MoonGel : AutoTask
     private readonly ICallGateSubscriber<bool> _artisanBusy = Svc.PluginInterface.GetIpcSubscriber<bool>("Artisan.IsBusy");
     private readonly ICallGateSubscriber<uint, object> _swapBait = Svc.PluginInterface.GetIpcSubscriber<uint, object>("AutoHook.SwapBaitById");
     private readonly ICallGateSubscriber<string, object> _swapAHPreset = Svc.PluginInterface.GetIpcSubscriber<string, object>("AutoHook.CreateAndSelectAnonymousPreset");
+    private readonly ICallGateSubscriber<object> _clearAHPresets = Svc.PluginInterface.GetIpcSubscriber<object>("AutoHook.DeleteAllAnonymousPresets");
 
     // supported missions
     // 509: moon gel (FSH + ALC)
@@ -46,6 +47,8 @@ internal class MoonGel : AutoTask
 
     protected override async Task Execute()
     {
+        await ChangeClass(GatherClass.FSH);
+
         if (!_iceIsRunning.InvokeFunc())
             _iceEnable.InvokeAction();
 
@@ -91,8 +94,12 @@ internal class MoonGel : AutoTask
         await ChangeClass(GatherClass.FSH);
         await FaceDirection(new(5, 0, 0));
 
+        // for some reason it takes a moment to face the fishing spot, maybe to do with rotation interpolation bs
+        await NextFrame(10);
+
         // stellar salmon roe
         _swapBait.InvokeFunc(45960);
+        _clearAHPresets.InvokeAction();
         _swapAHPreset.InvokeAction(_ahPresets["Refined Moon Gel"]);
 
         // cast line

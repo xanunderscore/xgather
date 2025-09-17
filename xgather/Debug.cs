@@ -68,7 +68,7 @@ public unsafe class Debug : IDisposable
         //if (Svc.ClientState.LocalPlayer is { } p)
         //{
         //    var (s1, c2) = MathF.SinCos(p.Rotation);
-        //    ImGui.TextUnformatted($"sin: {s1:f3}, cos: {c2:f3}");
+        //    ImGui.TextUnformatted($"rot: {p.Rotation:f3}, sin: {s1:f3}, cos: {c2:f3}");
         //    var orthoR = new Vector3(-c2, 0, s1);
         //    if (ImGui.Button("Rotate"))
         //    {
@@ -76,6 +76,7 @@ public unsafe class Debug : IDisposable
         //        ActionManager.Instance()->AutoFaceTargetPosition(&target);
         //    }
         //}
+
         //var ev = EventFramework.Instance()->GetEventHandlerById(0x3E0000);
         //if (ev != null)
         //{
