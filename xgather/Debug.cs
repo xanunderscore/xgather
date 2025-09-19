@@ -1,23 +1,10 @@
 using Dalamud.Bindings.ImGui;
 using FFXIVClientStructs.FFXIV.Client.Game.WKS;
-using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using Lumina.Excel.Sheets;
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 
 namespace xgather;
-
-[StructLayout(LayoutKind.Explicit, Size = 0x20)]
-struct OurMissionEntry
-{
-    [FieldOffset(0)] public uint MissionUnitId;
-    [FieldOffset(4)] public uint IconId;
-    [FieldOffset(8)] public nint Unk8;
-    [FieldOffset(16)] public uint Unk16;
-    [FieldOffset(20)] public AgentWKSMission.MissionFlags Flags;
-    [FieldOffset(24)] public byte MissionGroup;
-}
 
 public unsafe class Debug : IDisposable
 {
@@ -65,6 +52,14 @@ public unsafe class Debug : IDisposable
 
     public unsafe void Draw()
     {
+        //if (Svc.TextureProvider.GetFromGame("ui/uld/WKSMission_hr1.tex") is { } tex)
+        //{
+        //    if (tex.TryGetWrap(out var wrap, out var exc))
+        //    {
+        //        ImGui.Image(wrap.Handle, new Vector2(32, 32), new Vector2(0.2347f, 0.3500f), new Vector2(0.2959f, 0.6500f));
+        //    }
+        //}
+
         //if (Svc.ClientState.LocalPlayer is { } p)
         //{
         //    var (s1, c2) = MathF.SinCos(p.Rotation);

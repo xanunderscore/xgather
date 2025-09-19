@@ -18,6 +18,7 @@ internal class MoonGel : AutoTask
     private readonly ICallGateSubscriber<bool> _iceIsRunning = Svc.PluginInterface.GetIpcSubscriber<bool>("ICE.IsRunning");
     private readonly ICallGateSubscriber<object> _iceEnable = Svc.PluginInterface.GetIpcSubscriber<object>("ICE.Enable");
     private readonly ICallGateSubscriber<object> _iceDisable = Svc.PluginInterface.GetIpcSubscriber<object>("ICE.Disable");
+    private readonly ICallGateSubscriber<string, bool, object> _iceConfig = Svc.PluginInterface.GetIpcSubscriber<string, bool, object>("ICE.ChangeSetting");
     private readonly ICallGateSubscriber<ushort, int, object> _artisanCraft = Svc.PluginInterface.GetIpcSubscriber<ushort, int, object>("Artisan.CraftItem");
     private readonly ICallGateSubscriber<bool> _artisanBusy = Svc.PluginInterface.GetIpcSubscriber<bool>("Artisan.IsBusy");
     private readonly ICallGateSubscriber<uint, object> _swapBait = Svc.PluginInterface.GetIpcSubscriber<uint, object>("AutoHook.SwapBaitById");
@@ -29,33 +30,24 @@ internal class MoonGel : AutoTask
     // 542: edible fish (FSH crit 1)
     // 544: mutated fish (FSH crit 2)
 
-    //private static readonly Dictionary<uint, (Vector3, Func<Task>)> _supportedMissions = new()
-    //{
-    //    { 509, (new Vector3(-299.574f, 24.338f, -101.603f), async () => await DoMissionMoonGel()) }
-    //};
-
     private readonly Dictionary<string, string> _ahPresets;
 
     public MoonGel()
     {
-        var resource = Assembly.GetExecutingAssembly().GetManifestResourceStream("xgather.resources.autohookPresets.json");
-        if (resource == null)
-            throw new InvalidDataException("AH presets file is not found, can't fish");
+        var resource = Assembly.GetExecutingAssembly().GetManifestResourceStream("xgather.resources.autohookPresets.json") ?? throw new InvalidDataException("AH presets file is not found, can't fish");
 
         _ahPresets = Json.Deserialize<Dictionary<string, string>>(resource);
     }
 
     protected override async Task Execute()
     {
-        await ChangeClass(GatherClass.FSH);
-
-        if (!_iceIsRunning.InvokeFunc())
-            _iceEnable.InvokeAction();
-
         // 110.022f, 18.805f, -229.596f
 
         while (true)
         {
+            await ChangeClass(GatherClass.FSH);
+            _iceEnable.InvokeAction();
+
             uint missionId;
             while (true)
             {
@@ -75,6 +67,8 @@ internal class MoonGel : AutoTask
                 await NextFrame(10);
             }
 
+            _iceConfig.InvokeAction("StopAfterCurrent", true);
+
             switch (missionId)
             {
                 case 509:
@@ -91,7 +85,6 @@ internal class MoonGel : AutoTask
     private async Task DoMissionMoonGel()
     {
         await MoveTo(new(-299.574f, 24.338f, -101.603f), 1, mount: true, dismount: true);
-        await ChangeClass(GatherClass.FSH);
         await FaceDirection(new(5, 0, 0));
 
         // for some reason it takes a moment to face the fishing spot, maybe to do with rotation interpolation bs
@@ -120,7 +113,7 @@ internal class MoonGel : AutoTask
             {
                 Util.GetAddonByName("WKSHud")->FireCallbackInt(11);
             }
-            await WaitAddon("WKSMissionInfomation", 10);
+            await WaitAddon("WKSMissionInfomation");
         }
 
         unsafe
@@ -128,7 +121,7 @@ internal class MoonGel : AutoTask
             Util.GetAddonByName("WKSMissionInfomation")->FireCallbackInt(11);
         }
 
-        await WaitWhile(() => _iceState.InvokeFunc() == "ManualMode", "Turnin");
+        await WaitWhile(() => Svc.Condition.Any(ConditionFlag.Crafting, ConditionFlag.PreparingToCraft), "Turnin");
     }
 
     private static async Task FaceDirection(Vector3 offset)
