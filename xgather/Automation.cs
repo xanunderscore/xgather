@@ -100,10 +100,12 @@ public abstract class AutoTask
         using var scope = BeginScope(scopeName);
         while (condition())
         {
-            Log("waiting...");
+            //Log("waiting...");
             await NextFrame(checkFrequency);
         }
     }
+
+    protected async Task WaitUntil(Func<bool> condition, string scopeName, int checkFrequency = 10) => await WaitWhile(() => !condition(), scopeName, checkFrequency);
 
     protected void Log(string message) => Svc.Log.Debug($"[{GetType().Name}] [{string.Join(" > ", debugContext)}] {message}");
 
@@ -146,7 +148,7 @@ public abstract class AutoTask
      */
     protected async Task WaitFlipflop(Func<bool> cond, string tag, int checkFrequency = 10)
     {
-        await WaitWhile(() => !cond(), $"{tag}Start", checkFrequency);
+        await WaitUntil(cond, $"{tag}Start", checkFrequency);
         await WaitWhile(cond, $"{tag}Finish", checkFrequency);
     }
 

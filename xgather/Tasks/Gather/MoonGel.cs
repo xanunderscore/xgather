@@ -1,9 +1,11 @@
+using Dalamud.Bindings.ImGui;
 using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Plugin.Ipc;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using Lumina.Excel.Sheets;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Numerics;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -15,15 +17,24 @@ internal class MoonGel : AutoTask
 {
     private readonly ICallGateSubscriber<string> _iceState = Svc.PluginInterface.GetIpcSubscriber<string>("ICE.CurrentState");
     private readonly ICallGateSubscriber<uint> _iceMission = Svc.PluginInterface.GetIpcSubscriber<uint>("ICE.CurrentMission");
-    private readonly ICallGateSubscriber<bool> _iceIsRunning = Svc.PluginInterface.GetIpcSubscriber<bool>("ICE.IsRunning");
     private readonly ICallGateSubscriber<object> _iceEnable = Svc.PluginInterface.GetIpcSubscriber<object>("ICE.Enable");
-    private readonly ICallGateSubscriber<object> _iceDisable = Svc.PluginInterface.GetIpcSubscriber<object>("ICE.Disable");
     private readonly ICallGateSubscriber<string, bool, object> _iceConfig = Svc.PluginInterface.GetIpcSubscriber<string, bool, object>("ICE.ChangeSetting");
     private readonly ICallGateSubscriber<ushort, int, object> _artisanCraft = Svc.PluginInterface.GetIpcSubscriber<ushort, int, object>("Artisan.CraftItem");
     private readonly ICallGateSubscriber<bool> _artisanBusy = Svc.PluginInterface.GetIpcSubscriber<bool>("Artisan.IsBusy");
-    private readonly ICallGateSubscriber<uint, object> _swapBait = Svc.PluginInterface.GetIpcSubscriber<uint, object>("AutoHook.SwapBaitById");
+    private readonly ICallGateSubscriber<uint, bool> _swapBait = Svc.PluginInterface.GetIpcSubscriber<uint, bool>("AutoHook.SwapBaitById");
     private readonly ICallGateSubscriber<string, object> _swapAHPreset = Svc.PluginInterface.GetIpcSubscriber<string, object>("AutoHook.CreateAndSelectAnonymousPreset");
     private readonly ICallGateSubscriber<object> _clearAHPresets = Svc.PluginInterface.GetIpcSubscriber<object>("AutoHook.DeleteAllAnonymousPresets");
+
+    private string IceState() => _iceState.InvokeFunc();
+    private uint IceMission() => _iceMission.InvokeFunc();
+    private void IceEnable() => _iceEnable.InvokeAction();
+    private void IceChangeSetting(string option, bool value) => _iceConfig.InvokeAction(option, value);
+    private void CraftItem(ushort recipe, int quantity) => _artisanCraft.InvokeAction(recipe, quantity);
+    private bool SetBait(uint baitId) => _swapBait.InvokeFunc(baitId);
+    private void SetAHPreset(string contents) => _swapAHPreset.InvokeAction(contents);
+    private void ClearAHPresets() => _clearAHPresets.InvokeAction();
+
+    private bool _shouldStop;
 
     // supported missions
     // 509: moon gel (FSH + ALC)
@@ -43,57 +54,69 @@ internal class MoonGel : AutoTask
     {
         // 110.022f, 18.805f, -229.596f
 
-        while (true)
+        while (!_shouldStop)
         {
             await ChangeClass(GatherClass.FSH);
-            _iceEnable.InvokeAction();
+            IceEnable();
 
-            uint missionId;
-            while (true)
-            {
-                if (_iceState.InvokeFunc() == "ManualMode")
-                {
-                    missionId = _iceMission.InvokeFunc();
-                    if (missionId is 509 or 542 or 544)
-                        break;
-                }
+            await WaitUntil(() => IceState() == "ManualMode" && IceMission() is 509 or 542 or 544, "MissionStart");
 
-                if (_iceState.InvokeFunc() == "Idle")
-                {
-                    Svc.Log.Debug("ICE is off, ending task");
-                    return;
-                }
-
-                await NextFrame(10);
-            }
-
-            _iceConfig.InvokeAction("StopAfterCurrent", true);
-
-            switch (missionId)
+            switch (IceMission())
             {
                 case 509:
-                    await DoMissionMoonGel();
+                    // use turnin to end crafting stance, but then we have to swap back to FSH before accepting next mission so that ICE will do autorepair check
+                    IceChangeSetting("StopAfterCurrent", true);
+                    await DoMoonGel();
                     break;
-                default:
-                    Error($"Proceeded with unsupported mission {missionId}, giving up");
+                case 542:
+                    await DoEdibleFish();
+                    break;
+                case var x:
+                    Error($"Proceeded with unsupported mission {x}, giving up");
                     break;
             }
 
         }
     }
 
-    private async Task DoMissionMoonGel()
+    private async Task DoEdibleFish()
     {
         await MoveTo(new(-299.574f, 24.338f, -101.603f), 1, mount: true, dismount: true);
-        await FaceDirection(new(5, 0, 0));
+        await FaceDirection(new(1, 0, 0));
+
+        await NextFrame(10);
+
+        // etheirys ball
+        SetBait(45966);
+        ClearAHPresets();
+        SetAHPreset(_ahPresets["Critical Fish"]);
+
+        Util.UseAction(289);
+
+        await WaitFlipflop(() => Svc.Condition[ConditionFlag.Gathering], "Fishing");
+
+        await MoveTo(new(-461.488f, 40.037f, -66.527f), 3.5f, mount: true, dismount: true);
+
+        var turnin = Svc.ObjectTable.Where(t => t.DataId == 0x1EBD9A && t.IsTargetable).MinBy(t => t.Position.DistanceFromPlayerXZ());
+        ErrorIf(turnin == null, "No collection point!");
+
+        Util.InteractWithObject(turnin);
+
+        await WaitWhile(() => _iceState.InvokeFunc() == "ManualMode", "WaitTurnin");
+    }
+
+    private async Task DoMoonGel()
+    {
+        await MoveTo(new(-299.574f, 24.338f, -101.603f), 1, mount: true, dismount: true);
+        await FaceDirection(new(1, 0, 0));
 
         // for some reason it takes a moment to face the fishing spot, maybe to do with rotation interpolation bs
         await NextFrame(10);
 
         // stellar salmon roe
-        _swapBait.InvokeFunc(45960);
-        _clearAHPresets.InvokeAction();
-        _swapAHPreset.InvokeAction(_ahPresets["Refined Moon Gel"]);
+        SetBait(45960);
+        ClearAHPresets();
+        SetAHPreset(_ahPresets["Refined Moon Gel"]);
 
         // cast line
         Util.UseAction(289);
@@ -103,7 +126,7 @@ internal class MoonGel : AutoTask
         await ChangeClass(Svc.ExcelRow<ClassJob>(14));
 
         // craft moon gel
-        _artisanCraft.InvokeAction(36682, 2);
+        CraftItem(36682, 2);
 
         await WaitFlipflop(_artisanBusy.InvokeFunc, "Crafting");
 
@@ -135,5 +158,10 @@ internal class MoonGel : AutoTask
                 ActionManager.Instance()->AutoFaceTargetPosition(&pos);
             }
         });
+    }
+
+    public override void DrawDebug()
+    {
+        ImGui.Checkbox("Stop after current mission", ref _shouldStop);
     }
 }

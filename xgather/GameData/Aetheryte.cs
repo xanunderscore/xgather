@@ -77,16 +77,8 @@ public class Aetheryte
 
     public static float ConvertMapMarkerToRawPosition(int pos, float scale)
     {
-        float num = scale / 100f;
-        var rawPosition = ((float)(pos - 1024.0) / num);
+        var num = scale / 100f;
+        var rawPosition = (float)(pos - 1024.0) / num;
         return rawPosition;
-    }
-
-    public static IEnumerable<Aetheryte> LoadAetherytes()
-    {
-        return Svc.Data
-            .GetExcelSheet<GameAetheryte>()!
-            .Where(x => x.IsAetheryte && x.AethernetName.RowId == 0 && x.RowId > 1)
-            .Select(x => new Aetheryte(x));
     }
 }
