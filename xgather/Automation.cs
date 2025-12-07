@@ -262,10 +262,11 @@ public abstract class AutoTask
             await Dismount();
     }
 
-    protected async Task<Vector3> PointOnFloor(Vector3 destination, bool allowUnlandable, float radius)
+    protected async Task<Vector3> PointOnFloor(Vector3 destination, float radius)
     {
         await WaitNavmesh();
-        var point = IPCHelper.PointOnFloor(destination, allowUnlandable, radius);
+        var adj = destination - (Vector3.Normalize(destination - Svc.Player?.Position ?? default) * radius);
+        var point = IPCHelper.NearestPoint(adj, radius, 1024);
         ErrorIf(point == null, $"Unable to find point near {destination}");
         return point.Value;
     }

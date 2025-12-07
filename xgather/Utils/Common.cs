@@ -82,6 +82,8 @@ internal static unsafe partial class Util
 {
     private static readonly delegate* unmanaged<EventFramework*, uint> _getActiveGatheringEventHandlerId = (delegate* unmanaged<EventFramework*, uint>)Svc.SigScanner.ScanText("E8 ?? ?? ?? ?? 39 43 20");
 
+    public static unsafe T ReadField<T>(void* addr, int off) where T : unmanaged => *(T*)((nint)addr + off);
+
     public static bool IsGatherer => Svc.Player?.ClassJob.RowId is 16 or 17 or 18;
 
     internal static string ShowV3(Vector3 vec) => $"[{vec.X:F2}, {vec.Y:F2}, {vec.Z:F2}]";
@@ -163,6 +165,7 @@ internal static unsafe partial class Util
     public static string ItemName(uint itemId) => Item(itemId).Name.ToString();
 
     public static GameObject* Player() => GameObjectManager.Instance()->Objects.IndexSorted[0].Value;
+    public static Vector3 PlayerPosition() => Player() is var p && p != null ? p->Position : default;
 
     public static bool PlayerInRange(Vector3 dest, float dist)
     {

@@ -1,15 +1,19 @@
-using Dalamud.Bindings.ImGui;
-using FFXIVClientStructs.FFXIV.Client.Game.WKS;
-using FFXIVClientStructs.FFXIV.Client.System.Framework;
-using FFXIVClientStructs.FFXIV.Common.Component.BGCollision;
-using Lumina.Excel.Sheets;
 using System;
-using System.Collections.Generic;
-using System.Numerics;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.Threading;
 
 namespace xgather;
 
-public unsafe class Debug : IDisposable
+[StructLayout(LayoutKind.Explicit, Size = 0x98)]
+public unsafe struct TriggerBoxClip
+{
+    [FieldOffset(0x08)] public void* Field8;
+    [FieldOffset(0x28)] public void* Field28;
+    [FieldOffset(0x40)] public void* Field40;
+}
+
+public class Debug : IDisposable
 {
     //private readonly Hook<ActionManager.Delegates.UseAction> _useActionHook;
     //private readonly Hook<ActionManager.Delegates.UseActionLocation> _useActionLocationHook;
@@ -24,11 +28,26 @@ public unsafe class Debug : IDisposable
 
     //private delegate* unmanaged<EventFramework*, uint> _getUnknownId;
 
-    private delegate* unmanaged<BGCollisionModule*, RaycastHit*, Vector3*, Vector3*, float, int, byte> _raycastSimple;
+    //private delegate* unmanaged<BGCollisionModule*, RaycastHit*, Vector3*, Vector3*, float, int, byte> _raycastSimple;
+
+    //private delegate void SetBgpartActive(Collider* collider, byte active);
+    //private readonly Hook<SetBgpartActive> _setBgPartActive;
+
+    //private delegate void* TestHook(void* thisPtr, void* dataPtr);
+    //private readonly Hook<TestHook> _testHook;
 
     public Debug()
     {
-        _raycastSimple = (delegate* unmanaged<BGCollisionModule*, RaycastHit*, Vector3*, Vector3*, float, int, byte>)Svc.SigScanner.ScanText("E8 ?? ?? ?? ?? 84 C0 75 58 FF C3");
+        baseAddress = Process.GetCurrentProcess().MainModule!.BaseAddress;
+
+        //_raycastSimple = (delegate* unmanaged<BGCollisionModule*, RaycastHit*, Vector3*, Vector3*, float, int, byte>)Svc.SigScanner.ScanText("E8 ?? ?? ?? ?? 84 C0 75 58 FF C3");
+
+        //_setBgPartActive = Svc.Hook.HookFromSignature<SetBgpartActive>("E8 ?? ?? ?? ?? 48 8B CB E8 ?? ?? ?? ?? 48 8B 8B ?? ?? ?? ?? 8B D0", SetBgPartActiveDetour);
+        //_setBgPartActive.Enable();
+
+        //_testHook = Svc.Hook.HookFromSignature<TestHook>("E8 ?? ?? ?? ?? 8B 95 ?? ?? ?? ?? C1 E2 0C ", TestDetour);
+        //_testHook.Enable();
+
         //_useActionHook = Svc.Hook.HookFromAddress<ActionManager.Delegates.UseAction>(ActionManager.Addresses.UseAction.Value, UseActionDetour);
         //_useActionLocationHook = Svc.Hook.HookFromAddress<ActionManager.Delegates.UseActionLocation>(ActionManager.Addresses.UseActionLocation.Value, UseActionLocationDetour);
         //_resolveTargetHook = Svc.Hook.HookFromSignature<ResolveTargetDelegate>("48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 83 EC 20 48 8B 35 ?? ?? ?? ?? 49 8B F8", ResolveTargetDetour);
@@ -47,6 +66,61 @@ public unsafe class Debug : IDisposable
         //_canUse2Hook.Enable();
         //_canUseGatheringHook.Enable();
     }
+    private CancellationTokenSource src = new();
+    public void Draw() { }
+
+    public void Dispose()
+    {
+        GC.SuppressFinalize(this);
+        src.Cancel();
+        src.Dispose();
+
+        //_setBgPartActive.Dispose();
+        //_testHook?.Dispose();
+
+        //_useActionHook.Dispose();
+        //_useActionLocationHook.Dispose();
+        //_resolveTargetHook.Dispose();
+        //_getLosHook.Dispose();
+        //_canUse2Hook.Dispose();
+        //_canUseGatheringHook.Dispose();
+        // cleanup hooks...
+    }
+
+    private nint baseAddress;
+
+    /*
+    private void* TestDetour(void* thisPtr, void* dataPtr)
+    {
+        var res = _testHook.Original(thisPtr, dataPtr);
+        for (var i = 0; i < 6; i++)
+        {
+            var j = i;
+            var inst1 = (ILayoutInstance*)Util.ReadField<ulong>(thisPtr, 0x48 + (j * 8));
+            if (inst1 == null)
+                break;
+            Svc.Log.Debug($"animator @ {(nint)thisPtr:X} instance {j} type {inst1->Id.Type}");
+        }
+
+        return res;
+    }
+
+    private void ShowVt(void* ptr, string label)
+    {
+        if (ptr == null)
+            return;
+        var vt = *(nint*)ptr;
+        Svc.Log.Debug($"vtable {label} = {vt - baseAddress:X} (object = {(nint)ptr:X})");
+    }
+
+    private void SetBgPartActiveDetour(Collider* collider, byte active)
+    {
+        _setBgPartActive.Original(collider, active);
+        if (collider->LayoutObjectId == 0)
+            return;
+        var s = active == 1 ? "enabling" : "disabling";
+        Svc.Log.Debug($"bgpart: {s} {collider->LayoutObjectId:X}");
+    }
 
     public struct MissionData
     {
@@ -56,7 +130,7 @@ public unsafe class Debug : IDisposable
         public bool Gold;
     }
 
-    private bool _showFishRay = true;
+    private bool _showFishRay = false;
 
     private static Vector3 TransformVecByMatrix(Vector3 a2, Matrix4x4 a3)
     {
@@ -71,15 +145,88 @@ public unsafe class Debug : IDisposable
         };
     }
 
-    public const uint Success = 0xFF00FF00;
+    public const uint Success = 0xFFD4AA2F;
     public const uint Failure = 0xFF00FFFF;
+    public const uint Miss = 0xFF0000FF;
 
-    public unsafe void Draw()
+    private static void DrawLine(Vector3 a, Vector3 b, uint color)
+    {
+        Svc.GameGui.WorldToScreen(a, out var posScreen);
+        Svc.GameGui.WorldToScreen(b, out var normalScreen);
+        ImGui.GetBackgroundDrawList().AddLine(posScreen, normalScreen, color, 3);
+    }
+
+    private static void DrawTri(Vector3 a, Vector3 b, Vector3 c, uint color)
+    {
+        if (Svc.GameGui.WorldToScreen(a, out var pA) && Svc.GameGui.WorldToScreen(b, out var pB) && Svc.GameGui.WorldToScreen(c, out var pC))
+            ImGui.GetBackgroundDrawList().AddTriangleFilled(pA, pB, pC, color);
+    }
+
+    private static void DrawPoint(Vector3 a, uint color, Vector3? normal = null, float radius = 0.3f)
+    {
+        var center = a;
+        int numSegments = 40;
+
+        if (normal is not { } z)
+            return;
+
+        var za = Vector3.Abs(z);
+        Vector3 x0 = za.X > za.Y ? za.Y > za.Z ? new(0, 0, 1) : new(0, 1, 0) : new(1, 0, 0);
+        var y = Vector3.Normalize(Vector3.Cross(z, x0));
+        var x = Vector3.Normalize(Vector3.Cross(y, z));
+
+        var worldMat = Matrix4x4.CreateWorld(a, x, z);
+
+        var prev = new Vector3(0, 0, radius);
+        for (var i = 1; i <= numSegments; i++)
+        {
+            var dirRad = i * (2 * MathF.PI) / numSegments;
+            var dirVec = new Vector3(MathF.Sin(dirRad), 0, MathF.Cos(dirRad)) * radius;
+            var curr = dirVec;
+            var pCenter = worldMat.Translation;
+            var pB = Vector3.Transform(dirVec, worldMat);
+            var pC = Vector3.Transform(prev, worldMat);
+            DrawTri(pCenter, pB, pC, 0x80000000 + (color & 0xFFFFFF));
+            DrawLine(pB, pC, color);
+            prev = curr;
+        }
+    }
+
+    private static Vector3 GetNormal(RaycastHit hit) => Vector3.Normalize(Vector3.Cross(hit.V2 - hit.V1, hit.V3 - hit.V1));
+
+    public void Draw()
+    {
+        DrawDD();
+        DrawFish();
+    }
+
+    private void DrawDD()
+    {
+        return;
+
+        var layout = LayoutWorld.Instance()->ActiveLayout;
+
+        // there is one EventRange for each room and more or less one for each hallway bend
+        // Priority field is used to associate boxes with rooms/hallways
+        if (layout->InstancesByType.TryGetValue(InstanceType.EventRange, out var rangesPtr, false))
+        {
+            foreach (var inst in rangesPtr.Value->Values)
+            {
+                var loc = inst.Value->GetTranslationImpl();
+                var trans = inst.Value->GetTransformImpl();
+                DrawPoint(*loc, 0xFF0000FF, new Vector3(0, 1, 0), radius: trans->Scale.X);
+                if (Svc.GameGui.WorldToScreen(*loc, out var p))
+                    ImGui.GetBackgroundDrawList().AddText(p, 0xFFFFFFFF, inst.Value->Id.InstanceKey.ToString("X"));
+            }
+        }
+    }
+
+    private void DrawFish()
     {
         if (Svc.ClientState.LocalPlayer is not { } player)
             return;
 
-        ImGui.Checkbox("Show fishing spot raycast", ref _showFishRay);
+        //ImGui.Checkbox("Show fishing spot raycast", ref _showFishRay);
 
         if (!_showFishRay)
             return;
@@ -109,19 +256,6 @@ public unsafe class Debug : IDisposable
         rodPoint += position;
         rodPoint.Y += 2;
 
-        static void drawVector(Vector3 a, Vector3 b, uint color)
-        {
-            Svc.GameGui.WorldToScreen(a, out var posScreen);
-            Svc.GameGui.WorldToScreen(b, out var normalScreen);
-            ImGui.GetBackgroundDrawList().AddLine(posScreen, normalScreen, color, 3);
-        }
-
-        static void drawPoint(Vector3 a, uint color)
-        {
-            if (Svc.GameGui.WorldToScreen(a, out var pos))
-                ImGui.GetBackgroundDrawList().AddCircle(pos, 10, color, 2f);
-        }
-
         var playerRayOrigin = new Vector3()
         {
             X = position.X,
@@ -129,28 +263,31 @@ public unsafe class Debug : IDisposable
             Z = position.Z
         };
 
-        void drawCast(Vector3 pointA, Vector3? pointB, uint color)
+        void drawCast(RaycastHit pointA, RaycastHit? pointB, uint color, bool point = true)
         {
             if (pointB is { } p)
             {
-                drawVector(playerRayOrigin, pointA, color);
-                drawVector(pointA, p, color);
-                drawPoint(p, color);
+                DrawLine(playerRayOrigin, pointA.Point, color);
+                DrawLine(pointA.Point, p.Point, color);
+                if (point)
+                {
+                    DrawPoint(p.Point, color, GetNormal(p));
+                }
             }
             else
             {
-                drawVector(playerRayOrigin, pointA, color);
-                drawPoint(pointA, color);
+                DrawLine(playerRayOrigin, pointA.Point, color);
+                if (point)
+                    DrawPoint(pointA.Point, color, GetNormal(pointA));
             }
         }
 
-        var rodDirection = rodPoint - playerRayOrigin;
-        rodDirection /= rodDirection.Length();
+        var rodDirection = Vector3.Normalize(rodPoint - playerRayOrigin);
 
         if (BGCollisionModule.RaycastMaterialFilter(playerRayOrigin, rodDirection, out var hitInfo, 2))
         {
             // player line of sight is blocked by object
-            drawCast(hitInfo.Point, null, Failure);
+            drawCast(hitInfo, null, Failure);
             return;
         }
 
@@ -166,7 +303,7 @@ public unsafe class Debug : IDisposable
             // point is fishable
             if ((castHitInfo.Material & 0x8000) != 0)
             {
-                drawCast(rodPoint, castHitInfo.Point, Success);
+                drawCast(new() { Point = rodPoint }, castHitInfo, Success);
                 return;
             }
 
@@ -178,13 +315,17 @@ public unsafe class Debug : IDisposable
 
                 if (_raycastSimple(Framework.Instance()->BGCollisionModule, &castHitInfo2, &extraHitTest, &fishRayNormalized, fishRayLen, 1) == 1)
                 {
-                    drawCast(rodPoint, castHitInfo2.Point, (castHitInfo2.Material & 0x8000) == 0 ? Failure : Success);
+                    drawCast(new() { Point = rodPoint }, castHitInfo2, (castHitInfo2.Material & 0x8000) == 0 ? Failure : Success);
                     return;
                 }
                 return;
             }
 
-            drawCast(rodPoint, castHitInfo.Point, Failure);
+            drawCast(new() { Point = rodPoint }, castHitInfo, Failure);
+        }
+        else
+        {
+            drawCast(new() { Point = rodPoint }, new() { Point = rodPoint + fishRay }, Miss, false);
         }
 
         //if (Svc.TextureProvider.GetFromGame("ui/uld/WKSMission_hr1.tex") is { } tex)
@@ -335,17 +476,4 @@ public unsafe class Debug : IDisposable
         return x;
     }
     */
-
-    public void Dispose()
-    {
-        GC.SuppressFinalize(this);
-
-        //_useActionHook.Dispose();
-        //_useActionLocationHook.Dispose();
-        //_resolveTargetHook.Dispose();
-        //_getLosHook.Dispose();
-        //_canUse2Hook.Dispose();
-        //_canUseGatheringHook.Dispose();
-        // cleanup hooks...
-    }
 }

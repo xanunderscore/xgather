@@ -70,7 +70,7 @@ public class OneItem : GatherBase
             groundPoint = point.Position;
         else
         {
-            groundPoint = await PointOnFloor(point.Position with { Y = point.Position.Y + 5 }, false, 1);
+            groundPoint = await PointOnFloor(point.Position, 3.5f);
             tolerance = 1;
         }
 
@@ -97,7 +97,7 @@ public class OneItem : GatherBase
         if (Svc.Condition[ConditionFlag.Diving])
             guess = gpBase.WorldPos.WithY(Svc.Player!.Position.Y);
         else
-            guess = await PointOnFloor(gpBase.WorldPos.WithY(1024), false, 10);
+            guess = await PointOnFloor(gpBase.WorldPos.WithY(0), 10);
 
         await MoveTo(guess, 10, true, true, interrupt: () => find() != null);
 
@@ -111,7 +111,7 @@ public class OneItem : GatherBase
         if (Svc.Condition[ConditionFlag.Diving])
             surveyFloor = new Vector3(surveyPoint.X, Svc.Player!.Position.Y, surveyPoint.Y);
         else
-            surveyFloor = await PointOnFloor(new Vector3(surveyPoint.X, 1024, surveyPoint.Y), false, 10);
+            surveyFloor = await PointOnFloor(surveyPoint.WithY(0), 10);
 
         await MoveTo(surveyFloor, 10, true, true, interrupt: () => find() != null);
 

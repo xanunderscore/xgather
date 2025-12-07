@@ -3,6 +3,7 @@ using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
+using Dalamud.Plugin.Ipc.Exceptions;
 using Dalamud.Plugin.Services;
 using Lumina.Excel.Sheets;
 using Lumina.Extensions;
@@ -58,7 +59,14 @@ public sealed class Plugin : IDalamudPlugin
     {
         WindowSystem.RemoveAllWindows();
         Svc.OnDispose();
-        IPCHelper.PathStop();
+        try
+        {
+            IPCHelper.PathStop();
+        }
+        catch (IpcNotReadyError)
+        {
+
+        }
         Svc.CommandManager.RemoveHandler("/xgather");
         Svc.CommandManager.RemoveHandler("/xgatherfish");
         Svc.Framework.Update -= Tick;
@@ -131,7 +139,17 @@ public sealed class Plugin : IDalamudPlugin
         DoGatherItem(args, it.Value, itemQuantity);
     }
 
-    public static Item? FindItemByName(string query) => Svc.ExcelSheet<Item>().Where(i => i.Name.ToString().Contains(query, StringComparison.InvariantCultureIgnoreCase)).FirstOrNull();
+    public static Item? FindItemByName(string query) => Svc.ExcelSheet<Item>().Select(i => (i, ScoreMatch(i, query))).OrderByDescending(i => i.Item2).FirstOrNull(i => i.Item2 > 0)?.i;
+
+    private static int ScoreMatch(Item i, string query)
+    {
+        var iname = i.Name.ToString();
+        var matches = iname.Contains(query, StringComparison.InvariantCultureIgnoreCase);
+
+        return matches
+            ? iname.Length == query.Length ? 2 : 1
+            : 0;
+    }
 
     private void DoGatherItem(string args, Item it, uint quantity)
     {

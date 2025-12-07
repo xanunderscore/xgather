@@ -36,7 +36,7 @@ public class Svc
     public static ItemDatabase ItemDB { get; private set; }
 #nullable enable
 
-    public static IPlayerCharacter? Player => ClientState.LocalPlayer;
+    public static IPlayerCharacter? Player => ObjectTable.LocalPlayer;
 
     internal static bool IsInitialized = false;
 

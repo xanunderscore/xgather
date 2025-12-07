@@ -77,7 +77,7 @@ public class OccultTreasure : AutoTask
 
         await MoveDirectlyTo(AetherytePositions[0], 4);
 
-        var aeth = Svc.ObjectTable.FirstOrDefault(t => t.DataId == 0x1EBDC8);
+        var aeth = Svc.ObjectTable.FirstOrDefault(t => t.BaseId == 0x1EBDC8);
         ErrorIf(aeth == null, "Aetheryte is missing??");
 
         Util.InteractWithObject(aeth);

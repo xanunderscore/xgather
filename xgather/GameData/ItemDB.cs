@@ -164,8 +164,8 @@ public class ItemDatabase
         var px = (int)obj.Position.X;
         var py = (int)obj.Position.Y;
         var pz = (int)obj.Position.Z;
-        var key = $"0x{obj.DataId:X4} {px} {py} {pz}";
-        KnownNodes.TryAdd(key, new(obj.DataId, obj.Position, null));
+        var key = $"0x{obj.BaseId:X4} {px} {py} {pz}";
+        KnownNodes.TryAdd(key, new(obj.BaseId, obj.Position, null));
     }
 
     public void FillFromGameData()

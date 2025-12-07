@@ -69,7 +69,7 @@ internal class Moon : GatherBase
             return nearby;
 
         var surveyPoint = await Survey();
-        var surveyFloor = await PointOnFloor(new Vector3(surveyPoint.X, 1024, surveyPoint.Y), false, 10);
+        var surveyFloor = await PointOnFloor(new Vector3(surveyPoint.X, 0, surveyPoint.Y), 10);
         await MoveTo(surveyFloor, 10, interrupt: () => find() != null);
         if (find() is { } s)
             return s;

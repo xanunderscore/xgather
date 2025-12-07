@@ -9,6 +9,7 @@ public static class IPCHelper
     private static readonly ICallGateSubscriber<object> _pathStop;
     private static readonly ICallGateSubscriber<object> _pathfindCancelAll;
     private static readonly ICallGateSubscriber<Vector3, bool, float, Vector3?> _pointOnFloor;
+    private static readonly ICallGateSubscriber<Vector3, float, float, Vector3?> _nearestPoint;
     private static readonly ICallGateSubscriber<bool> _pathIsRunning;
     private static readonly ICallGateSubscriber<bool> _pathfindInProgress;
     private static readonly ICallGateSubscriber<bool> _navmeshIsReady;
@@ -18,6 +19,7 @@ public static class IPCHelper
     public static void PathStop() => _pathStop.InvokeAction();
     public static void PathfindCancel() => _pathfindCancelAll.InvokeAction();
     public static Vector3? PointOnFloor(Vector3 pos, bool allowUnlandable, float radius) => _pointOnFloor.InvokeFunc(pos, allowUnlandable, radius);
+    public static Vector3? NearestPoint(Vector3 pos, float halfExtentXZ, float halfExtentY) => _nearestPoint.InvokeFunc(pos, halfExtentXZ, halfExtentY);
     public static bool PathIsRunning() => _pathIsRunning.InvokeFunc();
     public static bool PathfindInProgress() => _pathfindInProgress.InvokeFunc();
     public static bool NavmeshIsReady() => _navmeshIsReady.InvokeFunc();
@@ -30,6 +32,7 @@ public static class IPCHelper
         _pathfindCancelAll = Svc.PluginInterface.GetIpcSubscriber<object>("vnavmesh.Nav.PathfindCancelAll");
         _pathIsRunning = Svc.PluginInterface.GetIpcSubscriber<bool>("vnavmesh.Path.IsRunning");
         _pointOnFloor = Svc.PluginInterface.GetIpcSubscriber<Vector3, bool, float, Vector3?>("vnavmesh.Query.Mesh.PointOnFloor");
+        _nearestPoint = Svc.PluginInterface.GetIpcSubscriber<Vector3, float, float, Vector3?>("vnavmesh.Query.Mesh.NearestPoint");
         _pathfindInProgress = Svc.PluginInterface.GetIpcSubscriber<bool>("vnavmesh.Nav.PathfindInProgress");
         _navmeshIsReady = Svc.PluginInterface.GetIpcSubscriber<bool>("vnavmesh.Nav.IsReady");
         _pathfindQueue = Svc.PluginInterface.GetIpcSubscriber<uint>("vnavmesh.Nav.PathfindNumQueued");

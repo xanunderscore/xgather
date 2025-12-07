@@ -3,4 +3,7 @@
     <ItemGroup>
         <EmbeddedResource Include="resources/*.json" />
     </ItemGroup>
+    <ItemGroup>
+      <PackageReference Include="System.Reactive" Version="6.1.0" />
+    </ItemGroup>
 </Project>

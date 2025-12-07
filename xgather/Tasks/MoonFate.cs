@@ -13,7 +13,7 @@ public class MoonFate : AutoTask
     {
         while (Util.PlayerHasStatus(StatusID.FATEParticipant))
         {
-            var obj = Svc.ObjectTable.Where(x => x.ObjectKind is ObjectKind.EventObj && x.IsTargetable && x.DataId < 0x1EBDB0).MinBy(obj => obj.Position.DistanceFromPlayerXZ());
+            var obj = Svc.ObjectTable.Where(x => x.ObjectKind is ObjectKind.EventObj && x.IsTargetable && x.BaseId < 0x1EBDB0).MinBy(obj => obj.Position.DistanceFromPlayerXZ());
             if (obj == null)
                 return;
 
