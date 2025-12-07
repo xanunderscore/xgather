@@ -97,7 +97,7 @@ internal class MoonGel : AutoTask
 
         await MoveTo(new(-461.488f, 40.037f, -66.527f), 3.5f, mount: true, dismount: true);
 
-        var turnin = Svc.ObjectTable.Where(t => t.DataId == 0x1EBD9A && t.IsTargetable).MinBy(t => t.Position.DistanceFromPlayerXZ());
+        var turnin = Svc.ObjectTable.Where(t => t.BaseId == 0x1EBD9A && t.IsTargetable).MinBy(t => t.Position.DistanceFromPlayerXZ());
         ErrorIf(turnin == null, "No collection point!");
 
         Util.InteractWithObject(turnin);

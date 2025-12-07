@@ -88,7 +88,7 @@ public class OneItem : GatherBase
         using var scope = BeginScope("FindPoint");
 
         IGameObject? find() =>
-            Svc.ObjectTable.Where(obj => obj.ObjectKind is ObjectKind.GatheringPoint && obj.IsTargetable && gpBase.Nodes.Contains(obj.DataId)).MinBy(obj => obj.Position.DistanceFromPlayerXZ());
+            Svc.ObjectTable.Where(obj => obj.ObjectKind is ObjectKind.GatheringPoint && obj.IsTargetable && gpBase.Nodes.Contains(obj.BaseId)).MinBy(obj => obj.Position.DistanceFromPlayerXZ());
 
         if (find() is { } nearby)
             return nearby;

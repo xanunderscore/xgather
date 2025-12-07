@@ -63,7 +63,7 @@ public static class ActionExtensions
         };
     }
 
-    public static int GetActionID(this GatheringAction act) => GetActionID(act, Svc.ClientState.LocalPlayer?.ClassJob.RowId ?? 0);
+    public static int GetActionID(this GatheringAction act) => GetActionID(act, Svc.PlayerState.ClassJob.RowId);
 }
 
 public enum StatusID : uint

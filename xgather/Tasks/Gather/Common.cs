@@ -119,7 +119,7 @@ public abstract class GatherBase : AutoTask
         if (status.IntegrityCur == 0)
             return GatheringAction.None;
 
-        var gp = Svc.ClientState.LocalPlayer?.CurrentGp ?? 0;
+        var gp = Svc.Player?.CurrentGp ?? 0;
 
         // if max quality, start collecting (TODO: we actually want maximum collectability for some items even though the third breakpoint is lower than 1000)
         if (status.QualityCur >= status.Breakpoint3)

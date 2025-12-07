@@ -20,6 +20,7 @@ public class Svc
     [PluginService] public static IPluginLog Log { get; private set; }
     [PluginService] public static IGameGui GameGui { get; private set; }
     [PluginService] public static IClientState ClientState { get; private set; }
+    [PluginService] public static IPlayerState PlayerState { get; private set; }
     [PluginService] public static ITargetManager TargetManager { get; private set; }
     [PluginService] public static IFramework Framework { get; private set; }
     [PluginService] public static ICondition Condition { get; private set; }
