@@ -76,6 +76,14 @@ public enum StatusID : uint
     SharkEye = 1167,
     FATEParticipant = 2577,
     EurekaMoment = 2765,
+
+    GiftOfLand = 2666, // boon +10%
+    GiftOfLandII = 759, // boon +30%
+
+    GatherersBounty = 2667, // boon yield +1
+
+    YieldUp = 219, // permanent gathering yield +1/+2 (same status)
+    YieldUpII = 1286, // temporary yield +N
 }
 
 internal static unsafe partial class Util

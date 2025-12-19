@@ -36,6 +36,64 @@ public abstract class GatherBase : AutoTask
         }
     }
 
+    protected async Task DoTimedGather(uint itemId) => await DoTimedGather(() => itemId);
+
+    protected async Task DoTimedGather(Func<uint> getItem)
+    {
+        await WaitWhile(() => !Util.IsGatheringAddonReady(), "GatherStart");
+
+        var iid = getItem();
+
+        var iters = 0;
+        while (Svc.Condition[ConditionFlag.Gathering])
+        {
+            ErrorIf(iters++ > 100000, "too many iterations");
+            if (Util.GatheringIntegrityLeft() == 0)
+            {
+                await NextFrame(10);
+                continue;
+            }
+
+            var act = NextTimedAction();
+            if (act == default)
+                break;
+
+            var aid = act.GetActionID();
+            Log($"time to use action {aid}");
+            if (aid < 0)
+                Util.GatheringSelectItem(iid);
+            else
+                Util.UseAction((uint)aid, 0xE0000000);
+            await WaitFlipflop(() => Svc.Condition[ConditionFlag.ExecutingGatheringAction], "Gather");
+        }
+    }
+
+    private GatheringAction NextTimedAction()
+    {
+        var gp = Svc.Player?.CurrentGp ?? 0;
+
+        var haveGift = Util.PlayerHasStatus(StatusID.GiftOfLandII);
+        var haveBY = Util.PlayerHasStatus(StatusID.YieldUpII);
+        var haveKY = Util.PlayerHasStatus(StatusID.YieldUp);
+        var haveBoon = Util.PlayerHasStatus(StatusID.GatherersBounty);
+
+        if (!haveGift && gp >= 100)
+            return GatheringAction.Boon2;
+
+        if (!haveBY && gp >= 100)
+            return GatheringAction.BountifulYield;
+
+        if (!haveBoon && gp >= 200)
+            return GatheringAction.BoonYield;
+
+        if (!haveKY && gp >= 500)
+            return GatheringAction.Yield2;
+
+        return GatheringAction.Gather;
+    }
+
+    protected async Task DoNormalGather(uint itemId) => await DoNormalGather(() => itemId);
+
     protected async Task DoNormalGather(Func<uint?> getItem)
     {
         await WaitWhile(() => !Util.IsGatheringAddonReady(), "GatherStart");
@@ -56,8 +114,6 @@ public abstract class GatherBase : AutoTask
             await WaitWhile(() => Svc.Condition[ConditionFlag.ExecutingGatheringAction], "GatherItemFinish");
         }
     }
-
-    protected async Task DoNormalGather(uint itemId) => await DoNormalGather(() => itemId);
 
     protected record struct GatheringMasterpiece
     (
@@ -100,7 +156,7 @@ public abstract class GatherBase : AutoTask
             while (true)
             {
                 ErrorIf(iters++ > 100000, "too many iterations");
-                var act = GetNextAction();
+                var act = NextCollectibleAction();
                 if (act == default)
                     break;
 
@@ -112,7 +168,7 @@ public abstract class GatherBase : AutoTask
         }
     }
 
-    private GatheringAction GetNextAction()
+    private GatheringAction NextCollectibleAction()
     {
         var status = GetCollectableStatus();
 
@@ -158,6 +214,7 @@ public abstract class GatherBase : AutoTask
 
             unsafe
             {
+                // lockout for collectible actions doesn't exactly correspond with animation lock
                 var ev = Util.GetGatheringEventHandler();
                 return ev == null || ev->Scene != 2;
             }

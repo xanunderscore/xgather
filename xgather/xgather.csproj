@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Dalamud.NET.Sdk/13.0.0">
+<Project Sdk="Dalamud.NET.Sdk/14.0.1">
     <ItemGroup>
         <EmbeddedResource Include="resources/*.json" />
-    </ItemGroup>
-    <ItemGroup>
-      <PackageReference Include="System.Reactive" Version="6.1.0" />
     </ItemGroup>
 </Project>

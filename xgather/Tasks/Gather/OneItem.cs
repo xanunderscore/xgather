@@ -134,6 +134,8 @@ public class OneItem : GatherBase
             await DoSpearfish();
         else if (IsCollectable)
             await DoCollectableGather(itemId);
+        else if (Util.GetNextAvailable(obj.BaseId) != null)
+            await DoTimedGather(itemId);
         else
             await DoNormalGather(itemId);
     }
