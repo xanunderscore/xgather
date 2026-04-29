@@ -266,7 +266,7 @@ public abstract class AutoTask
     {
         await WaitNavmesh();
         var adj = destination - (Vector3.Normalize(destination - Svc.Player?.Position ?? default) * radius);
-        var point = IPCHelper.NearestPoint(adj, radius, 1024);
+        var point = IPCHelper.PointOnFloor(adj with { Y = 1024 }, false, radius);
         ErrorIf(point == null, $"Unable to find point near {destination}");
         return point.Value;
     }

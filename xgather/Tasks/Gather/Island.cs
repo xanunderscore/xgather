@@ -17,7 +17,7 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using xgather.GameData;
 using xgather.Utils;
-using ValueType = FFXIVClientStructs.FFXIV.Component.GUI.ValueType;
+using ValueType = FFXIVClientStructs.FFXIV.Component.GUI.AtkValueType;
 
 namespace xgather.Tasks.Gather;
 

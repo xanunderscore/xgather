@@ -25,10 +25,10 @@ internal class Moon : GatherBase
         ErrorIf(mission <= 0, "No active mission");
         var unit = Svc.ExcelRow<WKSMissionUnit>(mission);
         var todo = unit.MissionToDo.First().Value;
-        var marker = Svc.ExcelRow<WKSMissionMapMarker>(todo.Unknown13);
+        var marker = todo.MapMarker.Value;
 
-        _gatherCenter = new(marker.Unknown1 - 1024, marker.Unknown2 - 1024);
-        _gatherRadius = marker.Unknown3;
+        _gatherCenter = new(marker.X - 1024, marker.Y - 1024);
+        _gatherRadius = marker.Radius;
 
         _requiredItems = [];
 

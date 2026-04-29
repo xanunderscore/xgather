@@ -67,7 +67,10 @@ public class Debug : IDisposable
         //_canUseGatheringHook.Enable();
     }
     private CancellationTokenSource src = new();
-    public void Draw() { }
+    public unsafe void Draw()
+    {
+        //ImGui.TextUnformatted($"CharacterManager: {(nint)CharacterManager.Instance():X}");
+    }
 
     public void Dispose()
     {
