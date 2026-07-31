@@ -3,12 +3,13 @@ using Dalamud.Interface;
 using Dalamud.Interface.Components;
 using Dalamud.Interface.Utility.Raii;
 using Dalamud.Interface.Windowing;
+using System.Runtime.CompilerServices;
 using xgather.Tasks;
 using xgather.Tasks.Gather;
 
 namespace xgather.UI.Windows;
 
-public class Overlay : Window
+public unsafe class Overlay : Window
 {
     private readonly Automation _auto;
     private readonly Debug? _debugHelper;
@@ -48,9 +49,10 @@ public class Overlay : Window
         using (ImRaii.Disabled(!_auto.Running))
             if (ImGui.Button("Stop"))
                 _auto.Stop();
-        if (_debugHelper != null)
-            DrawDebug();
+        DrawDebug();
     }
+
+    internal static ref byte ActiveRender => ref Unsafe.AddByteOffset(ref Unsafe.AsRef<byte>(FFXIVClientStructs.FFXIV.Client.Graphics.Render.Manager.Instance()), 0x38358);
 
     private void DrawDebug()
     {
@@ -77,11 +79,11 @@ public class Overlay : Window
             if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
                 ImGui.SetTooltip("Collect missing items for current and next cycle on Island Sanctuary (currently does nothing)");
 
-            if (Svc.ClientState.TerritoryType == 1252)
+            if (Svc.ExcelRow<Lumina.Excel.Sheets.TerritoryType>(Svc.ClientState.TerritoryType).TerritoryIntendedUse.RowId == 61)
             {
                 ImGui.SameLine();
                 if (ImGuiComponents.IconButton(FontAwesomeIcon.BoxOpen))
-                    _auto.Start(new OccultTreasure());
+                    _auto.Start(new OccultTreasure(Svc.ClientState.TerritoryType));
             }
 
             if (Svc.ClientState.TerritoryType == 1237)
@@ -90,8 +92,16 @@ public class Overlay : Window
                 if (ImGuiComponents.IconButton(FontAwesomeIcon.Snowflake))
                     _auto.Start(new MoonGel());
             }
+
+            ImGui.SameLine();
+            ref var activeRender = ref ActiveRender;
+            var current = activeRender != 0;
+
+            if (ImGui.Checkbox("Disable render", ref current))
+                activeRender = current ? (byte)1 : (byte)0;
         }
 
+        //tn.DrawRouteSelector();
         _debugHelper?.Draw();
         _auto.CurrentTask?.DrawDebug();
     }

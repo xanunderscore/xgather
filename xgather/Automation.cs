@@ -265,7 +265,7 @@ public abstract class AutoTask
     protected async Task<Vector3> PointOnFloor(Vector3 destination, float radius)
     {
         await WaitNavmesh();
-        var adj = destination - (Vector3.Normalize(destination - Svc.Player?.Position ?? default) * radius);
+        var adj = destination - (Vector3.Normalize(destination - (Svc.Player?.Position ?? default)) * radius);
         var point = IPCHelper.PointOnFloor(adj with { Y = 1024 }, false, radius);
         ErrorIf(point == null, $"Unable to find point near {destination}");
         return point.Value;

@@ -69,7 +69,6 @@ public class Debug : IDisposable
     private CancellationTokenSource src = new();
     public unsafe void Draw()
     {
-        //ImGui.TextUnformatted($"CharacterManager: {(nint)CharacterManager.Instance():X}");
     }
 
     public void Dispose()

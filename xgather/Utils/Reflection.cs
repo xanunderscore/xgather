@@ -1,4 +1,3 @@
-using Dalamud.Plugin;
 using System.Collections.Generic;
 using System.Reflection;
 
@@ -6,7 +5,7 @@ namespace xgather;
 
 public static class Reflection
 {
-    private static IDalamudPlugin? GetDalamudPlugin(string internalName)
+    private static object? GetDalamudPlugin(string internalName)
     {
         var dalamudAssembly = Svc.PluginInterface.GetType().Assembly;
         if (dalamudAssembly.GetType("Dalamud.Plugin.Internal.PluginManager", true) is not { } pm)
@@ -22,7 +21,7 @@ public static class Reflection
             var name = plugin.GetType().GetProperty("InternalName")?.GetValue(plugin) as string;
             if (name == internalName)
             {
-                return plugin.GetType().GetField("instance", BindingFlags.NonPublic | BindingFlags.Instance)?.GetValue(plugin) as IDalamudPlugin;
+                return plugin.GetType().GetField("instance", BindingFlags.NonPublic | BindingFlags.Instance)?.GetValue(plugin);
             }
         }
         return null;
