@@ -79,7 +79,7 @@ public unsafe class Overlay : Window
             if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
                 ImGui.SetTooltip("Collect missing items for current and next cycle on Island Sanctuary (currently does nothing)");
 
-            if (Svc.ExcelRow<Lumina.Excel.Sheets.TerritoryType>(Svc.ClientState.TerritoryType).TerritoryIntendedUse.RowId == 61)
+            if (Svc.ClientState.TerritoryType > 0 && Svc.ExcelRow<Lumina.Excel.Sheets.TerritoryType>(Svc.ClientState.TerritoryType).TerritoryIntendedUse.RowId == 61)
             {
                 ImGui.SameLine();
                 if (ImGuiComponents.IconButton(FontAwesomeIcon.BoxOpen))
